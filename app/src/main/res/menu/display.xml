@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_display_get_url"
+        android:orderInCategory="100"
+        android:title="复制当前网页链接"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/menu_display_add_item"
+        android:orderInCategory="100"
+        android:title="添加当前宝贝"
+        app:showAsAction="never"/>
+</menu>
