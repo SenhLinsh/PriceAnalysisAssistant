@@ -1,7 +1,6 @@
 package com.linsh.paa.model.bean.db;
 
 import io.realm.RealmObject;
-import io.realm.annotations.PrimaryKey;
 
 /**
  * <pre>
@@ -12,7 +11,6 @@ import io.realm.annotations.PrimaryKey;
  */
 public class ItemHistory extends RealmObject {
 
-    @PrimaryKey
     private String id;
     private String price;
     private String title;

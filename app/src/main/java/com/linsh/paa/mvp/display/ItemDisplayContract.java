@@ -7,7 +7,7 @@ import com.linsh.lshapp.common.base.BaseContract;
  * Created by Senh Linsh on 17/4/25.
  */
 
-interface DisplayContract {
+interface ItemDisplayContract {
 
     interface View extends BaseContract.BaseView {
 

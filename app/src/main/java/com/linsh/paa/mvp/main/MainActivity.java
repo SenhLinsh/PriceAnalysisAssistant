@@ -11,12 +11,12 @@ import com.linsh.lshutils.adapter.LshRecyclerViewAdapter;
 import com.linsh.lshutils.utils.LshActivityUtils;
 import com.linsh.lshutils.utils.LshClipboardUtils;
 import com.linsh.lshutils.view.LshColorDialog;
-import com.linsh.paa.mvp.display.ItemDisplayActivity;
 import com.linsh.paa.R;
 import com.linsh.paa.model.action.HttpThrowableConsumer;
 import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.model.bean.db.ItemHistory;
 import com.linsh.paa.model.bean.json.TaobaoDetail;
+import com.linsh.paa.mvp.analysis.AnalysisActivity;
 import com.linsh.paa.task.network.ApiCreator;
 import com.linsh.paa.task.network.Url;
 import com.linsh.paa.tools.BeanHelper;
@@ -51,7 +51,7 @@ public class MainActivity extends BaseViewActivity<MainContract.Presenter>
         mAdapter.setOnItemClickListener(new LshRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                LshActivityUtils.newIntent(ItemDisplayActivity.class)
+                LshActivityUtils.newIntent(AnalysisActivity.class)
                         .putExtra(mAdapter.getData().get(position).getId())
                         .startActivity(getActivity());
             }

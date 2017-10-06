@@ -23,8 +23,8 @@ import io.reactivex.schedulers.Schedulers;
  *    desc   :
  * </pre>
  */
-public class ItemDisplayPresenter extends RealmPresenterImpl<DisplayContract.View>
-        implements DisplayContract.Presenter {
+class ItemDisplayPresenter extends RealmPresenterImpl<ItemDisplayContract.View>
+        implements ItemDisplayContract.Presenter {
 
     @Override
     protected void attachView() {

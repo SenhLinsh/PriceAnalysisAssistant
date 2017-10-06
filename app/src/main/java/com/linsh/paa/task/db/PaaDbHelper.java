@@ -23,6 +23,10 @@ public class PaaDbHelper {
         return realm.where(Item.class).findAllAsync();
     }
 
+    public static RealmResults<ItemHistory> getItemHistories(Realm realm, String itemId) {
+        return realm.where(ItemHistory.class).equalTo("id", itemId).findAllSortedAsync("timestamp");
+    }
+
     public static Flowable<Boolean> saveItemAndHistory(Realm realm, Item item, ItemHistory history) {
         return LshRxUtils.getAsyncTransactionFlowable(realm, new AsyncTransaction<Boolean>() {
             @Override
@@ -31,11 +35,10 @@ public class PaaDbHelper {
                     realm.copyToRealmOrUpdate(item);
                 }
                 if (history != null) {
-                    realm.copyToRealmOrUpdate(history);
+                    realm.copyToRealm(history);
                 }
                 emitter.onNext(true);
             }
         });
     }
-
 }

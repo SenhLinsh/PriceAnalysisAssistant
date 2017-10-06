@@ -24,6 +24,8 @@
         </activity>
         <activity android:name=".mvp.display.ItemDisplayActivity">
         </activity>
+        <activity android:name=".mvp.analysis.AnalysisActivity">
+        </activity>
     </application>
 
 </manifest>

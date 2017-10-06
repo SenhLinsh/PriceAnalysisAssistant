@@ -21,13 +21,13 @@ import com.linsh.lshutils.utils.LshClipboardUtils;
 import com.linsh.paa.R;
 import com.linsh.paa.task.network.Url;
 
-public class ItemDisplayActivity extends BaseViewActivity<DisplayContract.Presenter>
-        implements DisplayContract.View {
+public class ItemDisplayActivity extends BaseViewActivity<ItemDisplayContract.Presenter>
+        implements ItemDisplayContract.View {
 
     private AgentWeb mAgentWeb;
 
     @Override
-    protected DisplayContract.Presenter initPresenter() {
+    protected ItemDisplayContract.Presenter initPresenter() {
         return new ItemDisplayPresenter();
     }
 
