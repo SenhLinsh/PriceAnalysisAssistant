@@ -1,6 +1,7 @@
 package com.linsh.paa.mvp.display;
 
 import android.annotation.TargetApi;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.util.Log;
 import android.view.Menu;
@@ -14,17 +15,22 @@ import android.widget.LinearLayout;
 
 import com.just.library.AgentWeb;
 import com.just.library.ChromeClientCallbackManager;
-import com.linsh.lshapp.common.base.BaseViewActivity;
+import com.linsh.lshapp.common.base.BaseToolbarActivity;
 import com.linsh.lshutils.utils.Basic.LshLogUtils;
 import com.linsh.lshutils.utils.LshActivityUtils;
 import com.linsh.lshutils.utils.LshClipboardUtils;
 import com.linsh.paa.R;
 import com.linsh.paa.task.network.Url;
 
-public class ItemDisplayActivity extends BaseViewActivity<ItemDisplayContract.Presenter>
+public class ItemDisplayActivity extends BaseToolbarActivity<ItemDisplayContract.Presenter>
         implements ItemDisplayContract.View {
 
     private AgentWeb mAgentWeb;
+
+    @Override
+    protected String getToolbarTitle() {
+        return "正在跳转...";
+    }
 
     @Override
     protected ItemDisplayContract.Presenter initPresenter() {
@@ -60,8 +66,20 @@ public class ItemDisplayActivity extends BaseViewActivity<ItemDisplayContract.Pr
                     @Override
                     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
                         String url = request.getUrl().toString();
-                        Log.i("LshLog", "shouldInterceptRequest: request.getUrl() = " + url);
+                        LshLogUtils.i("shouldInterceptRequest: request.getUrl() = " + url);
                         return super.shouldInterceptRequest(view, request);
+                    }
+
+                    @Override
+                    public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                        getSupportActionBar().setTitle("正在跳转...");
+                        super.onPageStarted(view, url, favicon);
+                    }
+
+                    @Override
+                    public void onPageFinished(WebView view, String url) {
+                        super.onPageFinished(view, url);
+                        getSupportActionBar().setTitle(view.getTitle());
                     }
                 })
                 .createAgentWeb()

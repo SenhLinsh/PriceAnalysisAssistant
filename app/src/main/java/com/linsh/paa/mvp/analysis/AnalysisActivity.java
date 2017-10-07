@@ -15,7 +15,7 @@ import com.github.mikephil.charting.formatter.IFillFormatter;
 import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ViewPortHandler;
-import com.linsh.lshapp.common.base.BaseViewActivity;
+import com.linsh.lshapp.common.base.BaseToolbarActivity;
 import com.linsh.lshutils.module.SimpleDate;
 import com.linsh.lshutils.utils.Basic.LshLogUtils;
 import com.linsh.lshutils.utils.LshActivityUtils;
@@ -26,10 +26,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class AnalysisActivity extends BaseViewActivity<AnalysisContract.Presenter>
+public class AnalysisActivity extends BaseToolbarActivity<AnalysisContract.Presenter>
         implements AnalysisContract.View {
 
     private LineChart mLineChart;
+
+    @Override
+    protected String getToolbarTitle() {
+        return "价格分析";
+    }
 
     @Override
     protected AnalysisContract.Presenter initPresenter() {
@@ -120,7 +125,7 @@ public class AnalysisActivity extends BaseViewActivity<AnalysisContract.Presente
             if (lowSet == null) {
                 lowSet = new LineDataSet(lowPrices, "价格");
                 lowSet.setAxisDependency(YAxis.AxisDependency.LEFT);
-                lowSet.setColor(Color.WHITE);
+                lowSet.setColor(Color.rgb(255, 241, 46));
                 lowSet.setCircleColor(Color.rgb(244, 117, 117));
                 lowSet.setCircleRadius(3f);
                 lowSet.setLineWidth(2f);

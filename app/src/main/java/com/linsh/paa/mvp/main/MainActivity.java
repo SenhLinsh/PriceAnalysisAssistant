@@ -7,7 +7,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.linsh.lshapp.common.base.BaseViewActivity;
-import com.linsh.lshutils.adapter.LshRecyclerViewAdapter;
 import com.linsh.lshutils.utils.LshActivityUtils;
 import com.linsh.lshutils.utils.LshClipboardUtils;
 import com.linsh.lshutils.view.LshColorDialog;
@@ -17,6 +16,7 @@ import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.model.bean.db.ItemHistory;
 import com.linsh.paa.model.bean.json.TaobaoDetail;
 import com.linsh.paa.mvp.analysis.AnalysisActivity;
+import com.linsh.paa.mvp.display.ItemDisplayActivity;
 import com.linsh.paa.task.network.ApiCreator;
 import com.linsh.paa.task.network.Url;
 import com.linsh.paa.tools.BeanHelper;
@@ -44,18 +44,19 @@ public class MainActivity extends BaseViewActivity<MainContract.Presenter>
 
     @Override
     protected void initView() {
+        getSupportActionBar().setTitle("价格分析助手");
         RecyclerView rvContent = (RecyclerView) findViewById(R.id.rv_content);
         rvContent.setLayoutManager(new GridLayoutManager(this, 2));
         mAdapter = new MainAdapter();
         rvContent.setAdapter(mAdapter);
-        mAdapter.setOnItemClickListener(new LshRecyclerViewAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(int position) {
+        mAdapter.setOnItemClickListener(position ->
                 LshActivityUtils.newIntent(AnalysisActivity.class)
                         .putExtra(mAdapter.getData().get(position).getId())
-                        .startActivity(getActivity());
-            }
-        });
+                        .startActivity(getActivity()));
+        mAdapter.setOnItemLongClickListener(position ->
+                LshActivityUtils.newIntent(ItemDisplayActivity.class)
+                        .putExtra(mAdapter.getData().get(position).getId())
+                        .startActivity(getActivity()));
     }
 
     @Override
