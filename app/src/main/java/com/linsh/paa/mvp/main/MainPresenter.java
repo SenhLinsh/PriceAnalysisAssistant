@@ -101,7 +101,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                 })
                 .doOnTerminate(() -> getView().dismissLoadingDialog())
                 .doOnError(DefaultThrowableConsumer::showThrowableMsg)
-                .collect(() -> new Result("短时间内宝贝不会有更新的哦"),
+                .collect(() -> new Result(mItems.size() > 0 ? "短时间内宝贝不会有更新的哦" : "请先添加宝贝吧"),
                         (success, result) -> success.setSuccess(result.isSuccess() || success.isSuccess()))
                 .subscribe(result -> {
                     if (!ResultConsumer.handleFailedWithToast(result)) {
