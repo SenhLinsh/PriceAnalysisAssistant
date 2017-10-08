@@ -2,7 +2,6 @@ package com.linsh.paa.mvp.main;
 
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -11,21 +10,11 @@ import com.linsh.lshutils.utils.LshActivityUtils;
 import com.linsh.lshutils.utils.LshClipboardUtils;
 import com.linsh.lshutils.view.LshColorDialog;
 import com.linsh.paa.R;
-import com.linsh.paa.model.action.HttpThrowableConsumer;
 import com.linsh.paa.model.bean.db.Item;
-import com.linsh.paa.model.bean.db.ItemHistory;
-import com.linsh.paa.model.bean.json.TaobaoDetail;
 import com.linsh.paa.mvp.analysis.AnalysisActivity;
 import com.linsh.paa.mvp.display.ItemDisplayActivity;
-import com.linsh.paa.task.network.ApiCreator;
-import com.linsh.paa.task.network.Url;
-import com.linsh.paa.tools.BeanHelper;
-import com.linsh.paa.tools.TaobaoDataParser;
 
 import java.util.List;
-
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends BaseViewActivity<MainContract.Presenter>
         implements MainContract.View {
@@ -69,14 +58,11 @@ public class MainActivity extends BaseViewActivity<MainContract.Presenter>
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.menu_main_add_item) {
-            String itemId = checkItem(LshClipboardUtils.getText());
+            String itemId = mPresenter.checkItem(LshClipboardUtils.getText());
             if (itemId != null) {
-                showTextDialog("检测到剪贴板中的宝贝(Id:" + itemId + "), 是否添加", "添加", new LshColorDialog.OnPositiveListener() {
-                    @Override
-                    public void onClick(LshColorDialog lshColorDialog) {
-                        lshColorDialog.dismiss();
-                        getItem(itemId);
-                    }
+                showTextDialog("检测到剪贴板中的宝贝(Id:" + itemId + "), 是否添加", "添加", lshColorDialog -> {
+                    lshColorDialog.dismiss();
+                    mPresenter.addItem(itemId);
                 }, null, null);
             } else {
                 showAddItemDialog();
@@ -93,42 +79,15 @@ public class MainActivity extends BaseViewActivity<MainContract.Presenter>
                 .setHint("请输入宝贝id 或者宝贝链接")
                 .setPositiveButton(null, (lshColorDialog, text) -> {
                     lshColorDialog.dismiss();
-                    String itemId = checkItem(text);
+                    String itemId = mPresenter.checkItem(text);
                     if (itemId != null) {
-                        getItem(itemId);
+                        mPresenter.addItem(itemId);
                     } else {
                         showTextDialog("无法解析该宝贝, 请传入正确格式");
                     }
                 })
                 .setNegativeButton(null, null)
                 .show();
-    }
-
-    private String checkItem(String item) {
-        if (item.matches("\\d{8,}")) {
-            return item;
-        } else if (item.matches("https?://.+/item\\.htm\\?id=\\d+.+")) {
-            String itemId = item.replaceAll(".+\\?id=(\\d+).+", "$1");
-            return itemId.matches("\\d+") ? itemId : null;
-        }
-        return null;
-    }
-
-    private void getItem(String itemId) {
-        ApiCreator.getTaobaoApi()
-                .getDetail(Url.getTaobaoDetailUrl(itemId))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(new HttpThrowableConsumer())
-                .subscribe(data -> {
-                    Log.i("LshLog", "getItem: data = " + data);
-                    TaobaoDetail detail = TaobaoDataParser.parseGetDetailData(data);
-                    Log.i("LshLog", "getItem: detail = " + detail);
-                    Object[] toSave = BeanHelper.getItemAndHistiryToSave(null, detail);
-                    if (toSave != null) {
-                        mPresenter.saveItem((Item) toSave[0], (ItemHistory) toSave[1]);
-                    }
-                });
     }
 
     @Override

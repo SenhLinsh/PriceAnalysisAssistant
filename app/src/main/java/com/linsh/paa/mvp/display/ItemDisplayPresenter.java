@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.linsh.lshapp.common.base.RealmPresenterImpl;
 import com.linsh.paa.model.action.HttpThrowableConsumer;
+import com.linsh.paa.model.action.ResultConsumer;
 import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.model.bean.db.ItemHistory;
 import com.linsh.paa.model.bean.json.TaobaoDetail;
@@ -58,15 +59,18 @@ class ItemDisplayPresenter extends RealmPresenterImpl<ItemDisplayContract.View>
                     TaobaoDetail detail = TaobaoDataParser.parseGetDetailData(data);
                     Object[] toSave = BeanHelper.getItemAndHistiryToSave(null, detail);
                     if (toSave != null) {
-                        saveItem((Item) toSave[0], (ItemHistory) toSave[1]);
+                        addItem((Item) toSave[0], (ItemHistory) toSave[1]);
                     }
                 });
     }
 
-    private void saveItem(Item item, ItemHistory history) {
-        PaaDbHelper.saveItemAndHistory(getRealm(), item, history)
-                .subscribe(success -> {
-                    getView().showToast("保存成功");
+    private void addItem(Item item, ItemHistory history) {
+        PaaDbHelper.createItem(getRealm(), item, history)
+                .doOnError(new HttpThrowableConsumer())
+                .subscribe(result -> {
+                    if (!ResultConsumer.handleFailedWithToast(result)) {
+                        getView().showToast("保存成功");
+                    }
                 });
     }
 }

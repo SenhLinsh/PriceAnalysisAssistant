@@ -59,4 +59,14 @@ public class BeanHelper {
             return null;
         return item;
     }
+
+    public static boolean isSame(ItemHistory history1, ItemHistory history2) {
+        if (history1 != null && history2 != null) {
+            return LshStringUtils.isEquals(history1.getId(), history2.getId())
+                    && LshStringUtils.isEquals(history1.getTitle(), history2.getTitle())
+                    && LshStringUtils.isEquals(history1.getPrice(), history2.getPrice())
+                    && history1.isBuyDisable() == history2.isBuyDisable();
+        }
+        return false;
+    }
 }

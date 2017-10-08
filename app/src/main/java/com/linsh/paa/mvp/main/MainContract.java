@@ -3,7 +3,6 @@ package com.linsh.paa.mvp.main;
 
 import com.linsh.lshapp.common.base.BaseContract;
 import com.linsh.paa.model.bean.db.Item;
-import com.linsh.paa.model.bean.db.ItemHistory;
 
 import java.util.List;
 
@@ -20,6 +19,8 @@ interface MainContract {
 
     interface Presenter extends BaseContract.BasePresenter<View> {
 
-        void saveItem(Item item, ItemHistory history);
+        String checkItem(String text);
+
+        void addItem(String itemId);
     }
 }

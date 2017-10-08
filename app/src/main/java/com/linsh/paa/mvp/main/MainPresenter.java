@@ -1,12 +1,22 @@
 package com.linsh.paa.mvp.main;
 
-import android.widget.Toast;
+import android.util.Log;
 
 import com.linsh.lshapp.common.base.RealmPresenterImpl;
+import com.linsh.paa.model.action.HttpThrowableConsumer;
+import com.linsh.paa.model.action.ResultConsumer;
 import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.model.bean.db.ItemHistory;
+import com.linsh.paa.model.bean.json.TaobaoDetail;
 import com.linsh.paa.task.db.PaaDbHelper;
+import com.linsh.paa.task.network.ApiCreator;
+import com.linsh.paa.task.network.Url;
+import com.linsh.paa.tools.BeanHelper;
+import com.linsh.paa.tools.TaobaoDataParser;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 
@@ -36,10 +46,50 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
     }
 
     @Override
-    public void saveItem(Item item, ItemHistory history) {
-        PaaDbHelper.saveItemAndHistory(getRealm(), item, history)
-                .subscribe(success -> {
-                    Toast.makeText(getView().getContext(), "保存成功", Toast.LENGTH_SHORT).show();
+    public String checkItem(String text) {
+        if (text.matches("\\d{8,}")) {
+            return text;
+        } else if (text.matches("https?://.+/item\\.htm\\?id=\\d+.+")) {
+            String itemId = text.replaceAll(".+\\?id=(\\d+).+", "$1");
+            return itemId.matches("\\d+") ? itemId : null;
+        }
+        return null;
+    }
+
+    @Override
+    public void addItem(String itemId) {
+        Disposable disposable = ApiCreator.getTaobaoApi()
+                .getDetail(Url.getTaobaoDetailUrl(itemId))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnError(new HttpThrowableConsumer())
+                .subscribe(data -> {
+                    Log.i("LshLog", "getItem: data = " + data);
+                    TaobaoDetail detail = TaobaoDataParser.parseGetDetailData(data);
+                    Log.i("LshLog", "getItem: detail = " + detail);
+                    Object[] toSave = BeanHelper.getItemAndHistiryToSave(null, detail);
+                    if (toSave != null) {
+                        addItem((Item) toSave[0], (ItemHistory) toSave[1]);
+                    }
                 });
+        addDisposable(disposable);
+    }
+
+    public void addItem(Item item, ItemHistory history) {
+        Disposable disposable = PaaDbHelper.createItem(getRealm(), item, history)
+                .subscribe(result -> {
+                    if (!ResultConsumer.handleFailedWithToast(result)) {
+                        getView().showToast("保存成功");
+                    }
+                });
+        addDisposable(disposable);
+    }
+
+    public boolean hasThisItem(String id) {
+        for (Item item : mItems) {
+            if (item.getId().equals(id))
+                return true;
+        }
+        return false;
     }
 }

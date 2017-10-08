@@ -14,7 +14,7 @@ public class ItemHistory extends RealmObject {
     private String id;
     private String price;
     private String title;
-    private String buyDisable;
+    private boolean buyDisable;
     private long timestamp;
 
     public ItemHistory() {
@@ -25,10 +25,10 @@ public class ItemHistory extends RealmObject {
     }
 
     public ItemHistory(String id, String price, String title) {
-        this(id, price, title, null);
+        this(id, price, title, false);
     }
 
-    public ItemHistory(String id, String price, String title, String buyDisable) {
+    public ItemHistory(String id, String price, String title, boolean buyDisable) {
         this.id = id;
         this.price = price;
         this.title = title;
@@ -60,11 +60,11 @@ public class ItemHistory extends RealmObject {
         this.title = title;
     }
 
-    public String getBuyDisable() {
+    public boolean isBuyDisable() {
         return buyDisable;
     }
 
-    public void setBuyDisable(String buyDisable) {
+    public void setBuyDisable(boolean buyDisable) {
         this.buyDisable = buyDisable;
     }
 
