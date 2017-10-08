@@ -97,8 +97,13 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                 })
                 .doOnTerminate(() -> getView().dismissLoadingDialog())
                 .doOnError(DefaultThrowableConsumer::showThrowableMsg)
-                .doOnComplete(() -> getView().showToast("更新完成"))
-                .subscribe(ResultConsumer::handleFailedWithLog);
+                .collect(() -> new Result("短时间内宝贝不会有更新的哦"),
+                        (success, result) -> success.setSuccess(result.isSuccess() || success.isSuccess()))
+                .subscribe(result -> {
+                    if (!ResultConsumer.handleFailedWithToast(result)) {
+                        getView().showToast("更新完成");
+                    }
+                });
     }
 
     public void addItem(Item item, ItemHistory history) {
