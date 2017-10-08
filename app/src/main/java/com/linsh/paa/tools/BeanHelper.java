@@ -29,10 +29,10 @@ public class BeanHelper {
                 itemCopy.setShopName(detail.getShopName());
             } else if (item.getId().equals(detail.getItemId())) {
                 history = new ItemHistory(item.getId());
+                history.setPrice(detail.getItemPrice());
                 if (!LshStringUtils.isEquals(item.getPrice(), detail.getItemPrice())) {
                     itemCopy = item.getCopy();
                     itemCopy.setPrice(detail.getItemPrice());
-                    history.setPrice(detail.getItemPrice());
                 }
                 if (!LshStringUtils.isEquals(item.getTitle(), detail.getItemTitle())) {
                     if (itemCopy == null) itemCopy = item.getCopy();

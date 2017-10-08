@@ -24,5 +24,7 @@ interface MainContract {
         void addItem(String itemId);
 
         void updateAll();
+
+        void deleteItem(String id);
     }
 }

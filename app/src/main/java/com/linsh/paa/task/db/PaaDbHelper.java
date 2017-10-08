@@ -70,4 +70,17 @@ public class PaaDbHelper {
             }
         });
     }
+
+    public static Flowable<Result> deleteItem(Realm realm, String itemId) {
+        return LshRxUtils.getAsyncTransactionFlowable(realm, new AsyncTransaction<Result>() {
+            @Override
+            protected void execute(Realm realm, FlowableEmitter<? super Result> emitter) {
+                RealmResults<Item> items = realm.where(Item.class).equalTo("id", itemId).findAll();
+                RealmResults<ItemHistory> histories = realm.where(ItemHistory.class).equalTo("id", itemId).findAll();
+                items.deleteAllFromRealm();
+                histories.deleteAllFromRealm();
+                emitter.onNext(new Result());
+            }
+        });
+    }
 }

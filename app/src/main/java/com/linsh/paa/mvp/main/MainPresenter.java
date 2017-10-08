@@ -80,16 +80,20 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
 
     @Override
     public void updateAll() {
-        Flowable.fromIterable(mItems)
+        final Item[] curItem = {null};
+        Disposable disposable = Flowable.fromIterable(mItems)
                 .doOnSubscribe(onSub -> getView().showLoadingDialog())
-                .map(Item::getId)
+                .map(item -> {
+                    curItem[0] = item;
+                    return item.getId();
+                })
                 .observeOn(Schedulers.io())
                 .flatMap(itemId -> ApiCreator.getTaobaoApi()
                         .getDetail(Url.getTaobaoDetailUrl(itemId)))
                 .map(TaobaoDataParser::parseGetDetailData)
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(detail -> {
-                    Object[] toSave = BeanHelper.getItemAndHistiryToSave(null, detail);
+                    Object[] toSave = BeanHelper.getItemAndHistiryToSave(curItem[0], detail);
                     if (toSave != null && toSave[0] != null) {
                         return PaaDbHelper.updateItem(getRealm(), (Item) toSave[0], (ItemHistory) toSave[1]);
                     }
@@ -104,6 +108,13 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                         getView().showToast("更新完成");
                     }
                 });
+        addDisposable(disposable);
+    }
+
+    @Override
+    public void deleteItem(String id) {
+        PaaDbHelper.deleteItem(getRealm(), id)
+                .subscribe(result -> getView().showToast("删除成功"));
     }
 
     public void addItem(Item item, ItemHistory history) {

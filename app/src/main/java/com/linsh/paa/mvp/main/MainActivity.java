@@ -2,10 +2,12 @@ package com.linsh.paa.mvp.main;
 
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.linsh.lshapp.common.base.BaseViewActivity;
+import com.linsh.lshapp.common.view.LshPopupWindow;
 import com.linsh.lshutils.utils.LshActivityUtils;
 import com.linsh.lshutils.utils.LshClipboardUtils;
 import com.linsh.lshutils.view.LshColorDialog;
@@ -42,10 +44,25 @@ public class MainActivity extends BaseViewActivity<MainContract.Presenter>
                 LshActivityUtils.newIntent(AnalysisActivity.class)
                         .putExtra(mAdapter.getData().get(position).getId())
                         .startActivity(getActivity()));
-        mAdapter.setOnItemLongClickListener(position ->
-                LshActivityUtils.newIntent(ItemDisplayActivity.class)
-                        .putExtra(mAdapter.getData().get(position).getId())
-                        .startActivity(getActivity()));
+        mAdapter.setOnItemLongClickListener(position -> {
+            new LshPopupWindow(MainActivity.this)
+                    .BuildList()
+                    .setItems(new String[]{"打开淘宝链接", "删除该宝贝"}, (window, index) -> {
+                        window.dismiss();
+                        switch (index) {
+                            case 0:
+                                LshActivityUtils.newIntent(ItemDisplayActivity.class)
+                                        .putExtra(mAdapter.getData().get(position).getId())
+                                        .startActivity(getActivity());
+                                break;
+                            case 1:
+                                mPresenter.deleteItem(mAdapter.getData().get(position).getId());
+                                break;
+                        }
+                    })
+                    .getPopupWindow()
+                    .showAtLocation(rvContent, Gravity.CENTER, 0, 0);
+        });
     }
 
     @Override
