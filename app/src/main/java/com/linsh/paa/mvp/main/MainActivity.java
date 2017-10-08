@@ -57,17 +57,21 @@ public class MainActivity extends BaseViewActivity<MainContract.Presenter>
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.menu_main_add_item) {
-            String itemId = mPresenter.checkItem(LshClipboardUtils.getText());
-            if (itemId != null) {
-                showTextDialog("检测到剪贴板中的宝贝(Id:" + itemId + "), 是否添加", "添加", lshColorDialog -> {
-                    lshColorDialog.dismiss();
-                    mPresenter.addItem(itemId);
-                }, null, null);
-            } else {
-                showAddItemDialog();
-            }
-            return true;
+        switch (id) {
+            case R.id.menu_main_add_item:
+                String itemId = mPresenter.checkItem(LshClipboardUtils.getText());
+                if (itemId != null) {
+                    showTextDialog("检测到剪贴板中的宝贝(Id:" + itemId + "), 是否添加", "添加", lshColorDialog -> {
+                        lshColorDialog.dismiss();
+                        mPresenter.addItem(itemId);
+                    }, null, null);
+                } else {
+                    showAddItemDialog();
+                }
+                return true;
+            case R.id.menu_main_update_all:
+                mPresenter.updateAll();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }

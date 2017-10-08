@@ -3,17 +3,20 @@ package com.linsh.paa.mvp.main;
 import android.util.Log;
 
 import com.linsh.lshapp.common.base.RealmPresenterImpl;
+import com.linsh.paa.model.action.DefaultThrowableConsumer;
 import com.linsh.paa.model.action.HttpThrowableConsumer;
 import com.linsh.paa.model.action.ResultConsumer;
 import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.model.bean.db.ItemHistory;
 import com.linsh.paa.model.bean.json.TaobaoDetail;
+import com.linsh.paa.model.result.Result;
 import com.linsh.paa.task.db.PaaDbHelper;
 import com.linsh.paa.task.network.ApiCreator;
 import com.linsh.paa.task.network.Url;
 import com.linsh.paa.tools.BeanHelper;
 import com.linsh.paa.tools.TaobaoDataParser;
 
+import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -73,6 +76,29 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                     }
                 });
         addDisposable(disposable);
+    }
+
+    @Override
+    public void updateAll() {
+        Flowable.fromIterable(mItems)
+                .doOnSubscribe(onSub -> getView().showLoadingDialog())
+                .map(Item::getId)
+                .observeOn(Schedulers.io())
+                .flatMap(itemId -> ApiCreator.getTaobaoApi()
+                        .getDetail(Url.getTaobaoDetailUrl(itemId)))
+                .map(TaobaoDataParser::parseGetDetailData)
+                .observeOn(AndroidSchedulers.mainThread())
+                .flatMap(detail -> {
+                    Object[] toSave = BeanHelper.getItemAndHistiryToSave(null, detail);
+                    if (toSave != null && toSave[0] != null) {
+                        return PaaDbHelper.updateItem(getRealm(), (Item) toSave[0], (ItemHistory) toSave[1]);
+                    }
+                    return Flowable.just(new Result("数据解析失败"));
+                })
+                .doOnTerminate(() -> getView().dismissLoadingDialog())
+                .doOnError(DefaultThrowableConsumer::showThrowableMsg)
+                .doOnComplete(() -> getView().showToast("更新完成"))
+                .subscribe(ResultConsumer::handleFailedWithLog);
     }
 
     public void addItem(Item item, ItemHistory history) {

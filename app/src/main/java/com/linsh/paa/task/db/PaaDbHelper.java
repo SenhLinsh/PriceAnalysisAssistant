@@ -47,10 +47,10 @@ public class PaaDbHelper {
         });
     }
 
-    public static Flowable<Boolean> updateItem(Realm realm, Item item, ItemHistory history) {
-        return LshRxUtils.getAsyncTransactionFlowable(realm, new AsyncTransaction<Boolean>() {
+    public static Flowable<Result> updateItem(Realm realm, Item item, ItemHistory history) {
+        return LshRxUtils.getAsyncTransactionFlowable(realm, new AsyncTransaction<Result>() {
             @Override
-            protected void execute(Realm realm, FlowableEmitter<? super Boolean> emitter) {
+            protected void execute(Realm realm, FlowableEmitter<? super Result> emitter) {
                 realm.copyToRealmOrUpdate(item);
                 if (history != null) {
                     RealmResults<ItemHistory> results = realm.where(ItemHistory.class)
@@ -58,15 +58,15 @@ public class PaaDbHelper {
                     if (results.size() > 0) {
                         ItemHistory latestHistory = results.get(results.size() - 1);
                         if (BeanHelper.isSame(latestHistory, history)) {
-                            if (history.getTimestamp() - latestHistory.getTimestamp() > 1000L * 60 * 60 * 12) {
-                                emitter.onNext(false);
+                            if (history.getTimestamp() - latestHistory.getTimestamp() < 1000L * 60 * 60 * 12) {
+                                emitter.onNext(new Result("短时间内宝贝没有变化的哦"));
                                 return;
                             }
                         }
                     }
                     realm.copyToRealm(history);
                 }
-                emitter.onNext(true);
+                emitter.onNext(new Result());
             }
         });
     }

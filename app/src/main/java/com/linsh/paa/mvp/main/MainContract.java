@@ -22,5 +22,7 @@ interface MainContract {
         String checkItem(String text);
 
         void addItem(String itemId);
+
+        void updateAll();
     }
 }
