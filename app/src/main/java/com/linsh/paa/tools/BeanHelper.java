@@ -62,7 +62,7 @@ public class BeanHelper {
             }
             return new Object[]{check(itemCopy), history};
         }
-        return null;
+        return new Object[2];
     }
 
     private static Item check(Item item) {

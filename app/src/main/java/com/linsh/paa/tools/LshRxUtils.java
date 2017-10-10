@@ -1,7 +1,7 @@
 package com.linsh.paa.tools;
 
 
-import com.linsh.paa.model.action.AsyncConsumer;
+import com.linsh.paa.model.action.AsyncRealmConsumer;
 import com.linsh.paa.model.action.AsyncTransaction;
 
 import io.reactivex.BackpressureStrategy;
@@ -34,6 +34,10 @@ public class LshRxUtils {
         }, BackpressureStrategy.ERROR);
     }
 
+    public static <T> Flowable<T> getAsyncFlowable(final FlowableOnSubscribe<T> action) {
+        return Flowable.create(action, BackpressureStrategy.ERROR).subscribeOn(Schedulers.io());
+    }
+
     public static <T> Flowable<T> getAsyncTransactionFlowable(final Realm realm, final AsyncTransaction<T> transaction) {
         return Flowable.create(new FlowableOnSubscribe<T>() {
             @Override
@@ -55,7 +59,7 @@ public class LshRxUtils {
         }, BackpressureStrategy.ERROR).observeOn(AndroidSchedulers.mainThread());
     }
 
-    public static <T> Flowable<T> getAsyncRealmFlowable(final AsyncConsumer<T> action1) {
+    public static <T> Flowable<T> getAsyncRealmFlowable(final AsyncRealmConsumer<T> action1) {
         return Flowable.create(new FlowableOnSubscribe<T>() {
             @Override
             public void subscribe(FlowableEmitter<T> emitter) throws Exception {

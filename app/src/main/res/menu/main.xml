@@ -11,4 +11,9 @@
         android:orderInCategory="100"
         android:title="更新所有宝贝"
         app:showAsAction="never"/>
+    <item
+        android:id="@+id/menu_main_setting"
+        android:orderInCategory="100"
+        android:title="设置"
+        app:showAsAction="never"/>
 </menu>

@@ -15,6 +15,7 @@ import com.linsh.paa.R;
 import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.mvp.analysis.AnalysisActivity;
 import com.linsh.paa.mvp.display.ItemDisplayActivity;
+import com.linsh.paa.mvp.setting.SettingsActivity;
 
 import java.util.List;
 
@@ -88,6 +89,10 @@ public class MainActivity extends BaseViewActivity<MainContract.Presenter>
                 return true;
             case R.id.menu_main_update_all:
                 mPresenter.updateAll();
+                return true;
+            case R.id.menu_main_setting:
+                LshActivityUtils.newIntent(SettingsActivity.class)
+                        .startActivity(this);
                 return true;
         }
         return super.onOptionsItemSelected(item);

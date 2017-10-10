@@ -7,7 +7,7 @@ import io.realm.Realm;
  * Created by Senh Linsh on 17/5/5.
  */
 
-public interface AsyncConsumer<T> {
+public interface AsyncRealmConsumer<T> {
 
 
     void call(Realm realm, FlowableEmitter<? super T> emitter);

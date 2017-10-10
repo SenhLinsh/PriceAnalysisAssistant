@@ -3,7 +3,6 @@ package com.linsh.paa.mvp.main;
 import android.util.Log;
 
 import com.linsh.lshapp.common.base.RealmPresenterImpl;
-import com.linsh.lshutils.utils.Basic.LshStringUtils;
 import com.linsh.paa.model.action.DefaultThrowableConsumer;
 import com.linsh.paa.model.action.ResultConsumer;
 import com.linsh.paa.model.bean.db.Item;
@@ -62,9 +61,8 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                 .subscribe(data -> {
                     Log.i("LshLog", "getItem: data = " + data);
                     TaobaoDetail detail = TaobaoDataParser.parseGetDetailData(data);
-                    Log.i("LshLog", "getItem: detail = " + detail);
-                    Object[] toSave = BeanHelper.getItemAndHistiryToSave(null, detail);
-                    if (toSave != null) {
+                    Object[] toSave = BeanHelper.getItemAndHistoryToSave(null, detail);
+                    if (toSave[0] != null) {
                         addItem((Item) toSave[0], (ItemHistory) toSave[1]);
                     }
                 }, new DefaultThrowableConsumer());
@@ -86,8 +84,8 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                 .map(TaobaoDataParser::parseGetDetailData)
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(detail -> {
-                    Object[] toSave = BeanHelper.getItemAndHistiryToSave(curItem[0], detail);
-                    if (toSave != null && toSave[0] != null) {
+                    Object[] toSave = BeanHelper.getItemAndHistoryToSave(curItem[0], detail);
+                    if (toSave[0] != null) {
                         return PaaDbHelper.updateItem(getRealm(), (Item) toSave[0], (ItemHistory) toSave[1]);
                     }
                     return Flowable.just(new Result("数据解析失败"));
@@ -118,13 +116,5 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                     }
                 });
         addDisposable(disposable);
-    }
-
-    public boolean hasThisItem(String id) {
-        for (Item item : mItems) {
-            if (item.getId().equals(id))
-                return true;
-        }
-        return false;
     }
 }

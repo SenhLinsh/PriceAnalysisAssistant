@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="导入">
+
+        <Preference
+            android:key="import_items"
+            android:summary="将宝贝链接分行存入 sdcard/lshapp/Paa/import/items.txt 文件中, 然后点击导入即可"
+            android:title="批量导入宝贝"/>
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
+        android:title="更新">
+
+        <Preference
+            android:key="check_update"
+            android:title="检查更新"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

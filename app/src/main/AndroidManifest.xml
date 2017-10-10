@@ -21,10 +21,9 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".mvp.display.ItemDisplayActivity">
-        </activity>
-        <activity android:name=".mvp.analysis.AnalysisActivity">
-        </activity>
+        <activity android:name=".mvp.display.ItemDisplayActivity"/>
+        <activity android:name=".mvp.analysis.AnalysisActivity"/>
+        <activity android:name=".mvp.setting.SettingsActivity"/>
     </application>
 
 </manifest>

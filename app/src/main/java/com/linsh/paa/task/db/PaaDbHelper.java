@@ -1,5 +1,6 @@
 package com.linsh.paa.task.db;
 
+import com.linsh.paa.model.action.AsyncRealmConsumer;
 import com.linsh.paa.model.action.AsyncTransaction;
 import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.model.bean.db.ItemHistory;
@@ -11,6 +12,7 @@ import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
 import io.realm.Realm;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 /**
  * <pre>
@@ -22,7 +24,7 @@ import io.realm.RealmResults;
 public class PaaDbHelper {
 
     public static RealmResults<Item> getItems(Realm realm) {
-        return realm.where(Item.class).findAllSortedAsync("sort");
+        return realm.where(Item.class).findAllSortedAsync("sort", Sort.DESCENDING);
     }
 
     public static RealmResults<ItemHistory> getItemHistories(Realm realm, String itemId) {
@@ -82,6 +84,16 @@ public class PaaDbHelper {
                 items.deleteAllFromRealm();
                 histories.deleteAllFromRealm();
                 emitter.onNext(new Result());
+            }
+        });
+    }
+
+    public static Flowable<Boolean> hasItem(String itemId) {
+        return LshRxUtils.getAsyncRealmFlowable(new AsyncRealmConsumer<Boolean>() {
+            @Override
+            public void call(Realm realm, FlowableEmitter<? super Boolean> emitter) {
+                emitter.onNext(realm.where(Item.class).equalTo("id", itemId).findFirst() != null);
+                emitter.onComplete();
             }
         });
     }
