@@ -50,15 +50,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
 
     @Override
     public String checkItem(String text) {
-        if (LshStringUtils.isEmpty(text)) {
-            return null;
-        } else if (text.matches("\\d{8,}")) {
-            return text;
-        } else if (text.matches("https?://.+/item\\.htm\\?id=\\d+.+")) {
-            String itemId = text.replaceAll(".+\\?id=(\\d+).+", "$1");
-            return itemId.matches("\\d+") ? itemId : null;
-        }
-        return null;
+        return BeanHelper.checkItem(text);
     }
 
     @Override

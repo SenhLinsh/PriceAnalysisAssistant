@@ -14,7 +14,19 @@ import com.linsh.paa.model.bean.json.TaobaoDetail;
  */
 public class BeanHelper {
 
-    public static Object[] getItemAndHistiryToSave(Item item, TaobaoDetail detail) {
+    public static String checkItem(String text) {
+        if (LshStringUtils.isEmpty(text)) {
+            return null;
+        } else if (text.matches("\\d{8,}")) {
+            return text;
+        } else if (text.matches("https?://.+/(item|detail)\\.htm\\?(.+&)?id=\\d+.*")) {
+            String itemId = text.replaceAll(".+[?&]id=(\\d+).*", "$1");
+            return itemId.matches("\\d+") ? itemId : null;
+        }
+        return null;
+    }
+
+    public static Object[] getItemAndHistoryToSave(Item item, TaobaoDetail detail) {
         if (detail.isSuccess()) {
             ItemHistory history = null;
             Item itemCopy = null;
