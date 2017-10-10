@@ -3,6 +3,7 @@ package com.linsh.paa.mvp.main;
 import android.util.Log;
 
 import com.linsh.lshapp.common.base.RealmPresenterImpl;
+import com.linsh.lshutils.utils.Basic.LshStringUtils;
 import com.linsh.paa.model.action.DefaultThrowableConsumer;
 import com.linsh.paa.model.action.HttpThrowableConsumer;
 import com.linsh.paa.model.action.ResultConsumer;
@@ -50,7 +51,9 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
 
     @Override
     public String checkItem(String text) {
-        if (text.matches("\\d{8,}")) {
+        if (LshStringUtils.isEmpty(text)) {
+            return null;
+        } else if (text.matches("\\d{8,}")) {
             return text;
         } else if (text.matches("https?://.+/item\\.htm\\?id=\\d+.+")) {
             String itemId = text.replaceAll(".+\\?id=(\\d+).+", "$1");
