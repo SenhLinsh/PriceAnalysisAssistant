@@ -10,7 +10,7 @@ import io.realm.annotations.PrimaryKey;
  *    desc   : 淘宝宝贝信息表格
  * </pre>
  */
-public class Item extends RealmObject {
+public class Item extends RealmObject implements Sortable {
 
     @PrimaryKey
     private String id;
@@ -18,6 +18,7 @@ public class Item extends RealmObject {
     private String image;
     private String price;
     private String shopName;
+    private int sort;
     private long lastModified;
     /**
      * 是否已失效
@@ -122,5 +123,13 @@ public class Item extends RealmObject {
 
     public void setNotifiedPrice(int notifiedPrice) {
         this.notifiedPrice = notifiedPrice;
+    }
+
+    public int getSort() {
+        return sort;
+    }
+
+    public void setSort(int sort) {
+        this.sort = sort;
     }
 }

@@ -22,7 +22,7 @@ import io.realm.RealmResults;
 public class PaaDbHelper {
 
     public static RealmResults<Item> getItems(Realm realm) {
-        return realm.where(Item.class).findAllAsync();
+        return realm.where(Item.class).findAllSortedAsync("sort");
     }
 
     public static RealmResults<ItemHistory> getItemHistories(Realm realm, String itemId) {
@@ -35,6 +35,8 @@ public class PaaDbHelper {
             protected void execute(Realm realm, FlowableEmitter<? super Result> emitter) {
                 Item result = realm.where(Item.class).equalTo("id", item.getId()).findFirst();
                 if (result == null) {
+                    Number number = realm.where(Item.class).max("sort");
+                    item.setSort(number == null ? 0 : (number.intValue() + 1));
                     realm.copyToRealm(item);
                     if (history != null) {
                         realm.copyToRealm(history);
