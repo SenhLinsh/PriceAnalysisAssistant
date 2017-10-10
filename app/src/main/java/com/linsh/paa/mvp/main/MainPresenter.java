@@ -5,7 +5,6 @@ import android.util.Log;
 import com.linsh.lshapp.common.base.RealmPresenterImpl;
 import com.linsh.lshutils.utils.Basic.LshStringUtils;
 import com.linsh.paa.model.action.DefaultThrowableConsumer;
-import com.linsh.paa.model.action.HttpThrowableConsumer;
 import com.linsh.paa.model.action.ResultConsumer;
 import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.model.bean.db.ItemHistory;
@@ -68,7 +67,6 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                 .getDetail(Url.getTaobaoDetailUrl(itemId))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(new HttpThrowableConsumer())
                 .subscribe(data -> {
                     Log.i("LshLog", "getItem: data = " + data);
                     TaobaoDetail detail = TaobaoDataParser.parseGetDetailData(data);
@@ -77,7 +75,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                     if (toSave != null) {
                         addItem((Item) toSave[0], (ItemHistory) toSave[1]);
                     }
-                });
+                }, new DefaultThrowableConsumer());
         addDisposable(disposable);
     }
 
@@ -110,7 +108,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                     if (!ResultConsumer.handleFailedWithToast(result)) {
                         getView().showToast("更新完成");
                     }
-                });
+                }, new DefaultThrowableConsumer());
         addDisposable(disposable);
     }
 

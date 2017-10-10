@@ -3,6 +3,7 @@ package com.linsh.paa.mvp.display;
 import android.util.Log;
 
 import com.linsh.lshapp.common.base.RealmPresenterImpl;
+import com.linsh.paa.model.action.DefaultThrowableConsumer;
 import com.linsh.paa.model.action.HttpThrowableConsumer;
 import com.linsh.paa.model.action.ResultConsumer;
 import com.linsh.paa.model.bean.db.Item;
@@ -61,7 +62,7 @@ class ItemDisplayPresenter extends RealmPresenterImpl<ItemDisplayContract.View>
                     if (toSave != null) {
                         addItem((Item) toSave[0], (ItemHistory) toSave[1]);
                     }
-                });
+                }, new DefaultThrowableConsumer());
     }
 
     private void addItem(Item item, ItemHistory history) {
