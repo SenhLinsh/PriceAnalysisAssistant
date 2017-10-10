@@ -13,7 +13,7 @@ public class PaaConfig extends Config {
 
     @Override
     public String getAppNameEn() {
-        return "PriceAssistant";
+        return "Paa";
     }
 
     @Override
