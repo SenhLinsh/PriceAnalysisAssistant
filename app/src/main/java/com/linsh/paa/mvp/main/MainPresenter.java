@@ -17,6 +17,8 @@ import com.linsh.paa.task.network.Url;
 import com.linsh.paa.tools.BeanHelper;
 import com.linsh.paa.tools.TaobaoDataParser;
 
+import java.util.Locale;
+
 import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -77,8 +79,12 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
     @Override
     public void updateAll() {
         final Item[] curItem = {null};
+        final int[] index = {0};
+        int size = mItems.size();
         Disposable disposable = Flowable.fromIterable(mItems)
-                .doOnSubscribe(onSub -> getView().showLoadingDialog())
+                .doOnSubscribe(onSub -> {
+                    getView().showLoadingDialog(String.format(Locale.CHINA, "正在更新: 0/%d", size));
+                })
                 .map(item -> {
                     curItem[0] = item;
                     return item.getId();
@@ -97,6 +103,10 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                 })
                 .doOnTerminate(() -> getView().dismissLoadingDialog())
                 .doOnError(DefaultThrowableConsumer::showThrowableMsg)
+                .map(result -> {
+                    getView().setLoadingDialogText(String.format(Locale.CHINA, "正在更新: %d/%d", ++index[0], size));
+                    return result;
+                })
                 .collect(() -> new Result(mItems.size() > 0 ? "短时间内宝贝不会有更新的哦" : "请先添加宝贝吧"),
                         (success, result) -> success.setSuccess(result.isSuccess() || success.isSuccess()))
                 .subscribe(result -> {
