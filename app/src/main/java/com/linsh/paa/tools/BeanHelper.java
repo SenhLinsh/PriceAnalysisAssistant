@@ -42,20 +42,24 @@ public class BeanHelper {
             } else if (item.getId().equals(detail.getItemId())) {
                 history = new ItemHistory(item.getId());
                 history.setPrice(detail.getItemPrice());
-                if (!LshStringUtils.isEquals(item.getPrice(), detail.getItemPrice())) {
+                if (LshStringUtils.notEmpty(detail.getItemPrice())
+                        && !LshStringUtils.isEquals(item.getPrice(), detail.getItemPrice())) {
                     itemCopy = item.getCopy();
                     itemCopy.setPrice(detail.getItemPrice());
                 }
-                if (!LshStringUtils.isEquals(item.getTitle(), detail.getItemTitle())) {
+                if (LshStringUtils.notEmpty(detail.getItemTitle())
+                        && !LshStringUtils.isEquals(item.getTitle(), detail.getItemTitle())) {
                     if (itemCopy == null) itemCopy = item.getCopy();
                     itemCopy.setTitle(detail.getItemTitle());
                     history.setTitle(detail.getItemTitle());
                 }
-                if (!LshStringUtils.isEquals(item.getImage(), detail.getItemImage())) {
+                if (LshStringUtils.notEmpty(detail.getItemImage())
+                        && !LshStringUtils.isEquals(item.getImage(), detail.getItemImage())) {
                     if (itemCopy == null) itemCopy = item.getCopy();
                     itemCopy.setImage(detail.getItemImage());
                 }
-                if (!LshStringUtils.isEquals(item.getShopName(), detail.getShopName())) {
+                if (LshStringUtils.notEmpty(detail.getShopName())
+                        && !LshStringUtils.isEquals(item.getShopName(), detail.getShopName())) {
                     if (itemCopy == null) itemCopy = item.getCopy();
                     itemCopy.setShopName(detail.getShopName());
                 }

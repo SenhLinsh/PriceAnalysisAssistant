@@ -1,12 +1,12 @@
 package com.linsh.paa.task.db;
 
+import com.linsh.lshutils.utils.Basic.LshStringUtils;
 import com.linsh.paa.model.action.AsyncRealmConsumer;
 import com.linsh.paa.model.action.AsyncTransaction;
 import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.model.bean.db.ItemHistory;
 import com.linsh.paa.model.bean.db.Tag;
 import com.linsh.paa.model.result.Result;
-import com.linsh.paa.tools.BeanHelper;
 import com.linsh.paa.tools.LshRxUtils;
 
 import io.reactivex.Flowable;
@@ -78,7 +78,8 @@ public class PaaDbHelper {
                             .equalTo("id", history.getId()).findAllSorted("timestamp");
                     if (results.size() > 0) {
                         ItemHistory latestHistory = results.get(results.size() - 1);
-                        if (BeanHelper.isSame(latestHistory, history)) {
+                        if (LshStringUtils.isEquals(latestHistory.getPrice(), history.getPrice())
+                                && history.getTitle() == null) {
                             if (history.getTimestamp() - latestHistory.getTimestamp() < 1000L * 60 * 60 * 12) {
                                 emitter.onNext(new Result("短时间内宝贝没有变化的哦"));
                                 return;
