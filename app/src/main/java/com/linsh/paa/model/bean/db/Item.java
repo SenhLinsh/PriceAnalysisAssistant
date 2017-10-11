@@ -18,6 +18,7 @@ public class Item extends RealmObject implements Sortable {
     private String image;
     private String price;
     private String shopName;
+    private String tag;
     private int sort;
     private long lastModified;
     /**
@@ -131,5 +132,13 @@ public class Item extends RealmObject implements Sortable {
 
     public void setSort(int sort) {
         this.sort = sort;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 }

@@ -5,9 +5,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.linsh.lshapp.common.base.BaseViewActivity;
 import com.linsh.lshapp.common.view.LshPopupWindow;
+import com.linsh.lshutils.adapter.LshHeaderFooterRcvAdapter;
 import com.linsh.lshutils.utils.LshActivityUtils;
 import com.linsh.lshutils.utils.LshClipboardUtils;
 import com.linsh.lshutils.view.LshColorDialog;
@@ -38,31 +40,65 @@ public class MainActivity extends BaseViewActivity<MainContract.Presenter>
     protected void initView() {
         getSupportActionBar().setTitle("价格分析助手");
         RecyclerView rvContent = (RecyclerView) findViewById(R.id.rv_content);
-        rvContent.setLayoutManager(new GridLayoutManager(this, 2));
+        GridLayoutManager layout = new GridLayoutManager(this, 2);
+        layout.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                return position == 0 ? layout.getSpanCount() : 1;
+            }
+        });
+        rvContent.setLayoutManager(layout);
         mAdapter = new MainAdapter();
         rvContent.setAdapter(mAdapter);
-        mAdapter.setOnItemClickListener(position ->
+        mAdapter.setOnItemClickListener(new LshHeaderFooterRcvAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View itemView, int position) {
                 LshActivityUtils.newIntent(AnalysisActivity.class)
                         .putExtra(mAdapter.getData().get(position).getId())
-                        .startActivity(getActivity()));
-        mAdapter.setOnItemLongClickListener(position -> {
-            new LshPopupWindow(MainActivity.this)
-                    .BuildList()
-                    .setItems(new String[]{"打开淘宝链接", "删除该宝贝"}, (window, index) -> {
-                        window.dismiss();
-                        switch (index) {
-                            case 0:
-                                LshActivityUtils.newIntent(ItemDisplayActivity.class)
-                                        .putExtra(mAdapter.getData().get(position).getId())
-                                        .startActivity(getActivity());
-                                break;
-                            case 1:
-                                mPresenter.deleteItem(mAdapter.getData().get(position).getId());
-                                break;
-                        }
-                    })
-                    .getPopupWindow()
-                    .showAtLocation(rvContent, Gravity.CENTER, 0, 0);
+                        .startActivity(getActivity());
+            }
+
+            @Override
+            public void onHeaderClick(View itemView) {
+
+            }
+
+            @Override
+            public void onFooterClick(View itemView) {
+
+            }
+        });
+        mAdapter.setOnItemLongClickListener(new LshHeaderFooterRcvAdapter.OnItemLongClickListener() {
+            @Override
+            public void onItemLongClick(View view, int position) {
+                new LshPopupWindow(MainActivity.this)
+                        .BuildList()
+                        .setItems(new String[]{"打开淘宝链接", "删除该宝贝"}, (window, index) -> {
+                            window.dismiss();
+                            switch (index) {
+                                case 0:
+                                    LshActivityUtils.newIntent(ItemDisplayActivity.class)
+                                            .putExtra(mAdapter.getData().get(position).getId())
+                                            .startActivity(getActivity());
+                                    break;
+                                case 1:
+                                    mPresenter.deleteItem(mAdapter.getData().get(position).getId());
+                                    break;
+                            }
+                        })
+                        .getPopupWindow()
+                        .showAtLocation(rvContent, Gravity.CENTER, 0, 0);
+            }
+
+            @Override
+            public void onHeaderLongClick(View itemView) {
+
+            }
+
+            @Override
+            public void onFooterLongClick(View itemView) {
+
+            }
         });
     }
 

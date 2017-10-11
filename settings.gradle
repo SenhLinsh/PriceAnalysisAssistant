@@ -1,1 +1,5 @@
 include ':app', ':common'
+include ':LshUtils'
+
+project(':LshUtils').projectDir = new File('../LshLibrary/LshUtils/')
+include ':LshUtils:lshutils'

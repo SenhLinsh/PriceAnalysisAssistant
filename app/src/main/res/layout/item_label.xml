@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tv_item_label_tag"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="3dp"
+    android:layout_marginRight="3dp"
+    android:background="@drawable/selector_tag"
+    android:drawablePadding="3dp"
+    android:drawableRight="@drawable/selector_delete"
+    android:ellipsize="end"
+    android:gravity="center"
+    android:lines="1"
+    android:maxWidth="120dp"
+    android:paddingBottom="3dp"
+    android:paddingLeft="13dp"
+    android:paddingRight="5dp"
+    android:paddingTop="3dp"
+    tools:text="所有"/>
