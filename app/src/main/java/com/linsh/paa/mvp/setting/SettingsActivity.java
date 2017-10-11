@@ -38,4 +38,8 @@ public class SettingsActivity extends BaseToolbarActivity<SettingsContract.Prese
     public void importItems() {
         mPresenter.importItems();
     }
+
+    public void exportRealm() {
+        mPresenter.exportRealm();
+    }
 }

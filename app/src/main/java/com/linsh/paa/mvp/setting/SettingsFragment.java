@@ -21,6 +21,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         addPreferencesFromResource(R.xml.preferences);
 
         findPreference("import_items").setOnPreferenceClickListener(this);
+        findPreference("export_realm").setOnPreferenceClickListener(this);
         Preference checkUpdate = findPreference("check_update");
         checkUpdate.setOnPreferenceClickListener(this);
         checkUpdate.setTitle(checkUpdate.getTitle() + LshStringUtils.format(" (当前版本: {版本号})", BuildConfig.VERSION_NAME));
@@ -31,6 +32,9 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         switch (preference.getKey()) {
             case "import_items":
                 ((SettingsActivity)getActivity()).importItems();
+                break;
+            case "export_realm":
+                ((SettingsActivity)getActivity()).exportRealm();
                 break;
             case "check_update":
                 ((SettingsActivity)getActivity()).checkUpdate();

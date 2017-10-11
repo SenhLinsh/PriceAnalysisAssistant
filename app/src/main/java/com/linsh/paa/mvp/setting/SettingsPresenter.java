@@ -16,6 +16,7 @@ import com.linsh.paa.tools.PaaSpTools;
 import com.linsh.paa.tools.TaobaoDataParser;
 
 import java.io.File;
+import java.util.concurrent.Callable;
 
 import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -90,6 +91,22 @@ public class SettingsPresenter extends RealmPresenterImpl<SettingsContract.View>
         } else {
             getView().showToast("读取失败");
         }
+    }
+
+    @Override
+    public void exportRealm() {
+        Flowable.fromCallable(new Callable<Result>() {
+            @Override
+            public Result call() throws Exception {
+                File realmFile = new File(getRealm().getPath());
+                File destFile = PaaFileFactory.getRealmFile();
+                LshFileUtils.copy(realmFile, destFile);
+                return new Result();
+            }
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnComplete(() -> getView().showToast("导出成功"))
+                .subscribe();
     }
 
 }

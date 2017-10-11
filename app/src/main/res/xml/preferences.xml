@@ -11,6 +11,15 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:title="导出">
+
+        <Preference
+            android:key="export_realm"
+            android:title="导出数据库到本地"/>
+
+    </PreferenceCategory>
+
 
     <PreferenceCategory
         android:title="更新">

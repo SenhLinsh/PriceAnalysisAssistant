@@ -18,5 +18,7 @@ public interface SettingsContract {
         void checkUpdate();
 
         void importItems();
+
+        void exportRealm();
     }
 }
