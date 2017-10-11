@@ -3,10 +3,12 @@ package com.linsh.paa.mvp.main;
 import android.util.Log;
 
 import com.linsh.lshapp.common.base.RealmPresenterImpl;
+import com.linsh.lshutils.utils.LshListUtils;
 import com.linsh.paa.model.action.DefaultThrowableConsumer;
 import com.linsh.paa.model.action.ResultConsumer;
 import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.model.bean.db.ItemHistory;
+import com.linsh.paa.model.bean.db.Tag;
 import com.linsh.paa.model.bean.json.TaobaoDetail;
 import com.linsh.paa.model.result.Result;
 import com.linsh.paa.task.db.PaaDbHelper;
@@ -19,7 +21,6 @@ import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 
 /**
@@ -33,16 +34,20 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
         implements MainContract.Presenter {
 
     private RealmResults<Item> mItems;
+    private RealmResults<Tag> mTags;
 
     @Override
     protected void attachView() {
         mItems = PaaDbHelper.getItems(getRealm());
-        mItems.addChangeListener(new RealmChangeListener<RealmResults<Item>>() {
-            @Override
-            public void onChange(RealmResults<Item> element) {
-                if (mItems.isValid()) {
-                    getView().setData(mItems);
-                }
+        mItems.addChangeListener(element -> {
+            if (mItems.isValid()) {
+                getView().setData(mItems);
+            }
+        });
+        mTags = PaaDbHelper.getTags(getRealm());
+        mTags.addChangeListener(element -> {
+            if (mTags.isValid()) {
+                getView().setTags(LshListUtils.getStringList(mTags, Tag::getName));
             }
         });
     }
@@ -104,8 +109,17 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
 
     @Override
     public void deleteItem(String id) {
-        PaaDbHelper.deleteItem(getRealm(), id)
+        Disposable disposable = PaaDbHelper.deleteItem(getRealm(), id)
                 .subscribe(result -> getView().showToast("删除成功"));
+        addDisposable(disposable);
+    }
+
+    @Override
+    public void addTag(String tag) {
+        Disposable disposable = PaaDbHelper.createTag(getRealm(), new Tag(tag))
+                .doOnComplete(() -> getView().showToast("添加成功"))
+                .subscribe();
+        addDisposable(disposable);
     }
 
     public void addItem(Item item, ItemHistory history) {

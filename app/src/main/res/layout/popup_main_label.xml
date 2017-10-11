@@ -15,6 +15,26 @@
         android:padding="10dp"
         app:dividerDrawable="@drawable/shape_devider_empty"
         app:flexWrap="wrap"
-        app:showDivider="middle"/>
+        app:showDivider="middle">
 
+        <TextView
+            android:id="@+id/tv_popup_main_label_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:background="@drawable/shape_tag"
+            android:drawablePadding="3dp"
+            android:drawableRight="@drawable/common_add_middle"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:lines="1"
+            android:maxWidth="120dp"
+            android:paddingBottom="3dp"
+            android:paddingLeft="13dp"
+            android:paddingRight="5dp"
+            android:paddingTop="3dp"
+            android:text="添加标签"/>
+
+    </com.google.android.flexbox.FlexboxLayout>
 </FrameLayout>

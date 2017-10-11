@@ -15,6 +15,8 @@ interface MainContract {
     interface View extends BaseContract.BaseView {
 
         void setData(List<Item> items);
+
+        void setTags(List<String> tags);
     }
 
     interface Presenter extends BaseContract.BasePresenter<View> {
@@ -26,5 +28,7 @@ interface MainContract {
         void updateAll();
 
         void deleteItem(String id);
+
+        void addTag(String tag);
     }
 }

@@ -1,7 +1,10 @@
 package com.linsh.paa.tools;
 
+import android.util.Log;
+
 import io.realm.DynamicRealm;
 import io.realm.RealmMigration;
+import io.realm.RealmSchema;
 
 /**
  * <pre>
@@ -14,7 +17,16 @@ public class PaaMigration implements RealmMigration {
 
     @Override
     public void migrate(DynamicRealm realm, long oldVersion, long newVersion) {
-
+        Log.i("LshLog", "Shiyi 数据库更新 --- oldVersion = " + oldVersion + ",  newVersion = " + newVersion);
+        RealmSchema schema = realm.getSchema();
+        switch ((int) oldVersion) {
+            case 0:
+                schema.create("Tag")
+                        .addField("name", String.class)
+                        .addPrimaryKey("name")
+                        .addField("sort", int.class);
+                break;
+        }
     }
 
 }

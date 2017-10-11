@@ -9,7 +9,7 @@ import android.view.View;
 
 import com.linsh.lshapp.common.base.BaseViewActivity;
 import com.linsh.lshapp.common.view.LshPopupWindow;
-import com.linsh.lshutils.adapter.LshHeaderFooterRcvAdapter;
+import com.linsh.lshutils.utils.Basic.LshStringUtils;
 import com.linsh.lshutils.utils.LshActivityUtils;
 import com.linsh.lshutils.utils.LshClipboardUtils;
 import com.linsh.lshutils.view.LshColorDialog;
@@ -50,7 +50,24 @@ public class MainActivity extends BaseViewActivity<MainContract.Presenter>
         rvContent.setLayoutManager(layout);
         mAdapter = new MainAdapter();
         rvContent.setAdapter(mAdapter);
-        mAdapter.setOnItemClickListener(new LshHeaderFooterRcvAdapter.OnItemClickListener() {
+        mAdapter.setOnMainAdapterListener(new MainAdapter.OnMainAdapterListener() {
+            @Override
+            public void onAddLabel() {
+                new LshColorDialog(getActivity())
+                        .buildInput()
+                        .setTitle("添加标签")
+                        .setPositiveButton("添加", (dialog, inputText) -> {
+                            if (LshStringUtils.isEmpty(inputText)) {
+                                showToast("标签不能为空");
+                                return;
+                            }
+                            dialog.dismiss();
+                            mPresenter.addTag(inputText);
+                        })
+                        .setNegativeButton(null, null)
+                        .show();
+            }
+
             @Override
             public void onItemClick(View itemView, int position) {
                 LshActivityUtils.newIntent(AnalysisActivity.class)
@@ -58,17 +75,6 @@ public class MainActivity extends BaseViewActivity<MainContract.Presenter>
                         .startActivity(getActivity());
             }
 
-            @Override
-            public void onHeaderClick(View itemView) {
-
-            }
-
-            @Override
-            public void onFooterClick(View itemView) {
-
-            }
-        });
-        mAdapter.setOnItemLongClickListener(new LshHeaderFooterRcvAdapter.OnItemLongClickListener() {
             @Override
             public void onItemLongClick(View view, int position) {
                 new LshPopupWindow(MainActivity.this)
@@ -88,16 +94,6 @@ public class MainActivity extends BaseViewActivity<MainContract.Presenter>
                         })
                         .getPopupWindow()
                         .showAtLocation(rvContent, Gravity.CENTER, 0, 0);
-            }
-
-            @Override
-            public void onHeaderLongClick(View itemView) {
-
-            }
-
-            @Override
-            public void onFooterLongClick(View itemView) {
-
             }
         });
     }
@@ -155,5 +151,10 @@ public class MainActivity extends BaseViewActivity<MainContract.Presenter>
     @Override
     public void setData(List<Item> items) {
         mAdapter.setData(items);
+    }
+
+    @Override
+    public void setTags(List<String> tags) {
+        mAdapter.setTags(tags);
     }
 }

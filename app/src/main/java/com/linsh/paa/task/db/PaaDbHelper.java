@@ -4,6 +4,7 @@ import com.linsh.paa.model.action.AsyncRealmConsumer;
 import com.linsh.paa.model.action.AsyncTransaction;
 import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.model.bean.db.ItemHistory;
+import com.linsh.paa.model.bean.db.Tag;
 import com.linsh.paa.model.result.Result;
 import com.linsh.paa.tools.BeanHelper;
 import com.linsh.paa.tools.LshRxUtils;
@@ -27,6 +28,10 @@ public class PaaDbHelper {
         return realm.where(Item.class).findAllSortedAsync("sort", Sort.DESCENDING);
     }
 
+    public static RealmResults<Tag> getTags(Realm realm) {
+        return realm.where(Tag.class).findAllSortedAsync("sort");
+    }
+
     public static RealmResults<ItemHistory> getItemHistories(Realm realm, String itemId) {
         return realm.where(ItemHistory.class).equalTo("id", itemId).findAllSortedAsync("timestamp");
     }
@@ -47,6 +52,18 @@ public class PaaDbHelper {
                 } else {
                     emitter.onNext(new Result("该宝贝已存在"));
                 }
+            }
+        });
+    }
+
+    public static Flowable<Result> createTag(Realm realm, Tag tag) {
+        return LshRxUtils.getAsyncTransactionFlowable(realm, new AsyncTransaction<Result>() {
+            @Override
+            protected void execute(Realm realm, FlowableEmitter<? super Result> emitter) {
+                Number max = realm.where(Tag.class).max("sort");
+                tag.setSort((max == null ? 0 : max.intValue()) + 1);
+                realm.copyToRealmOrUpdate(tag);
+                emitter.onNext(new Result());
             }
         });
     }

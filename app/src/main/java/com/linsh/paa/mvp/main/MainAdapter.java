@@ -23,13 +23,16 @@ import java.util.List;
  *    desc   :
  * </pre>
  */
-class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolder> {
+class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolder>
+        implements LshHeaderFooterRcvAdapter.OnItemClickListener, LshHeaderFooterRcvAdapter.OnItemLongClickListener {
 
-    private List<String> labels = Arrays.asList("所有", "摄影", "我是一个很长长标签", "无标签");
+    private List<String> tags = Arrays.asList("所有", "摄影", "我是一个很长长标签", "无标签");
     private int curLabelIndex = -1;
 
     public MainAdapter() {
         super(true, false);
+        setOnItemClickListener(this);
+        setOnItemLongClickListener(this);
     }
 
     @Override
@@ -63,6 +66,41 @@ class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolde
 
     @Override
     protected void onBindFooterViewHolder(RecyclerView.ViewHolder holder) {
+    }
+
+    public void setTags(List<String> tags) {
+        tags.add("无标签");
+        this.tags = tags;
+    }
+
+    @Override
+    public void onItemClick(View itemView, int position) {
+        mOnMainAdapterListener.onItemClick(itemView, position);
+    }
+
+    @Override
+    public void onHeaderClick(View itemView) {
+
+    }
+
+    @Override
+    public void onFooterClick(View itemView) {
+
+    }
+
+    @Override
+    public void onItemLongClick(View view, int position) {
+        mOnMainAdapterListener.onItemLongClick(view, position);
+    }
+
+    @Override
+    public void onHeaderLongClick(View itemView) {
+
+    }
+
+    @Override
+    public void onFooterLongClick(View itemView) {
+
     }
 
     class ItemViewHolder extends LshViewHolder {
@@ -102,16 +140,27 @@ class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolde
             tvTag.setOnClickListener(view -> {
                 view.setSelected(!view.isSelected());
                 new LabelPopupWindow(view.getContext())
-                        .addLabels(labels, curLabelIndex)
-                        .setOnItemClickListener((popupWindow, index, isSelected) -> {
-                            if (isSelected) {
-                                tvTag.setText(labels.get(index));
-                                curLabelIndex = index;
-                            } else {
-                                tvTag.setText("所有");
-                                curLabelIndex = -1;
+                        .addLabels(tags, curLabelIndex)
+                        .setOnItemClickListener(new LabelPopupWindow.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(LabelPopupWindow popupWindow, int index, boolean isSelected) {
+                                if (isSelected) {
+                                    tvTag.setText(tags.get(index));
+                                    curLabelIndex = index;
+                                } else {
+                                    tvTag.setText("所有");
+                                    curLabelIndex = -1;
+                                }
+                                popupWindow.dismiss();
                             }
-                            popupWindow.dismiss();
+
+                            @Override
+                            public void onAddLabelClick(LabelPopupWindow popupWindow) {
+                                popupWindow.dismiss();
+                                if (mOnMainAdapterListener != null) {
+                                    mOnMainAdapterListener.onAddLabel();
+                                }
+                            }
                         })
                         .showAsDropDown(itemView);
             });
@@ -129,5 +178,19 @@ class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolde
         public void initView(View itemView) {
 
         }
+    }
+
+    private OnMainAdapterListener mOnMainAdapterListener;
+
+    public void setOnMainAdapterListener(OnMainAdapterListener listener) {
+        mOnMainAdapterListener = listener;
+    }
+
+    public interface OnMainAdapterListener {
+        void onAddLabel();
+
+        void onItemClick(View itemView, int position);
+
+        void onItemLongClick(View view, int position);
     }
 }
