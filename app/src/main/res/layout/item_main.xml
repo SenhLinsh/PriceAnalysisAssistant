@@ -14,12 +14,35 @@
         android:orientation="vertical"
         android:padding="10dp">
 
-        <com.linsh.lshutils.view.RatioImageView
-            android:id="@+id/iv_item_main_photo"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:decidedRatio="1"
-            tools:src="@mipmap/ic_launcher"/>
+            android:layout_height="wrap_content">
+
+            <com.linsh.lshutils.view.RatioImageView
+                android:id="@+id/iv_item_main_photo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:decidedRatio="1"
+                tools:layout_height="130dp"
+                tools:src="@mipmap/ic_launcher"/>
+
+            <TextView
+                android:id="@+id/tv_item_main_display"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:background="#cc00647a"
+                android:ellipsize="marquee"
+                android:gravity="center"
+                android:lines="1"
+                android:padding="3dp"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:visibility="gone"
+                tools:text="比收藏时下降666元"
+                tools:visibility="visible"/>
+
+        </FrameLayout>
 
         <TextView
             android:id="@+id/tv_item_main_title"

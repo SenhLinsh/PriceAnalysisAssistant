@@ -9,6 +9,7 @@ import android.widget.TextView;
 import com.linsh.lshapp.common.tools.ImageTool;
 import com.linsh.lshutils.adapter.LshHeaderFooterRcvAdapter;
 import com.linsh.lshutils.adapter.LshViewHolder;
+import com.linsh.lshutils.utils.Basic.LshStringUtils;
 import com.linsh.paa.R;
 import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.view.LabelPopupWindow;
@@ -141,6 +142,7 @@ class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolde
         private TextView tvTitle;
         private TextView tvPrice;
         private TextView tvShopname;
+        private TextView tvDisplay;
         private ImageView ivSelect;
         private View flSelect;
 
@@ -154,6 +156,7 @@ class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolde
             tvTitle = (TextView) itemView.findViewById(R.id.tv_item_main_title);
             tvPrice = (TextView) itemView.findViewById(R.id.tv_item_main_price);
             tvShopname = (TextView) itemView.findViewById(R.id.tv_item_main_shopname);
+            tvDisplay = (TextView) itemView.findViewById(R.id.tv_item_main_display);
             ivSelect = (ImageView) itemView.findViewById(R.id.tv_item_main_select);
             flSelect = itemView.findViewById(R.id.fl_item_main_select);
 
@@ -171,6 +174,9 @@ class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolde
             tvShopname.setText(item.getShopName());
             flSelect.setVisibility(isSelectMode ? View.VISIBLE : View.GONE);
             ivSelect.setSelected(selectedItems != null && selectedItems[position]);
+            tvDisplay.setVisibility(LshStringUtils.isEmpty(item.getDisplay()) ? View.GONE : View.VISIBLE);
+            String display = LshStringUtils.nullStrToEmpty(item.getDisplay());
+            tvDisplay.setText(display.replaceFirst("#\\d", ""));
             ImageTool.setImage(ivPhoto, item.getImage());
         }
     }

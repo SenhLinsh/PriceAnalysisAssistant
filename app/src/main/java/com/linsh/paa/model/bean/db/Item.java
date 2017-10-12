@@ -19,6 +19,7 @@ public class Item extends RealmObject implements Sortable {
     private String price;
     private String shopName;
     private String tag;
+    private String display;
     private int sort;
     private long lastModified;
     /**
@@ -26,11 +27,15 @@ public class Item extends RealmObject implements Sortable {
      */
     private boolean cartDisable;
     /**
-     * 设置的正常价格
+     * 添加时的价格
+     */
+    private int initialPrice;
+    /**
+     * 正常价格(手动设置)
      */
     private int normalPrice;
     /**
-     * 允许发送提醒通知的价格
+     * 允许发送提醒通知的价格(手动设置)
      */
     private int notifiedPrice;
 
@@ -52,8 +57,11 @@ public class Item extends RealmObject implements Sortable {
 
     public Item getCopy() {
         Item item = new Item(id, title, image, price, shopName);
-        item.setTag(tag);
         item.setSort(sort);
+        item.setTag(tag);
+        item.setCartDisable(cartDisable);
+        item.setNormalPrice(normalPrice);
+        item.setNotifiedPrice(notifiedPrice);
         return item;
     }
 
@@ -143,5 +151,21 @@ public class Item extends RealmObject implements Sortable {
 
     public void setTag(String tag) {
         this.tag = tag;
+    }
+
+    public String getDisplay() {
+        return display;
+    }
+
+    public void setDisplay(String display) {
+        this.display = display;
+    }
+
+    public int getInitialPrice() {
+        return initialPrice;
+    }
+
+    public void setInitialPrice(int initialPrice) {
+        this.initialPrice = initialPrice;
     }
 }

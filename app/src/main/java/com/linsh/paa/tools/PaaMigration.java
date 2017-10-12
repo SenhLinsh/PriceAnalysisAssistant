@@ -3,7 +3,9 @@ package com.linsh.paa.tools;
 import android.util.Log;
 
 import io.realm.DynamicRealm;
+import io.realm.DynamicRealmObject;
 import io.realm.RealmMigration;
+import io.realm.RealmResults;
 import io.realm.RealmSchema;
 
 /**
@@ -25,6 +27,22 @@ public class PaaMigration implements RealmMigration {
                         .addField("name", String.class)
                         .addPrimaryKey("name")
                         .addField("sort", int.class);
+            case 1:
+                schema.get("Item")
+                        .addField("display", String.class)
+                        .addField("initialPrice", int.class)
+                        .transform(item -> {
+                            String itemId = item.get("id");
+                            RealmResults<DynamicRealmObject> histories = realm.where("ItemHistory").equalTo("id", itemId).findAllSorted("timestamp");
+                            if (histories.size() > 0) {
+                                String price = histories.get(0).get("price");
+                                int[] prices = TaobaoDataParser.parsePrice(price);
+                                item.set("initialPrice", prices[0]);
+                            }
+                            if (((Integer) item.get("initialPrice")) == 0) {
+                                item.set("initialPrice", TaobaoDataParser.parsePrice(item.get("price"))[0]);
+                            }
+                        });
                 break;
         }
     }

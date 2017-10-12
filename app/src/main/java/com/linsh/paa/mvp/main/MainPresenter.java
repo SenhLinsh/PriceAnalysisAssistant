@@ -3,6 +3,7 @@ package com.linsh.paa.mvp.main;
 import android.util.Log;
 
 import com.linsh.lshapp.common.base.RealmPresenterImpl;
+import com.linsh.lshutils.utils.Basic.LshLogUtils;
 import com.linsh.lshutils.utils.LshListUtils;
 import com.linsh.paa.model.action.DefaultThrowableConsumer;
 import com.linsh.paa.model.action.ResultConsumer;
@@ -43,6 +44,9 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
     private RealmChangeListener<RealmResults<Item>> mItemChangeListener = element -> {
         if (mItems.isValid()) {
             getView().setData(mItems);
+            for (Item item : mItems) {
+                LshLogUtils.i(item.getTitle(), item.getPrice(), item.getInitialPrice());
+            }
         }
     };
 
@@ -72,7 +76,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                 .subscribe(data -> {
                     Log.i("LshLog", "getItem: data = " + data);
                     TaobaoDetail detail = TaobaoDataParser.parseGetDetailData(data);
-                    Object[] toSave = BeanHelper.getItemAndHistoryToSave(null, detail);
+                    Object[] toSave = BeanHelper.getItemAndHistoryToSave(detail);
                     if (toSave[0] != null && toSave[1] != null) {
                         addItem((Item) toSave[0], (ItemHistory) toSave[1]);
                     } else {
@@ -102,7 +106,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                         .map(TaobaoDataParser::parseGetDetailData)
                         .observeOn(AndroidSchedulers.mainThread())
                         .flatMap(detail -> {
-                            Object[] toSave = BeanHelper.getItemAndHistoryToSave(item, detail);
+                            Object[] toSave = BeanHelper.getItemAndHistoryToSave(item, getRealm().copyFromRealm(item), detail);
                             if (toSave[1] != null) {
                                 return PaaDbHelper.updateItem(getRealm(), (Item) toSave[0], (ItemHistory) toSave[1]);
                             }

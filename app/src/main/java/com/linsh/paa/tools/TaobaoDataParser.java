@@ -1,6 +1,7 @@
 package com.linsh.paa.tools;
 
 import com.google.gson.Gson;
+import com.linsh.lshutils.utils.Basic.LshLogUtils;
 import com.linsh.paa.model.bean.json.TaobaoDetail;
 
 /**
@@ -54,6 +55,28 @@ public class TaobaoDataParser {
             }
         }
         return json;
+    }
+
+    /**
+     * 解析淘宝价格
+     *
+     * @return int[0] 为价格或最低价格(存在价格范围时), int[1] 为最高价格(为 0 时表示单一价格)
+     * <br/> 注: 价格保留了角和分的单位, 实际价格需要除以 100
+     */
+    public static int[] parsePrice(String price) {
+        int[] prices = new int[2];
+        try {
+            if (price.contains("-")) {
+                String[] split = price.split("-");
+                prices[0] = (int) (Float.parseFloat(split[0]) * 100);
+                prices[1] = (int) (Float.parseFloat(split[0]) * 100);
+            } else {
+                prices[0] = (int) (Float.parseFloat(price) * 100);
+            }
+        } catch (Exception e) {
+            LshLogUtils.e("价格解析失败", e);
+        }
+        return prices;
     }
 
 }

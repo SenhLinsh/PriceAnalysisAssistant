@@ -58,7 +58,7 @@ class ItemDisplayPresenter extends RealmPresenterImpl<ItemDisplayContract.View>
                 .subscribe(data -> {
                     Log.i("LshLog", "addItem: data = " + data);
                     TaobaoDetail detail = TaobaoDataParser.parseGetDetailData(data);
-                    Object[] toSave = BeanHelper.getItemAndHistoryToSave(null, detail);
+                    Object[] toSave = BeanHelper.getItemAndHistoryToSave(detail);
                     if (toSave[0] != null && toSave[1] != null) {
                         addItem((Item) toSave[0], (ItemHistory) toSave[1]);
                     }
