@@ -69,7 +69,7 @@ public class TaobaoDataParser {
             if (price.contains("-")) {
                 String[] split = price.split("-");
                 prices[0] = (int) (Float.parseFloat(split[0]) * 100);
-                prices[1] = (int) (Float.parseFloat(split[0]) * 100);
+                prices[1] = (int) (Float.parseFloat(split[1]) * 100);
             } else {
                 prices[0] = (int) (Float.parseFloat(price) * 100);
             }
