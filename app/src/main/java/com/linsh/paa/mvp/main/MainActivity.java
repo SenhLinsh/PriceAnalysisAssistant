@@ -28,6 +28,7 @@ public class MainActivity extends BaseViewActivity<MainContract.Presenter>
     private MainAdapter mAdapter;
     private BottomViewHelper mBottomViewHelper;
     private RecyclerView mRvContent;
+    private GridLayoutManager mLayoutManager;
 
     @Override
     protected MainContract.Presenter initPresenter() {
@@ -103,14 +104,14 @@ public class MainActivity extends BaseViewActivity<MainContract.Presenter>
             }
         });
         mRvContent = (RecyclerView) findViewById(R.id.rv_main_content);
-        GridLayoutManager layout = new GridLayoutManager(this, 2);
-        layout.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+        mLayoutManager = new GridLayoutManager(this, 2);
+        mLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                return position == 0 ? layout.getSpanCount() : 1;
+                return position == 0 ? mLayoutManager.getSpanCount() : 1;
             }
         });
-        mRvContent.setLayoutManager(layout);
+        mRvContent.setLayoutManager(mLayoutManager);
         mAdapter = new MainAdapter();
         mRvContent.setAdapter(mAdapter);
         mAdapter.setOnMainAdapterListener(new MainAdapter.OnMainAdapterListener() {
@@ -206,6 +207,11 @@ public class MainActivity extends BaseViewActivity<MainContract.Presenter>
     @Override
     public void setData(List<Item> items) {
         mBottomViewHelper.resetSelectAll();
+        if (items.size() == 0 && mLayoutManager.getSpanCount() != 1) {
+            mLayoutManager.setSpanCount(1);
+        } else if (items.size() > 0 && mLayoutManager.getSpanCount() != 2) {
+            mLayoutManager.setSpanCount(2);
+        }
         mAdapter.setData(items);
     }
 

@@ -105,6 +105,7 @@ class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolde
     @Override
     public void setData(List<Item> data) {
         selectedItems = isSelectMode ? new boolean[data.size()] : null;
+        setHasFooter(data.size() == 0);
         super.setData(data);
     }
 
@@ -219,7 +220,7 @@ class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolde
     class FooterViewHolder extends LshViewHolder {
 
         public FooterViewHolder(ViewGroup parent) {
-            super(R.layout.item_main_header, parent);
+            super(R.layout.item_main_footer_empty, parent);
         }
 
         @Override
