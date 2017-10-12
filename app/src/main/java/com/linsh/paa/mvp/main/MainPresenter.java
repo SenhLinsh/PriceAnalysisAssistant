@@ -73,8 +73,10 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                     Log.i("LshLog", "getItem: data = " + data);
                     TaobaoDetail detail = TaobaoDataParser.parseGetDetailData(data);
                     Object[] toSave = BeanHelper.getItemAndHistoryToSave(null, detail);
-                    if (toSave[0] != null) {
+                    if (toSave[0] != null && toSave[1] != null) {
                         addItem((Item) toSave[0], (ItemHistory) toSave[1]);
+                    } else {
+                        getView().showToast("数据解析失败");
                     }
                 }, new DefaultThrowableConsumer());
         addDisposable(disposable);
@@ -84,6 +86,10 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
     public void updateAll() {
         final int[] index = {0};
         int size = mItems.size();
+        if (size == 0) {
+            getView().showToast("请先添加宝贝吧");
+            return;
+        }
         Disposable disposable = Flowable.fromIterable(mItems)
                 .doOnSubscribe(onSub -> {
                     getView().showLoadingDialog(String.format(Locale.CHINA, "正在更新: 0/%d", size));
@@ -97,7 +103,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                         .observeOn(AndroidSchedulers.mainThread())
                         .flatMap(detail -> {
                             Object[] toSave = BeanHelper.getItemAndHistoryToSave(item, detail);
-                            if (toSave[0] != null) {
+                            if (toSave[1] != null) {
                                 return PaaDbHelper.updateItem(getRealm(), (Item) toSave[0], (ItemHistory) toSave[1]);
                             }
                             return Flowable.just(new Result("数据解析失败"));
@@ -109,7 +115,8 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                     getView().setLoadingDialogText(String.format(Locale.CHINA, "正在更新: %d/%d", ++index[0], size));
                     return result;
                 })
-                .collect(() -> new Result(mItems.size() > 0 ? "短时间内宝贝不会有更新的哦" : "请先添加宝贝吧"),
+                .filter(result -> !"数据解析失败".equals(result.getMessage()))
+                .collect(() -> new Result(mItems.size() > 0 ? "短时间内宝贝不会有更新的哦" : "数据解析失败"),
                         (success, result) -> success.setSuccess(result.isSuccess() || success.isSuccess()))
                 .subscribe(result -> {
                     if (!ResultConsumer.handleFailedWithToast(result)) {

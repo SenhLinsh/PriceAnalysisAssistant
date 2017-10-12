@@ -26,6 +26,12 @@ public class BeanHelper {
         return null;
     }
 
+    /**
+     * 获取需要存储的 Item 和 ItemHistory
+     *
+     * @param item 作为对比的 Item, 如果数据库中没有则传入 null
+     * @return Object[0] 为需要更新的 Item, 为 null 时表示不需要更新; Object[1] 为需要更新的 ItemHistory, 为 null 时表示数据解析失败
+     */
     public static Object[] getItemAndHistoryToSave(Item item, TaobaoDetail detail) {
         if (detail.isSuccess()) {
             ItemHistory history = null;

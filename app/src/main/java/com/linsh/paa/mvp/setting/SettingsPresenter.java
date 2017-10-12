@@ -72,7 +72,7 @@ public class SettingsPresenter extends RealmPresenterImpl<SettingsContract.View>
                             .flatMap(item -> ApiCreator.getTaobaoApi().getDetail(Url.getTaobaoDetailUrl(item)))
                             .map(data -> TaobaoDataParser.parseGetDetailData(data))
                             .map(detail -> BeanHelper.getItemAndHistoryToSave(null, detail))
-                            .filter(toSave -> toSave[0] != null)
+                            .filter(toSave -> toSave[0] != null && toSave[1] != null)
                             .observeOn(AndroidSchedulers.mainThread())
                             .flatMap(toSave -> PaaDbHelper.createItem(getRealm(), (Item) toSave[0], (ItemHistory) toSave[1]))
                             .filter(Result::isSuccess)

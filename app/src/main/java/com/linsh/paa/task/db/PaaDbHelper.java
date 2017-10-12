@@ -79,7 +79,9 @@ public class PaaDbHelper {
         return LshRxUtils.getAsyncTransactionFlowable(realm, new AsyncTransaction<Result>() {
             @Override
             protected void execute(Realm realm, FlowableEmitter<? super Result> emitter) {
-                realm.copyToRealmOrUpdate(item);
+                if (item != null) {
+                    realm.copyToRealmOrUpdate(item);
+                }
                 if (history != null) {
                     RealmResults<ItemHistory> results = realm.where(ItemHistory.class)
                             .equalTo("id", history.getId()).findAllSorted("timestamp");

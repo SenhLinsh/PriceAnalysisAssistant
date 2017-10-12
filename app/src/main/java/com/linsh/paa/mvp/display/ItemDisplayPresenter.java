@@ -43,23 +43,23 @@ class ItemDisplayPresenter extends RealmPresenterImpl<ItemDisplayContract.View>
             itemId = url.replaceAll(".+[?&]id=(\\d+).*", "$1");
         }
         if (itemId != null) {
-            getItem(itemId);
+            addItem(itemId);
         } else {
             getView().showToast("该界面不是宝贝界面");
         }
     }
 
-    private void getItem(String itemId) {
+    private void addItem(String itemId) {
         ApiCreator.getTaobaoApi()
                 .getDetail(Url.getTaobaoDetailUrl(itemId))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnError(new HttpThrowableConsumer())
                 .subscribe(data -> {
-                    Log.i("LshLog", "getItem: data = " + data);
+                    Log.i("LshLog", "addItem: data = " + data);
                     TaobaoDetail detail = TaobaoDataParser.parseGetDetailData(data);
                     Object[] toSave = BeanHelper.getItemAndHistoryToSave(null, detail);
-                    if (toSave != null) {
+                    if (toSave[0] != null && toSave[1] != null) {
                         addItem((Item) toSave[0], (ItemHistory) toSave[1]);
                     }
                 }, new DefaultThrowableConsumer());
