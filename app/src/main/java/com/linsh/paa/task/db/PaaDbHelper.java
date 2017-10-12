@@ -9,8 +9,11 @@ import com.linsh.paa.model.bean.db.Tag;
 import com.linsh.paa.model.result.Result;
 import com.linsh.paa.tools.LshRxUtils;
 
+import org.reactivestreams.Publisher;
+
 import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
+import io.reactivex.functions.Consumer;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.Sort;
@@ -26,6 +29,10 @@ public class PaaDbHelper {
 
     public static RealmResults<Item> getItems(Realm realm) {
         return realm.where(Item.class).findAllSortedAsync("sort", Sort.DESCENDING);
+    }
+
+    public static RealmResults<Item> getItems(Realm realm, String tag) {
+        return realm.where(Item.class).equalTo("tag", tag).findAllSortedAsync("sort", Sort.DESCENDING);
     }
 
     public static RealmResults<Tag> getTags(Realm realm) {
@@ -89,6 +96,25 @@ public class PaaDbHelper {
                     realm.copyToRealm(history);
                 }
                 emitter.onNext(new Result());
+            }
+        });
+    }
+
+    public static Publisher<Result> updateItem(Realm realm, String itemId, Consumer<Item> consumer) {
+        return LshRxUtils.getAsyncTransactionFlowable(realm, new AsyncTransaction<Result>() {
+            @Override
+            protected void execute(Realm realm, FlowableEmitter<? super Result> emitter) {
+                Item item = realm.where(Item.class).equalTo("id", itemId).findFirst();
+                if (item != null) {
+                    try {
+                        consumer.accept(item);
+                        emitter.onNext(new Result());
+                    } catch (Exception e) {
+                        emitter.onError(e);
+                    }
+                } else {
+                    emitter.onNext(new Result("没有找到该宝贝"));
+                }
             }
         });
     }

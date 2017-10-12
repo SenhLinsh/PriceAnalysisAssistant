@@ -13,6 +13,7 @@ import com.linsh.paa.R;
 import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.view.LabelPopupWindow;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,6 +29,8 @@ class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolde
 
     private List<String> tags = Arrays.asList("所有", "摄影", "我是一个很长长标签", "无标签");
     private int curLabelIndex = -1;
+    private boolean isSelectMode;
+    private boolean[] selectedItems;
 
     public MainAdapter() {
         super(true, false);
@@ -52,11 +55,7 @@ class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolde
 
     @Override
     protected void onBindItemViewHolder(RecyclerView.ViewHolder holder, Item item, int position) {
-        ItemViewHolder myViewHolder = (ItemViewHolder) holder;
-        myViewHolder.tvTitle.setText(item.getTitle());
-        myViewHolder.tvPrice.setText('¥' + item.getPrice());
-        myViewHolder.tvShopname.setText(item.getShopName());
-        ImageTool.setImage(myViewHolder.ivPhoto, item.getImage());
+        ((ItemViewHolder) holder).bindData(item, position);
     }
 
     @Override
@@ -103,11 +102,46 @@ class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolde
 
     }
 
+    @Override
+    public void setData(List<Item> data) {
+        selectedItems = isSelectMode ? new boolean[data.size()] : null;
+        super.setData(data);
+    }
+
+    public void setSelectMode(boolean isSelectable) {
+        isSelectMode = isSelectable;
+        selectedItems = isSelectMode ? new boolean[getData().size()] : null;
+        notifyDataSetChanged();
+    }
+
+    public void selectAll(boolean selected) {
+        if (selectedItems != null) {
+            for (int i = 0; i < selectedItems.length; i++) {
+                selectedItems[i] = selected;
+            }
+        }
+        notifyDataSetChanged();
+    }
+
+    public ArrayList<String> getSelectedItemIds() {
+        ArrayList<String> itemIds = new ArrayList<>();
+        if (selectedItems != null) {
+            for (int i = 0; i < selectedItems.length; i++) {
+                if (selectedItems[i]) {
+                    itemIds.add(getData().get(i).getId());
+                }
+            }
+        }
+        return itemIds;
+    }
+
     class ItemViewHolder extends LshViewHolder {
         private ImageView ivPhoto;
         private TextView tvTitle;
         private TextView tvPrice;
         private TextView tvShopname;
+        private ImageView ivSelect;
+        private View flSelect;
 
         public ItemViewHolder(ViewGroup parent) {
             super(R.layout.item_main, parent);
@@ -119,6 +153,24 @@ class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolde
             tvTitle = (TextView) itemView.findViewById(R.id.tv_item_main_title);
             tvPrice = (TextView) itemView.findViewById(R.id.tv_item_main_price);
             tvShopname = (TextView) itemView.findViewById(R.id.tv_item_main_shopname);
+            ivSelect = (ImageView) itemView.findViewById(R.id.tv_item_main_select);
+            flSelect = itemView.findViewById(R.id.fl_item_main_select);
+
+            flSelect.setOnClickListener(view -> {
+                ivSelect.setSelected(!ivSelect.isSelected());
+                if (selectedItems != null)
+                    selectedItems[getAdapterPosition() - (hasHeader() ? 1 : 0)] = ivSelect.isSelected();
+            });
+
+        }
+
+        public void bindData(Item item, int position) {
+            tvTitle.setText(item.getTitle());
+            tvPrice.setText('¥' + item.getPrice());
+            tvShopname.setText(item.getShopName());
+            flSelect.setVisibility(isSelectMode ? View.VISIBLE : View.GONE);
+            ivSelect.setSelected(selectedItems != null && selectedItems[position]);
+            ImageTool.setImage(ivPhoto, item.getImage());
         }
     }
 
@@ -139,30 +191,26 @@ class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolde
         public void setViews() {
             tvTag.setOnClickListener(view -> {
                 view.setSelected(!view.isSelected());
-                new LabelPopupWindow(view.getContext())
-                        .addLabels(tags, curLabelIndex)
-                        .setOnItemClickListener(new LabelPopupWindow.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(LabelPopupWindow popupWindow, int index, boolean isSelected) {
-                                if (isSelected) {
-                                    tvTag.setText(tags.get(index));
-                                    curLabelIndex = index;
-                                } else {
-                                    tvTag.setText("所有");
-                                    curLabelIndex = -1;
+                if (view.isSelected()) {
+                    LabelPopupWindow popupWindow = new LabelPopupWindow(view.getContext());
+                    popupWindow.addLabels(tags, curLabelIndex)
+                            .setOnItemClickListener(new LabelPopupWindow.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(LabelPopupWindow popupWindow, int index, boolean isSelected) {
+                                    popupWindow.dismiss();
+                                    if (isSelected) {
+                                        tvTag.setText(tags.get(index));
+                                        curLabelIndex = index;
+                                    } else {
+                                        tvTag.setText("所有");
+                                        curLabelIndex = -1;
+                                    }
+                                    mOnMainAdapterListener.onTagSelected(isSelected ? tags.get(index) : null);
                                 }
-                                popupWindow.dismiss();
-                            }
-
-                            @Override
-                            public void onAddLabelClick(LabelPopupWindow popupWindow) {
-                                popupWindow.dismiss();
-                                if (mOnMainAdapterListener != null) {
-                                    mOnMainAdapterListener.onAddLabel();
-                                }
-                            }
-                        })
-                        .showAsDropDown(itemView);
+                            })
+                            .showAsDropDown(itemView);
+                    popupWindow.setOnDismissListener(() -> tvTag.setSelected(false));
+                }
             });
             tvStatus.setOnClickListener(view -> view.setSelected(!view.isSelected()));
         }
@@ -187,10 +235,10 @@ class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolde
     }
 
     public interface OnMainAdapterListener {
-        void onAddLabel();
-
         void onItemClick(View itemView, int position);
 
         void onItemLongClick(View view, int position);
+
+        void onTagSelected(String tag);
     }
 }

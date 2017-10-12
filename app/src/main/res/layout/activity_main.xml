@@ -9,8 +9,15 @@
     tools:context="com.linsh.paa.mvp.main.MainActivity">
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_content"
+        android:id="@+id/rv_main_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <ViewStub
+        android:id="@+id/vs_main_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout="@layout/view_main_bottom"/>
 
 </LinearLayout>

@@ -33,12 +33,6 @@ public class LabelPopupWindow extends PopupWindow {
     private LabelPopupWindow(View contentView) {
         super(contentView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
         mFlLabel = (FlexboxLayout) contentView.findViewById(R.id.fl_popup_main_label);
-        View tvLabelAdd = contentView.findViewById(R.id.tv_popup_main_label_add);
-        tvLabelAdd.setOnClickListener(view -> {
-            if (mOnItemClickListener != null) {
-                mOnItemClickListener.onAddLabelClick(LabelPopupWindow.this);
-            }
-        });
         contentView.setOnClickListener(view -> dismiss());
         setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
     }
@@ -75,7 +69,7 @@ public class LabelPopupWindow extends PopupWindow {
             if (selectedIndex >= 0 && selectedIndex == i) {
                 textView.setSelected(true);
             }
-            mFlLabel.addView(textView, mFlLabel.getChildCount() - 1);
+            mFlLabel.addView(textView);
         }
         return this;
     }
@@ -94,7 +88,5 @@ public class LabelPopupWindow extends PopupWindow {
 
     public interface OnItemClickListener {
         void onItemClick(LabelPopupWindow popupWindow, int index, boolean isSelected);
-
-        void onAddLabelClick(LabelPopupWindow popupWindow);
     }
 }

@@ -19,12 +19,15 @@ import com.linsh.paa.mvp.analysis.AnalysisActivity;
 import com.linsh.paa.mvp.display.ItemDisplayActivity;
 import com.linsh.paa.mvp.setting.SettingsActivity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends BaseViewActivity<MainContract.Presenter>
         implements MainContract.View {
 
     private MainAdapter mAdapter;
+    private BottomViewHelper mBottomViewHelper;
+    private RecyclerView mRvContent;
 
     @Override
     protected MainContract.Presenter initPresenter() {
@@ -39,7 +42,67 @@ public class MainActivity extends BaseViewActivity<MainContract.Presenter>
     @Override
     protected void initView() {
         getSupportActionBar().setTitle("价格分析助手");
-        RecyclerView rvContent = (RecyclerView) findViewById(R.id.rv_content);
+        mBottomViewHelper = new BottomViewHelper(this);
+        mBottomViewHelper.setViewHelperListener(new BottomViewHelper.ViewHelperListener() {
+            @Override
+            public void delete() {
+                ArrayList<String> selectedItemIds = mAdapter.getSelectedItemIds();
+                if (selectedItemIds.size() == 0) {
+                    showToast("请先选择宝贝~");
+                    return;
+                }
+                showTextDialog("确认删除选择的宝贝?", null, dialog -> {
+                    dialog.dismiss();
+                    mPresenter.deleteItems(selectedItemIds);
+                }, null, null);
+            }
+
+            @Override
+            public void move() {
+                ArrayList<String> selectedItemIds = mAdapter.getSelectedItemIds();
+                if (selectedItemIds.size() == 0) {
+                    showToast("请先选择宝贝~");
+                    return;
+                }
+                List<String> tags = mPresenter.getTags();
+                tags.add("+ 添加标签");
+                new LshPopupWindow(getActivity())
+                        .BuildList()
+                        .setItems(tags, (window, index) -> {
+                            window.dismiss();
+                            if (index == tags.size() - 1) {
+                                new LshColorDialog(getActivity())
+                                        .buildInput()
+                                        .setTitle("添加标签")
+                                        .setPositiveButton("添加", (dialog, inputText) -> {
+                                            if (LshStringUtils.isEmpty(inputText)) {
+                                                showToast("标签不能为空");
+                                                return;
+                                            }
+                                            dialog.dismiss();
+                                            mPresenter.addTag(inputText, selectedItemIds);
+                                        })
+                                        .setNegativeButton(null, null)
+                                        .show();
+                            } else {
+                                mPresenter.moveItemsToOtherTag(tags.get(index), selectedItemIds);
+                            }
+                        })
+                        .getPopupWindow()
+                        .showAtLocation(mRvContent, Gravity.CENTER, 0, 0);
+            }
+
+            @Override
+            public void selectAll(boolean selected) {
+                mAdapter.selectAll(selected);
+            }
+
+            @Override
+            public void done() {
+                mAdapter.setSelectMode(false);
+            }
+        });
+        mRvContent = (RecyclerView) findViewById(R.id.rv_main_content);
         GridLayoutManager layout = new GridLayoutManager(this, 2);
         layout.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
@@ -47,27 +110,10 @@ public class MainActivity extends BaseViewActivity<MainContract.Presenter>
                 return position == 0 ? layout.getSpanCount() : 1;
             }
         });
-        rvContent.setLayoutManager(layout);
+        mRvContent.setLayoutManager(layout);
         mAdapter = new MainAdapter();
-        rvContent.setAdapter(mAdapter);
+        mRvContent.setAdapter(mAdapter);
         mAdapter.setOnMainAdapterListener(new MainAdapter.OnMainAdapterListener() {
-            @Override
-            public void onAddLabel() {
-                new LshColorDialog(getActivity())
-                        .buildInput()
-                        .setTitle("添加标签")
-                        .setPositiveButton("添加", (dialog, inputText) -> {
-                            if (LshStringUtils.isEmpty(inputText)) {
-                                showToast("标签不能为空");
-                                return;
-                            }
-                            dialog.dismiss();
-                            mPresenter.addTag(inputText);
-                        })
-                        .setNegativeButton(null, null)
-                        .show();
-            }
-
             @Override
             public void onItemClick(View itemView, int position) {
                 LshActivityUtils.newIntent(AnalysisActivity.class)
@@ -93,7 +139,12 @@ public class MainActivity extends BaseViewActivity<MainContract.Presenter>
                             }
                         })
                         .getPopupWindow()
-                        .showAtLocation(rvContent, Gravity.CENTER, 0, 0);
+                        .showAtLocation(mRvContent, Gravity.CENTER, 0, 0);
+            }
+
+            @Override
+            public void onTagSelected(String tag) {
+                mPresenter.onTagSelected(tag);
             }
         });
     }
@@ -121,6 +172,10 @@ public class MainActivity extends BaseViewActivity<MainContract.Presenter>
                 return true;
             case R.id.menu_main_update_all:
                 mPresenter.updateAll();
+                return true;
+            case R.id.menu_main_edit:
+                mBottomViewHelper.showBottom(this);
+                mAdapter.setSelectMode(true);
                 return true;
             case R.id.menu_main_setting:
                 LshActivityUtils.newIntent(SettingsActivity.class)
@@ -150,6 +205,7 @@ public class MainActivity extends BaseViewActivity<MainContract.Presenter>
 
     @Override
     public void setData(List<Item> items) {
+        mBottomViewHelper.resetSelectAll();
         mAdapter.setData(items);
     }
 

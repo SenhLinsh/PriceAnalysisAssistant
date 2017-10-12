@@ -4,6 +4,7 @@ package com.linsh.paa.mvp.main;
 import com.linsh.lshapp.common.base.BaseContract;
 import com.linsh.paa.model.bean.db.Item;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,6 +30,14 @@ interface MainContract {
 
         void deleteItem(String id);
 
-        void addTag(String tag);
+        void addTag(String tag, List<String> itemIds);
+
+        List<String> getTags();
+
+        void deleteItems(List<String> itemIds);
+
+        void moveItemsToOtherTag(String tag, ArrayList<String> itemIds);
+
+        void onTagSelected(String tag);
     }
 }

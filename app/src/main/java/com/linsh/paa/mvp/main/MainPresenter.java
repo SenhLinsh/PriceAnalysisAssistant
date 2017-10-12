@@ -17,12 +17,15 @@ import com.linsh.paa.task.network.Url;
 import com.linsh.paa.tools.BeanHelper;
 import com.linsh.paa.tools.TaobaoDataParser;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 
 /**
@@ -37,15 +40,16 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
 
     private RealmResults<Item> mItems;
     private RealmResults<Tag> mTags;
+    private RealmChangeListener<RealmResults<Item>> mItemChangeListener = element -> {
+        if (mItems.isValid()) {
+            getView().setData(mItems);
+        }
+    };
 
     @Override
     protected void attachView() {
         mItems = PaaDbHelper.getItems(getRealm());
-        mItems.addChangeListener(element -> {
-            if (mItems.isValid()) {
-                getView().setData(mItems);
-            }
-        });
+        mItems.addChangeListener(mItemChangeListener);
         mTags = PaaDbHelper.getTags(getRealm());
         mTags.addChangeListener(element -> {
             if (mTags.isValid()) {
@@ -125,11 +129,44 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
     }
 
     @Override
-    public void addTag(String tag) {
+    public void addTag(String tag, List<String> itemIds) {
         Disposable disposable = PaaDbHelper.createTag(getRealm(), new Tag(tag))
-                .doOnComplete(() -> getView().showToast("添加成功"))
+                .flatMap(result -> Flowable.fromIterable(itemIds))
+                .flatMap(itemId -> PaaDbHelper.updateItem(getRealm(), itemId, item -> item.setTag(tag)))
                 .subscribe();
         addDisposable(disposable);
+    }
+
+    @Override
+    public List<String> getTags() {
+        return LshListUtils.getStringList(mTags, Tag::getName);
+    }
+
+    @Override
+    public void deleteItems(List<String> itemIds) {
+        Disposable disposable = Flowable.fromIterable(itemIds)
+                .flatMap(itemId -> PaaDbHelper.deleteItem(getRealm(), itemId))
+                .subscribe();
+        addDisposable(disposable);
+    }
+
+    @Override
+    public void moveItemsToOtherTag(String tag, ArrayList<String> itemIds) {
+        Disposable disposable = Flowable.fromIterable(itemIds)
+                .flatMap(itemId -> PaaDbHelper.updateItem(getRealm(), itemId, item -> item.setTag(tag)))
+                .subscribe();
+        addDisposable(disposable);
+    }
+
+    @Override
+    public void onTagSelected(String tag) {
+        mItems.removeAllChangeListeners();
+        if (tag == null) {
+            mItems = PaaDbHelper.getItems(getRealm());
+        } else {
+            mItems = PaaDbHelper.getItems(getRealm(), tag.equals("无标签") ? null : tag);
+        }
+        mItems.addChangeListener(mItemChangeListener);
     }
 
     public void addItem(Item item, ItemHistory history) {

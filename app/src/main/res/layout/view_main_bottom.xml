@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    android:gravity="center_vertical|end"
+    tools:background="@color/bg_nothing">
+
+    <CheckBox
+        android:id="@+id/cb_main_bottom_select_all"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="全选"
+        android:textColor="@color/line_blackbg"/>
+
+    <TextView
+        android:id="@+id/tv_main_bottom_move"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/color_theme_yellow"
+        android:padding="10dp"
+        android:text="移至其他标签"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/tv_main_bottom_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#f55"
+        android:gravity="center"
+        android:minWidth="80dp"
+        android:padding="10dp"
+        android:text="删除"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/tv_main_bottom_done"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/color_theme_dark_blue"
+        android:gravity="center"
+        android:minWidth="80dp"
+        android:padding="10dp"
+        android:text="完成"
+        android:textSize="16sp"/>
+
+</LinearLayout>

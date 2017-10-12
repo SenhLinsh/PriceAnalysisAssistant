@@ -12,6 +12,11 @@
         android:title="更新所有宝贝"
         app:showAsAction="never"/>
     <item
+        android:id="@+id/menu_main_edit"
+        android:orderInCategory="100"
+        android:title="编辑"
+        app:showAsAction="never"/>
+    <item
         android:id="@+id/menu_main_setting"
         android:orderInCategory="100"
         android:title="设置"
