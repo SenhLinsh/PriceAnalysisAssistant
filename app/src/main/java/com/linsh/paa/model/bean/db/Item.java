@@ -55,16 +55,6 @@ public class Item extends RealmObject implements Sortable {
         refreshLastModified();
     }
 
-    public Item getCopy() {
-        Item item = new Item(id, title, image, price, shopName);
-        item.setSort(sort);
-        item.setTag(tag);
-        item.setCartDisable(cartDisable);
-        item.setNormalPrice(normalPrice);
-        item.setNotifiedPrice(notifiedPrice);
-        return item;
-    }
-
     public String getId() {
         return id;
     }

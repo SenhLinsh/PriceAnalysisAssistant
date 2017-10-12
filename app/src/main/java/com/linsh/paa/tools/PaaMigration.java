@@ -27,6 +27,8 @@ public class PaaMigration implements RealmMigration {
                         .addField("name", String.class)
                         .addPrimaryKey("name")
                         .addField("sort", int.class);
+                schema.get("Item")
+                        .addField("tag", String.class);
             case 1:
                 schema.get("Item")
                         .addField("display", String.class)
@@ -39,7 +41,8 @@ public class PaaMigration implements RealmMigration {
                                 int[] prices = TaobaoDataParser.parsePrice(price);
                                 item.set("initialPrice", prices[0]);
                             }
-                            if (((Integer) item.get("initialPrice")) == 0) {
+                            Long initialPrice = item.get("initialPrice");
+                            if (initialPrice == 0) {
                                 item.set("initialPrice", TaobaoDataParser.parsePrice(item.get("price"))[0]);
                             }
                         });

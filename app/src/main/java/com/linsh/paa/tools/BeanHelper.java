@@ -66,27 +66,23 @@ public class BeanHelper {
                 history.setPrice(detailPrice);
                 if (LshStringUtils.notEmpty(detailPrice)
                         && !LshStringUtils.isEquals(item.getPrice(), detailPrice)) {
-                    itemCopy = item.getCopy();
                     analysisPrice(itemCopy, detailPrice);
                     itemCopy.setPrice(detailPrice);
                     needUpdate = true;
                 }
                 if (LshStringUtils.notEmpty(detail.getItemTitle())
                         && !LshStringUtils.isEquals(item.getTitle(), detail.getItemTitle())) {
-                    if (itemCopy == null) itemCopy = item.getCopy();
                     itemCopy.setTitle(detail.getItemTitle());
                     history.setTitle(detail.getItemTitle());
                     needUpdate = true;
                 }
                 if (LshStringUtils.notEmpty(detail.getItemImage())
                         && !LshStringUtils.isEquals(item.getImage(), detail.getItemImage())) {
-                    if (itemCopy == null) itemCopy = item.getCopy();
                     itemCopy.setImage(detail.getItemImage());
                     needUpdate = true;
                 }
                 if (LshStringUtils.notEmpty(detail.getShopName())
                         && !LshStringUtils.isEquals(item.getShopName(), detail.getShopName())) {
-                    if (itemCopy == null) itemCopy = item.getCopy();
                     itemCopy.setShopName(detail.getShopName());
                     needUpdate = true;
                 }
@@ -104,14 +100,10 @@ public class BeanHelper {
         } else if (newPrice[0] < item.getNormalPrice()) {
             display = "#2比正常价格" + getPrice(item.getNormalPrice(), newPrice[0], "高", "低");
         } else if (item.getNormalPrice() == 0 && newPrice[0] < item.getInitialPrice()) {
-            display = "#3比收藏时%s元" + getPrice(item.getInitialPrice(), newPrice[0], "上升", "下降");
+            display = "#3比收藏时" + getPrice(item.getInitialPrice(), newPrice[0], "上升", "下降");
         } else if (!item.getPrice().equals(price)) {
             int[] itemPrice = TaobaoDataParser.parsePrice(item.getPrice());
-            if (newPrice[1] == 0 && itemPrice[1] == 0) {
-                display = "#4比上一次" + getPrice(itemPrice[0], newPrice[0], "上升", "下降");
-            } else {
-                display = "#4最低价格比上一次" + getPrice(itemPrice[0], newPrice[0], "上升", "下降");
-            }
+            display = "#4比上一次" + getPrice(itemPrice[0], newPrice[0], "上升", "下降");
         }
         item.setDisplay(display);
     }
