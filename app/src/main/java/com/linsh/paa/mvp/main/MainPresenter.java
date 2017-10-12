@@ -82,29 +82,27 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
 
     @Override
     public void updateAll() {
-        final Item[] curItem = {null};
         final int[] index = {0};
         int size = mItems.size();
         Disposable disposable = Flowable.fromIterable(mItems)
                 .doOnSubscribe(onSub -> {
                     getView().showLoadingDialog(String.format(Locale.CHINA, "正在更新: 0/%d", size));
                 })
-                .map(item -> {
-                    curItem[0] = item;
-                    return item.getId();
-                })
-                .observeOn(Schedulers.io())
-                .flatMap(itemId -> ApiCreator.getTaobaoApi()
-                        .getDetail(Url.getTaobaoDetailUrl(itemId)))
-                .map(TaobaoDataParser::parseGetDetailData)
-                .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(detail -> {
-                    Object[] toSave = BeanHelper.getItemAndHistoryToSave(curItem[0], detail);
-                    if (toSave[0] != null) {
-                        return PaaDbHelper.updateItem(getRealm(), (Item) toSave[0], (ItemHistory) toSave[1]);
-                    }
-                    return Flowable.just(new Result("数据解析失败"));
-                })
+                .flatMap(item -> Flowable.just(item)
+                        .map(Item::getId)
+                        .observeOn(Schedulers.io())
+                        .flatMap(itemId -> ApiCreator.getTaobaoApi()
+                                .getDetail(Url.getTaobaoDetailUrl(itemId)))
+                        .map(TaobaoDataParser::parseGetDetailData)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .flatMap(detail -> {
+                            Object[] toSave = BeanHelper.getItemAndHistoryToSave(item, detail);
+                            if (toSave[0] != null) {
+                                return PaaDbHelper.updateItem(getRealm(), (Item) toSave[0], (ItemHistory) toSave[1]);
+                            }
+                            return Flowable.just(new Result("数据解析失败"));
+                        })
+                )
                 .doOnTerminate(() -> getView().dismissLoadingDialog())
                 .doOnError(DefaultThrowableConsumer::showThrowableMsg)
                 .map(result -> {
