@@ -26,9 +26,7 @@ interface MainContract {
 
     interface Presenter extends BaseContract.BasePresenter<View> {
 
-        String checkItem(String text);
-
-        void getItem(String itemId, boolean isCheck);
+        void getItem(String text, boolean isCheck);
 
         void updateAll();
 

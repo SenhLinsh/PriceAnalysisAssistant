@@ -6,6 +6,8 @@ import com.linsh.paa.model.bean.db.ItemHistory;
 import com.linsh.paa.model.bean.json.TaobaoDetail;
 
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * <pre>
@@ -16,17 +18,32 @@ import java.util.Locale;
  */
 public class BeanHelper {
 
-    public static String checkItem(String text) {
+    /**
+     * @param text 从文本中获取 ItemId, 包括 Id \ URL \ 淘口令
+     * @return 返回数字格式为 ItemId; 返回 http 格式为 URL
+     */
+    public static String getItemId(String text) {
+        String itemId = null;
         if (LshStringUtils.isEmpty(text)) {
-            return null;
-        } else if (text.matches("\\d{8,}")) {
-            return text;
-        } else if (text.matches("https?://.+/(item|detail)\\.htm\\?(.+&)?id=\\d+.*")) {
-            String itemId = text.replaceAll(".+[?&]id=(\\d+).*", "$1");
-            return itemId.matches("\\d+") ? itemId : null;
+        } else if (text.matches("\\d{8,}")) { // ItemId
+            itemId = text;
+        } else if (text.matches("https?://.+/(item|detail)\\.htm\\?(.+&)?id=\\d+.*")) { // 宝贝地址
+            itemId = text.replaceAll(".+[?&]id=(\\d+).*", "$1");
+            itemId = itemId.matches("\\d+") ? itemId : null;
+        } else if (text.trim().matches(".+https?://v\\.cvz5\\.com/.+￥.+￥.+")) { // 淘口令
+            return text.replaceAll(".+(https?://v\\.cvz5\\.com/[.a-zA-Z1-9]+).+￥.+￥.+", "$1");
+        }
+        return itemId;
+    }
+
+    public static String getItemIdFromTKL(String html) {
+        Matcher matcher = Pattern.compile("var.?url.?=.{1,3}https?://[^/]+/i(\\d+).+").matcher(html);
+        if (matcher.find()) {
+            return matcher.group(1);
         }
         return null;
     }
+
 
     /**
      * 获取需要存储的 Item 和 ItemHistory

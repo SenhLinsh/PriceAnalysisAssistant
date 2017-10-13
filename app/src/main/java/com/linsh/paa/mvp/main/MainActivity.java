@@ -31,6 +31,7 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
     private BottomViewHelper mBottomViewHelper;
     private RecyclerView mRvContent;
     private GridLayoutManager mLayoutManager;
+    private String lastClipboardText;
 
     @Override
     protected MainContract.Presenter initPresenter() {
@@ -211,14 +212,11 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
             case R.id.menu_main_add_item:
                 // 获取剪贴板的文字并检查
                 String text = LshClipboardUtils.getText();
-                String itemId = mPresenter.checkItem(text);
-                if (itemId != null) {
-                    showTextDialog("检测到剪贴板中的宝贝(Id:" + itemId + "), 是否添加", "添加", lshColorDialog -> {
-                        lshColorDialog.dismiss();
-                        mPresenter.getItem(itemId, false);
-                    }, null, null);
-                } else {
+                if (LshStringUtils.isEquals(text, lastClipboardText)) {
                     showInputItemIdDialog();
+                } else {
+                    lastClipboardText = text;
+                    mPresenter.getItem(text, false);
                 }
                 return true;
             case R.id.menu_main_update_all:
@@ -249,12 +247,7 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
                 .setHint("请输入宝贝id 或者宝贝链接")
                 .setPositiveButton(null, (lshColorDialog, text) -> {
                     lshColorDialog.dismiss();
-                    String itemId = mPresenter.checkItem(text);
-                    if (itemId != null) {
-                        mPresenter.getItem(itemId, true);
-                    } else {
-                        showTextDialog("无法解析该宝贝, 请传入正确格式");
-                    }
+                    mPresenter.getItem(text, true);
                 })
                 .setNegativeButton(null, null)
                 .show();

@@ -64,19 +64,30 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
         });
     }
 
-    @Override
-    public String checkItem(String text) {
-        return BeanHelper.checkItem(text);
-    }
-
     /**
      * @param isConfirm 为 true 时表示 ItemId 为手动输入的; 为 false 时表示 ItemId 为剪贴板的
      */
     @Override
-    public void getItem(String itemId, boolean isConfirm) {
+    public void getItem(String text, boolean isConfirm) {
+        String itemIdSeem = BeanHelper.getItemId(text);
+        if (itemIdSeem == null) {
+            getView().showToast("无法解析该宝贝, 请传入正确格式");
+            return;
+        }
         getView().showLoadingDialog();
-        Disposable disposable = ApiCreator.getTaobaoApi()
-                .getDetail(Url.getTaobaoDetailUrl(itemId))
+        Disposable disposable = Flowable.just(itemIdSeem)
+                .flatMap(itemId -> {
+                    if (itemId.startsWith("http")) {
+                        return ApiCreator.getCommonApi()
+                                .get(itemId)
+                                .subscribeOn(Schedulers.io())
+                                .map(BeanHelper::getItemIdFromTKL);
+                    } else {
+                        return Flowable.just(itemId);
+                    }
+                })
+                .flatMap(itemId -> ApiCreator.getTaobaoApi()
+                        .getDetail(Url.getTaobaoDetailUrl(itemId)))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(data -> {

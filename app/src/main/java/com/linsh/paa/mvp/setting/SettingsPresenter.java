@@ -3,6 +3,7 @@ package com.linsh.paa.mvp.setting;
 
 import com.linsh.lshapp.common.base.RealmPresenterImpl;
 import com.linsh.lshutils.utils.Basic.LshFileUtils;
+import com.linsh.lshutils.utils.Basic.LshStringUtils;
 import com.linsh.paa.model.action.DefaultThrowableConsumer;
 import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.model.bean.db.ItemHistory;
@@ -57,11 +58,7 @@ public class SettingsPresenter extends RealmPresenterImpl<SettingsContract.View>
             final int[] index = {0};
             getView().showLoadingDialog("正在添加: ...");
             Disposable disposable = Flowable.fromArray(split)
-                    .map(line -> {
-                        String item = BeanHelper.checkItem(line);
-                        if (item == null) item = "";
-                        return item;
-                    })
+                    .map(line -> LshStringUtils.nullStrToEmpty(BeanHelper.getItemId(line)))
                     .filter(item -> item.length() > 0)
                     .flatMap(item -> PaaDbHelper.hasItem(item)
                             .filter(has -> !has)
