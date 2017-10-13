@@ -185,6 +185,11 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
             case R.id.menu_main_update_all:
                 mPresenter.updateAll();
                 return true;
+            case R.id.menu_main_goto_taobao:
+                LshActivityUtils.newIntent(ItemDisplayActivity.class)
+                        .putExtra("https://www.taobao.com/")
+                        .startActivity(this);
+                return true;
             case R.id.menu_main_edit:
                 mBottomViewHelper.showBottom(this);
                 mAdapter.setSelectMode(true);

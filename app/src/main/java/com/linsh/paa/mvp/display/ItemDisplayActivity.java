@@ -14,7 +14,6 @@ import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
 
 import com.just.library.AgentWeb;
-import com.just.library.ChromeClientCallbackManager;
 import com.linsh.lshapp.common.base.BaseToolbarActivity;
 import com.linsh.lshutils.utils.Basic.LshLogUtils;
 import com.linsh.lshutils.utils.LshActivityUtils;
@@ -48,43 +47,40 @@ public class ItemDisplayActivity extends BaseToolbarActivity<ItemDisplayContract
     }
 
     public void initWebView() {
-        String itemId = LshActivityUtils.getStringExtra(this);
-        if (itemId == null) return;
+        String url = LshActivityUtils.getStringExtra(this);
+        if (url == null) return;
+        if (url.matches("\\d+")) {
+            url = Url.getTaobaoDetailHtmlUrl(url);
+        } else if (!url.startsWith("http")) {
+            return;
+        }
         mAgentWeb = AgentWeb.with(this)
-                .setAgentWebParent((ViewGroup) findViewById(R.id.fl_item_display_root), new LinearLayout.LayoutParams(-1, -1))//传入AgentWeb 的父控件 ，如果父控件为 RelativeLayout ， 那么第二参数需要传入 RelativeLayout.LayoutParams ,第一个参数和第二个参数应该对应。
+                .setAgentWebParent((ViewGroup) findViewById(R.id.fl_item_display_root), new LinearLayout.LayoutParams(-1, -1))
                 .useDefaultIndicator()
                 .defaultProgressBarColor()
-                .setReceivedTitleCallback(new ChromeClientCallbackManager.ReceivedTitleCallback() {
-                    @Override
-                    public void onReceivedTitle(WebView view, String title) {
-
-                    }
-                }) //设置 Web 页面的 title 回调
                 .setWebViewClient(new WebViewClient() {
-
                     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
                     @Override
                     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-                        String url = request.getUrl().toString();
-                        LshLogUtils.i("shouldInterceptRequest: request.getUrl() = " + url);
+                        LshLogUtils.i("shouldInterceptRequest: url = " + request.getUrl().toString());
                         return super.shouldInterceptRequest(view, request);
                     }
 
                     @Override
                     public void onPageStarted(WebView view, String url, Bitmap favicon) {
-                        getSupportActionBar().setTitle("正在跳转...");
                         super.onPageStarted(view, url, favicon);
+                        getToolbar().setTitle("正在跳转...");
                     }
 
                     @Override
                     public void onPageFinished(WebView view, String url) {
                         super.onPageFinished(view, url);
-                        getSupportActionBar().setTitle(view.getTitle());
+                        getToolbar().setTitle(view.getTitle());
                     }
                 })
                 .createAgentWeb()
                 .ready()
-                .go(Url.getTaobaoDetailHtmlUrl(itemId));
+                .go(url);
     }
 
     @Override
