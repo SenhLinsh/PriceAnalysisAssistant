@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shape_item_main"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+
+        <com.linsh.lshutils.view.RatioImageView
+            android:id="@+id/iv_dialog_display_item_photo"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            app:decidedRatio="1"
+            tools:background="@color/white"
+            tools:src="@mipmap/ic_launcher"/>
+
+        <TextView
+            android:id="@+id/tv_dialog_display_item_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="5dp"
+            android:ellipsize="end"
+            android:padding="3dp"
+            android:textColor="@color/text_title"
+            android:textSize="15sp"
+            tools:text="正版xxx 宝贝标题 我比较长长长长长"/>
+
+        <TextView
+            android:id="@+id/tv_dialog_display_item_shopname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="5dp"
+            android:ellipsize="end"
+            android:lines="1"
+            android:text="渊祥官方旗舰店"
+            android:textColor="@color/text_detail"
+            android:textSize="12sp"/>
+
+        <TextView
+            android:id="@+id/tv_idialog_display_item_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="3dp"
+            android:lines="1"
+            android:text="¥666"
+            android:textColor="#FF5555"
+            android:textSize="20sp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp">
+
+            <TextView
+                android:id="@+id/tv_dialog_display_item_add"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/color_theme_yellow"
+                android:gravity="center"
+                android:padding="7dp"
+                android:text="添加"
+                android:textColor="@color/white"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/tv_dialog_display_item_cancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/color_disable"
+                android:gravity="center"
+                android:padding="7dp"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                tools:text="取消"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

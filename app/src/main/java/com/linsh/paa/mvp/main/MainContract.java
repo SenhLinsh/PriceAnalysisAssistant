@@ -18,13 +18,17 @@ interface MainContract {
         void setData(List<Item> items);
 
         void setTags(List<String> tags);
+
+        void showItem(Object[] toSave, boolean isConfirm);
+
+        void showInputItemIdDialog();
     }
 
     interface Presenter extends BaseContract.BasePresenter<View> {
 
         String checkItem(String text);
 
-        void addItem(String itemId);
+        void getItem(String itemId, boolean isCheck);
 
         void updateAll();
 
@@ -45,5 +49,7 @@ interface MainContract {
         void setNotifiedPrice(String itemId, String price);
 
         void setNormalPrice(String itemId, String price);
+
+        void saveItem(Object[] toSave);
     }
 }

@@ -69,22 +69,32 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
         return BeanHelper.checkItem(text);
     }
 
+    /**
+     * @param isConfirm 为 true 时表示 ItemId 为手动输入的; 为 false 时表示 ItemId 为剪贴板的
+     */
     @Override
-    public void addItem(String itemId) {
+    public void getItem(String itemId, boolean isConfirm) {
+        getView().showLoadingDialog();
         Disposable disposable = ApiCreator.getTaobaoApi()
                 .getDetail(Url.getTaobaoDetailUrl(itemId))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(data -> {
+                    getView().dismissLoadingDialog();
                     Log.i("LshLog", "getItem: data = " + data);
                     TaobaoDetail detail = TaobaoDataParser.parseGetDetailData(data);
                     Object[] toSave = BeanHelper.getItemAndHistoryToSave(detail);
                     if (toSave[0] != null && toSave[1] != null) {
-                        addItem((Item) toSave[0], (ItemHistory) toSave[1]);
-                    } else {
+                        getView().showItem(toSave, isConfirm);
+                    } else if (isConfirm) {
                         getView().showToast("数据解析失败");
+                    } else {
+                        getView().showInputItemIdDialog();
                     }
-                }, new DefaultThrowableConsumer());
+                }, thr -> {
+                    getView().dismissLoadingDialog();
+                    DefaultThrowableConsumer.showThrowableMsg(thr);
+                });
         addDisposable(disposable);
     }
 
@@ -212,8 +222,9 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                 .subscribe();
     }
 
-    public void addItem(Item item, ItemHistory history) {
-        Disposable disposable = PaaDbHelper.createItem(getRealm(), item, history)
+    @Override
+    public void saveItem(Object[] toSave) {
+        Disposable disposable = PaaDbHelper.createItem(getRealm(), (Item) toSave[0], (ItemHistory) toSave[1])
                 .subscribe(result -> {
                     if (!ResultConsumer.handleFailedWithToast(result)) {
                         getView().showToast("保存成功");

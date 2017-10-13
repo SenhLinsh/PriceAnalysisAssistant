@@ -19,6 +19,7 @@ import com.linsh.paa.mvp.analysis.AnalysisActivity;
 import com.linsh.paa.mvp.display.ItemDisplayActivity;
 import com.linsh.paa.mvp.setting.SettingsActivity;
 import com.linsh.paa.tools.BeanHelper;
+import com.linsh.paa.view.DisplayItemDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -208,14 +209,16 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
         int id = item.getItemId();
         switch (id) {
             case R.id.menu_main_add_item:
-                String itemId = mPresenter.checkItem(LshClipboardUtils.getText());
+                // 获取剪贴板的文字并检查
+                String text = LshClipboardUtils.getText();
+                String itemId = mPresenter.checkItem(text);
                 if (itemId != null) {
                     showTextDialog("检测到剪贴板中的宝贝(Id:" + itemId + "), 是否添加", "添加", lshColorDialog -> {
                         lshColorDialog.dismiss();
-                        mPresenter.addItem(itemId);
+                        mPresenter.getItem(itemId, false);
                     }, null, null);
                 } else {
-                    showAddItemDialog();
+                    showInputItemIdDialog();
                 }
                 return true;
             case R.id.menu_main_update_all:
@@ -238,8 +241,9 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
         return super.onOptionsItemSelected(item);
     }
 
-    private LshColorDialog showAddItemDialog() {
-        return new LshColorDialog(this)
+    @Override
+    public void showInputItemIdDialog() {
+        new LshColorDialog(this)
                 .buildInput()
                 .setTitle("添加宝贝")
                 .setHint("请输入宝贝id 或者宝贝链接")
@@ -247,12 +251,30 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
                     lshColorDialog.dismiss();
                     String itemId = mPresenter.checkItem(text);
                     if (itemId != null) {
-                        mPresenter.addItem(itemId);
+                        mPresenter.getItem(itemId, true);
                     } else {
                         showTextDialog("无法解析该宝贝, 请传入正确格式");
                     }
                 })
                 .setNegativeButton(null, null)
+                .show();
+    }
+
+    @Override
+    public void showItem(Object[] toSave, boolean isConfirm) {
+        new DisplayItemDialog(getActivity())
+                .setData((Item) toSave[0])
+                .setOnPositiveClickListener(dialog -> {
+                    dialog.dismiss();
+                    mPresenter.saveItem(toSave);
+                })
+                .setNegativeText(isConfirm ? "取消" : "手动输入")
+                .setOnNegativeClickListener(dialog -> {
+                    dialog.dismiss();
+                    if (!isConfirm) {
+                        showInputItemIdDialog();
+                    }
+                })
                 .show();
     }
 
