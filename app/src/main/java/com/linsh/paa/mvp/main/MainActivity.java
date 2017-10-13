@@ -7,7 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.linsh.lshapp.common.base.BaseViewActivity;
+import com.linsh.lshapp.common.base.BaseToolbarHomeActivity;
 import com.linsh.lshapp.common.view.LshPopupWindow;
 import com.linsh.lshutils.utils.Basic.LshStringUtils;
 import com.linsh.lshutils.utils.LshActivityUtils;
@@ -22,7 +22,7 @@ import com.linsh.paa.mvp.setting.SettingsActivity;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends BaseViewActivity<MainContract.Presenter>
+public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter>
         implements MainContract.View {
 
     private MainAdapter mAdapter;
@@ -36,13 +36,18 @@ public class MainActivity extends BaseViewActivity<MainContract.Presenter>
     }
 
     @Override
+    protected String getToolbarTitle() {
+        return "价格分析助手";
+    }
+
+    @Override
     protected int getLayout() {
         return R.layout.activity_main;
     }
 
     @Override
     protected void initView() {
-        getSupportActionBar().setTitle("价格分析助手");
+        // 底部栏
         mBottomViewHelper = new BottomViewHelper(this);
         mBottomViewHelper.setViewHelperListener(new BottomViewHelper.ViewHelperListener() {
             @Override
@@ -103,6 +108,7 @@ public class MainActivity extends BaseViewActivity<MainContract.Presenter>
                 mAdapter.setSelectMode(false);
             }
         });
+        // 列表
         mRvContent = (RecyclerView) findViewById(R.id.rv_main_content);
         mLayoutManager = new GridLayoutManager(this, 2);
         mLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {

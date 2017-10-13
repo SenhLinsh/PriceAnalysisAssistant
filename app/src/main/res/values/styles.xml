@@ -4,6 +4,9 @@
         <item name="colorPrimary">@color/color_theme_dark_blue</item>
         <item name="colorPrimaryDark">@color/color_theme_dark_blue_pressed</item>
         <item name="colorAccent">@color/color_theme_normal_blue</item>
+
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
 </resources>
