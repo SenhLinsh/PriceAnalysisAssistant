@@ -39,5 +39,7 @@ interface MainContract {
         void moveItemsToOtherTag(String tag, ArrayList<String> itemIds);
 
         void onTagSelected(String tag);
+
+        void onStatusSelected(String status);
     }
 }

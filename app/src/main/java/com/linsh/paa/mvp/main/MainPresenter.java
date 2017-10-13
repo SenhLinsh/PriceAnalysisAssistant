@@ -49,6 +49,8 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
             }
         }
     };
+    private String mCurTag;
+    private String mCurDisplay;
 
     @Override
     protected void attachView() {
@@ -169,12 +171,23 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
 
     @Override
     public void onTagSelected(String tag) {
+        mCurTag = tag;
         mItems.removeAllChangeListeners();
-        if (tag == null) {
-            mItems = PaaDbHelper.getItems(getRealm());
+        mItems = PaaDbHelper.getItems(getRealm(), mCurTag, mCurDisplay);
+        mItems.addChangeListener(mItemChangeListener);
+    }
+
+    @Override
+    public void onStatusSelected(String status) {
+        if ("价格较低".equals(status)) {
+            mCurDisplay = "价格低";
+        } else if ("降价中".equals(status)) {
+            mCurDisplay = "下降";
         } else {
-            mItems = PaaDbHelper.getItems(getRealm(), tag.equals("无标签") ? null : tag);
+            mCurDisplay = null;
         }
+        mItems.removeAllChangeListeners();
+        mItems = PaaDbHelper.getItems(getRealm(), mCurTag, mCurDisplay);
         mItems.addChangeListener(mItemChangeListener);
     }
 

@@ -93,17 +93,18 @@ public class BeanHelper {
     }
 
     private static void analysisPrice(Item item, String price) {
-        String display = null;
+        String display = "";
         int[] newPrice = TaobaoDataParser.parsePrice(price);
         if (item.getNotifiedPrice() > 0) {
             display = "#1比通知价格" + getPrice(item.getNotifiedPrice(), newPrice[0], "高", "低");
         } else if (newPrice[0] < item.getNormalPrice()) {
             display = "#2比正常价格" + getPrice(item.getNormalPrice(), newPrice[0], "高", "低");
-        } else if (item.getNormalPrice() == 0 && newPrice[0] < item.getInitialPrice()) {
+        }
+        if (display.length() == 0 && item.getNormalPrice() == 0 && newPrice[0] < item.getInitialPrice()) {
             display = "#3比收藏时" + getPrice(item.getInitialPrice(), newPrice[0], "上升", "下降");
         } else if (!item.getPrice().equals(price)) {
             int[] itemPrice = TaobaoDataParser.parsePrice(item.getPrice());
-            display = "#4比上一次" + getPrice(itemPrice[0], newPrice[0], "上升", "下降");
+            display += "#4比上一次" + getPrice(itemPrice[0], newPrice[0], "上升", "下降");
         }
         item.setDisplay(display);
     }

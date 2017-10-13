@@ -12,8 +12,9 @@ import static org.junit.Assert.assertEquals;
 public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() throws Exception {
-        String s = "http://fdas.com?id=372402375&itd=dfsdf";
-        s = s.replaceAll(".+\\?id=(\\d+).+", "$1");
-        assertEquals(s, "");
+        String s = "#3打打工发噶十多个";
+        String lowStr = s.replaceFirst("(#[12][^#]+)?.*", "$1");
+        String descendStr = s.replaceFirst("(#[12][^#]+)?(#[34][^#]+)?", "$2");
+        assertEquals(lowStr, descendStr);
     }
 }

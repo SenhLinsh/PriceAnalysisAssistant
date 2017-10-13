@@ -147,6 +147,11 @@ public class MainActivity extends BaseViewActivity<MainContract.Presenter>
             public void onTagSelected(String tag) {
                 mPresenter.onTagSelected(tag);
             }
+
+            @Override
+            public void onStatusSelected(String status) {
+                mPresenter.onStatusSelected(status);
+            }
         });
     }
 

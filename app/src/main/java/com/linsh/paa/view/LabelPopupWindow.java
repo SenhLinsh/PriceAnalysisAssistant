@@ -41,6 +41,10 @@ public class LabelPopupWindow extends PopupWindow {
         return addLabels(Arrays.asList(labels));
     }
 
+    public LabelPopupWindow addLabels(String[] labels, int selectedIndex) {
+        return addLabels(Arrays.asList(labels), selectedIndex);
+    }
+
     public LabelPopupWindow addLabels(List<String> labels) {
         return addLabels(labels, -1);
     }

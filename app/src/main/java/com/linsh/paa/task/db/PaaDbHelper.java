@@ -15,6 +15,7 @@ import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
 import io.reactivex.functions.Consumer;
 import io.realm.Realm;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
@@ -31,8 +32,11 @@ public class PaaDbHelper {
         return realm.where(Item.class).findAllSortedAsync("sort", Sort.DESCENDING);
     }
 
-    public static RealmResults<Item> getItems(Realm realm, String tag) {
-        return realm.where(Item.class).equalTo("tag", tag).findAllSortedAsync("sort", Sort.DESCENDING);
+    public static RealmResults<Item> getItems(Realm realm, String tag, String display) {
+        RealmQuery<Item> where = realm.where(Item.class);
+        if (tag != null) where.equalTo("tag", tag.equals("无标签") ? null : tag);
+        if (display != null) where.contains("display", display);
+        return where.findAllSortedAsync("sort", Sort.DESCENDING);
     }
 
     public static RealmResults<Tag> getTags(Realm realm) {
