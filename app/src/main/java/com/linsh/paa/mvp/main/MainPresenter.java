@@ -191,6 +191,27 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
         mItems.addChangeListener(mItemChangeListener);
     }
 
+    @Override
+    public void setNotifiedPrice(String itemId, String price) {
+        PaaDbHelper.updateItem(getRealm(), itemId,
+                item -> {
+                    item.setNotifiedPrice((int) (Float.parseFloat(price) * 100));
+                    BeanHelper.updateItemDisplay(item);
+                })
+                .subscribe();
+
+    }
+
+    @Override
+    public void setNormalPrice(String itemId, String price) {
+        PaaDbHelper.updateItem(getRealm(), itemId,
+                item -> {
+                    item.setNormalPrice((int) (Float.parseFloat(price) * 100));
+                    BeanHelper.updateItemDisplay(item);
+                })
+                .subscribe();
+    }
+
     public void addItem(Item item, ItemHistory history) {
         Disposable disposable = PaaDbHelper.createItem(getRealm(), item, history)
                 .subscribe(result -> {

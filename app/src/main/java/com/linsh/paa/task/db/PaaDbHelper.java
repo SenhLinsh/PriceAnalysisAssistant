@@ -9,8 +9,6 @@ import com.linsh.paa.model.bean.db.Tag;
 import com.linsh.paa.model.result.Result;
 import com.linsh.paa.tools.LshRxUtils;
 
-import org.reactivestreams.Publisher;
-
 import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
 import io.reactivex.functions.Consumer;
@@ -106,7 +104,7 @@ public class PaaDbHelper {
         });
     }
 
-    public static Publisher<Result> updateItem(Realm realm, String itemId, Consumer<Item> consumer) {
+    public static Flowable<Result> updateItem(Realm realm, String itemId, Consumer<Item> consumer) {
         return LshRxUtils.getAsyncTransactionFlowable(realm, new AsyncTransaction<Result>() {
             @Override
             protected void execute(Realm realm, FlowableEmitter<? super Result> emitter) {

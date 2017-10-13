@@ -66,7 +66,7 @@ public class BeanHelper {
                 history.setPrice(detailPrice);
                 if (LshStringUtils.notEmpty(detailPrice)
                         && !LshStringUtils.isEquals(item.getPrice(), detailPrice)) {
-                    analysisPrice(itemCopy, detailPrice);
+                    updateItemDisplay(itemCopy, detailPrice);
                     itemCopy.setPrice(detailPrice);
                     needUpdate = true;
                 }
@@ -92,19 +92,38 @@ public class BeanHelper {
         return new Object[2];
     }
 
-    private static void analysisPrice(Item item, String price) {
-        String display = "";
-        int[] newPrice = TaobaoDataParser.parsePrice(price);
+    public static void updateItemDisplay(Item item) {
+        String display = null;
+        int[] price = TaobaoDataParser.parsePrice(item.getPrice());
         if (item.getNotifiedPrice() > 0) {
-            display = "#1比通知价格" + getPrice(item.getNotifiedPrice(), newPrice[0], "高", "低");
-        } else if (newPrice[0] < item.getNormalPrice()) {
-            display = "#2比正常价格" + getPrice(item.getNormalPrice(), newPrice[0], "高", "低");
+            display = "#1比通知价格" + getPrice(item.getNotifiedPrice(), price[0], "高", "低");
+        } else if (price[0] < item.getNormalPrice()) {
+            display = "#2比正常价格" + getPrice(item.getNormalPrice(), price[0], "高", "低");
         }
-        if (display.length() == 0 && item.getNormalPrice() == 0 && newPrice[0] < item.getInitialPrice()) {
-            display = "#3比收藏时" + getPrice(item.getInitialPrice(), newPrice[0], "上升", "下降");
-        } else if (!item.getPrice().equals(price)) {
+        String oldDisplay = item.getDisplay();
+        if (oldDisplay != null && (oldDisplay.contains("#3") || oldDisplay.contains("#4"))) {
+            if (oldDisplay.startsWith("#1") || oldDisplay.startsWith("#2")) {
+                display = display + oldDisplay.substring(oldDisplay.indexOf("#", 3), oldDisplay.length());
+            } else {
+                display = display + oldDisplay;
+            }
+        }
+        item.setDisplay(display);
+    }
+
+    private static void updateItemDisplay(Item item, String newPrice) {
+        String display = "";
+        int[] newPrices = TaobaoDataParser.parsePrice(newPrice);
+        if (item.getNotifiedPrice() > 0) {
+            display = "#1比通知价格" + getPrice(item.getNotifiedPrice(), newPrices[0], "高", "低");
+        } else if (newPrices[0] < item.getNormalPrice()) {
+            display = "#2比正常价格" + getPrice(item.getNormalPrice(), newPrices[0], "高", "低");
+        }
+        if (display.length() == 0 && item.getNormalPrice() == 0 && newPrices[0] < item.getInitialPrice()) {
+            display = "#3比收藏时" + getPrice(item.getInitialPrice(), newPrices[0], "上升", "下降");
+        } else if (!item.getPrice().equals(newPrice)) {
             int[] itemPrice = TaobaoDataParser.parsePrice(item.getPrice());
-            display += "#4比上一次" + getPrice(itemPrice[0], newPrice[0], "上升", "下降");
+            display += "#4比上一次" + getPrice(itemPrice[0], newPrices[0], "上升", "下降");
         }
         item.setDisplay(display);
     }
@@ -113,6 +132,10 @@ public class BeanHelper {
         int price = newPrice - targetPrice;
         String diffStr = price > 0 ? ascendedStr : descendedStr;
         return String.format(Locale.CHINA, "%s%.2f元", diffStr, Math.abs(price * 1F / 100));
+    }
+
+    public static String getPriceStr(int price) {
+        return String.format(Locale.CHINA, "%.2f", Math.abs(price * 1F / 100));
     }
 
     private static Item check(Item item) {

@@ -18,6 +18,7 @@ import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.mvp.analysis.AnalysisActivity;
 import com.linsh.paa.mvp.display.ItemDisplayActivity;
 import com.linsh.paa.mvp.setting.SettingsActivity;
+import com.linsh.paa.tools.BeanHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -132,16 +133,51 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
             public void onItemLongClick(View view, int position) {
                 new LshPopupWindow(MainActivity.this)
                         .BuildList()
-                        .setItems(new String[]{"打开淘宝链接", "删除该宝贝"}, (window, index) -> {
+                        .setItems(new String[]{"打开淘宝链接", "设置提醒价格", "设置正常价格", "删除该宝贝"}, (window, index) -> {
                             window.dismiss();
+                            Item item = mAdapter.getData().get(position);
                             switch (index) {
                                 case 0:
                                     LshActivityUtils.newIntent(ItemDisplayActivity.class)
-                                            .putExtra(mAdapter.getData().get(position).getId())
+                                            .putExtra(item.getId())
                                             .startActivity(getActivity());
                                     break;
                                 case 1:
-                                    mPresenter.deleteItem(mAdapter.getData().get(position).getId());
+                                    int notifiedPrice = item.getNotifiedPrice();
+                                    new LshColorDialog(getActivity())
+                                            .buildInput()
+                                            .setTitle("设置提醒价格")
+                                            .setHint(BeanHelper.getPriceStr(notifiedPrice))
+                                            .setPositiveButton(null, (dialog, inputText) -> {
+                                                if (!inputText.matches("\\d+(.\\d+)?")) {
+                                                    showToast("请输入正确的格式");
+                                                    return;
+                                                }
+                                                dialog.dismiss();
+                                                mPresenter.setNotifiedPrice(item.getId(), inputText);
+                                            })
+                                            .setNegativeButton(null, null)
+                                            .show();
+                                    break;
+                                case 2:
+                                    int normalPrice = item.getNormalPrice();
+                                    new LshColorDialog(getActivity())
+                                            .buildInput()
+                                            .setTitle("设置正常价格")
+                                            .setHint(BeanHelper.getPriceStr(normalPrice))
+                                            .setPositiveButton(null, (dialog, inputText) -> {
+                                                if (!inputText.matches("\\d+(.\\d+)?")) {
+                                                    showToast("请输入正确的格式");
+                                                    return;
+                                                }
+                                                dialog.dismiss();
+                                                mPresenter.setNormalPrice(item.getId(), inputText);
+                                            })
+                                            .setNegativeButton(null, null)
+                                            .show();
+                                    break;
+                                case 3:
+                                    mPresenter.deleteItem(item.getId());
                                     break;
                             }
                         })

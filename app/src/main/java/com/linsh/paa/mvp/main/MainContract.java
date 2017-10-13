@@ -41,5 +41,9 @@ interface MainContract {
         void onTagSelected(String tag);
 
         void onStatusSelected(String status);
+
+        void setNotifiedPrice(String itemId, String price);
+
+        void setNormalPrice(String itemId, String price);
     }
 }
