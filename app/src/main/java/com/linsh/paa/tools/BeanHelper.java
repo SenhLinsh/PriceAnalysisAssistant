@@ -82,7 +82,8 @@ public class BeanHelper {
                 String detailPrice = detail.getItemPrice();
                 history.setPrice(detailPrice);
                 if (LshStringUtils.notEmpty(detailPrice)
-                        && !LshStringUtils.isEquals(item.getPrice(), detailPrice)) {
+                        && (!LshStringUtils.isEquals(item.getPrice(), detailPrice)
+                        || (item.getDisplay() != null && item.getDisplay().contains("#4")))) {
                     updateItemDisplay(itemCopy, detailPrice);
                     itemCopy.setPrice(detailPrice);
                     needUpdate = true;
