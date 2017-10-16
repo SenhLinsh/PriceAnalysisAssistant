@@ -153,7 +153,15 @@ public class BeanHelper {
     }
 
     public static String getPriceStr(int price) {
-        return String.format(Locale.CHINA, "%.2f", Math.abs(price * 1F / 100));
+        String format;
+        if (price % 100 == 0) {
+            format = "%.0f";
+        } else if (price % 10 == 0) {
+            format = "%.1f";
+        } else {
+            format = "%.2f";
+        }
+        return String.format(Locale.CHINA, format, Math.abs(price * 1F / 100));
     }
 
     private static Item check(Item item) {
