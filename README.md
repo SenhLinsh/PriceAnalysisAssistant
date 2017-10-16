@@ -31,7 +31,7 @@
 
 在手机淘宝的宝贝详情界面，选择分享并复制链接（实际为淘口令），即可在 APP 中的『添加宝贝』中进行添加
 
-<img src="screenshot/screenshot1.gif" width="300px" width="530px"/><br/>
+<img src="screenshots/screenshot1.gif" width="300px" height="530px"/><br/>
 
 * 从链接或者宝贝id 中添加宝贝
 
