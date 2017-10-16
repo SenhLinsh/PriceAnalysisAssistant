@@ -41,14 +41,13 @@ dependencies {
     })
 
     compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.just.agentweb:agentweb:2.0.1'
-    testCompile 'junit:junit:4.12'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-
+    testCompile 'junit:junit:4.12'
     testCompile "com.google.truth:truth:0.34"
 
-    compile project(':common')
-
+    compile 'com.just.agentweb:agentweb:2.0.1'
     compile 'com.github.PhilJay:MPAndroidChart:v3.0.2'
     compile 'com.google.android:flexbox:0.3.0'
+
+    compile 'com.github.SenhLinsh:lshapp-common:1.0.1'
 }

@@ -1,5 +1,7 @@
-include ':app', ':common'
-include ':LshUtils'
+include ':app'
 
-project(':LshUtils').projectDir = new File('../LshLibrary/LshUtils/')
-include ':LshUtils:lshutils'
+//include ':common'
+
+//include ':LshUtils'
+//project(':LshUtils').projectDir = new File('../LshLibrary/LshUtils/')
+//include ':LshUtils:lshutils'
