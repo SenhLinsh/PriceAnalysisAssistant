@@ -2,6 +2,7 @@ package com.linsh.paa.mvp.analysis;
 
 import com.github.mikephil.charting.data.Entry;
 import com.linsh.lshapp.common.base.RealmPresenterImpl;
+import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.model.bean.db.ItemHistory;
 import com.linsh.paa.task.db.PaaDbHelper;
 
@@ -20,9 +21,17 @@ class AnalysisPresenter extends RealmPresenterImpl<AnalysisContract.View>
         implements AnalysisContract.Presenter {
 
     private RealmResults<ItemHistory> mHistories;
+    private Item mItem;
 
     @Override
     protected void attachView() {
+        mItem = PaaDbHelper.getItem(getRealm(), getView().getItemId());
+        mItem.addChangeListener(element -> {
+            if (mItem.isValid()) {
+                getView().setData(mItem);
+            }
+        });
+
         mHistories = PaaDbHelper.getItemHistories(getRealm(), getView().getItemId());
         mHistories.addChangeListener(element -> {
             if (element.isValid()) {

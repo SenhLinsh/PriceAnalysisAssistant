@@ -26,6 +26,10 @@ import io.realm.Sort;
  */
 public class PaaDbHelper {
 
+    public static Item getItem(Realm realm, String itemId) {
+        return realm.where(Item.class).equalTo("id", itemId).findFirstAsync();
+    }
+
     public static RealmResults<Item> getItems(Realm realm) {
         return realm.where(Item.class).findAllSortedAsync("sort", Sort.DESCENDING);
     }

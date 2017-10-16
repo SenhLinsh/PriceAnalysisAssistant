@@ -5,6 +5,7 @@ import android.graphics.Color;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -20,11 +21,14 @@ import com.linsh.lshutils.module.SimpleDate;
 import com.linsh.lshutils.utils.Basic.LshLogUtils;
 import com.linsh.lshutils.utils.LshActivityUtils;
 import com.linsh.paa.R;
+import com.linsh.paa.model.bean.db.Item;
+import com.linsh.paa.tools.BeanHelper;
 import com.linsh.paa.view.MyMarkerView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class AnalysisActivity extends BaseToolbarActivity<AnalysisContract.Presenter>
         implements AnalysisContract.View {
@@ -92,6 +96,7 @@ public class AnalysisActivity extends BaseToolbarActivity<AnalysisContract.Prese
         YAxis leftAxis = mLineChart.getAxisLeft();
         leftAxis.setDrawGridLines(false);
         leftAxis.setDrawZeroLine(false);
+        leftAxis.setDrawLimitLinesBehindData(true);
         leftAxis.setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
@@ -103,6 +108,33 @@ public class AnalysisActivity extends BaseToolbarActivity<AnalysisContract.Prese
     @Override
     public String getItemId() {
         return LshActivityUtils.getStringExtra(this);
+    }
+
+    @Override
+    public void setData(Item item) {
+        boolean hasLimitLines = false;
+        // 设置参考线
+        YAxis yAxis = mLineChart.getAxisLeft();
+        yAxis.removeAllLimitLines();
+        int notifiedPrice = item.getNotifiedPrice();
+        if (notifiedPrice > 0) {
+            LimitLine notifiedPriceLine = new LimitLine(notifiedPrice * 1F / 100, "通知价格: " + BeanHelper.getPriceStr(notifiedPrice) + "元");
+            notifiedPriceLine.setLineColor(Color.RED);
+            notifiedPriceLine.setTextColor(Color.RED);
+            yAxis.addLimitLine(notifiedPriceLine);
+            hasLimitLines = true;
+        }
+        int normalPrice = item.getNormalPrice();
+        if (normalPrice > 0) {
+            LimitLine normalPriceLine = new LimitLine(normalPrice * 1F / 100, "正常价格: " +
+                    "" + BeanHelper.getPriceStr(normalPrice) + "元");
+            normalPriceLine.setLineColor(Color.BLUE);
+            normalPriceLine.setTextColor(Color.BLUE);
+            yAxis.addLimitLine(normalPriceLine);
+            hasLimitLines = true;
+        }
+        yRangeFlag[0] = hasLimitLines;
+        setYRange();
     }
 
     @Override
@@ -211,5 +243,40 @@ public class AnalysisActivity extends BaseToolbarActivity<AnalysisContract.Prese
         handler.setMaximumScaleX(Math.max(xRange / minXRange, 1));
         float yRange = mLineChart.getAxisLeft().mAxisRange;
         handler.setMaximumScaleY(Math.max(yRange / 6, 1));
+        handler.setMinimumScaleY(0);
+
+        yRangeFlag[1] = true;
+        setYRange();
+    }
+
+    private boolean[] yRangeFlag = new boolean[2];
+
+    private void setYRange() {
+        if (!yRangeFlag[0] || !yRangeFlag[1]) return;
+        YAxis yAxis = mLineChart.getAxisLeft();
+        float min = yAxis.getAxisMinimum();
+        float max = yAxis.getAxisMaximum();
+        float newMin = min;
+        float newMax = max;
+        List<LimitLine> limitLines = yAxis.getLimitLines();
+        for (LimitLine limitLine : limitLines) {
+            float limit = limitLine.getLimit();
+            if (limit < newMin) {
+                newMin = Math.max(limit - (newMax - limit) / 4, 0);
+            } else if (limit > newMax) {
+                newMax = limit + (limit - newMin) / 4;
+            }
+        }
+        if (newMin != min || newMax != max) {
+            newMin = Math.round(Math.max(Math.min(newMin, min - (newMax - max)), 0));
+            newMax = Math.round(Math.max(newMax, max + (min - newMin)));
+            yAxis.setAxisMinimum(newMin);
+            yAxis.setAxisMaximum(newMax);
+
+            ViewPortHandler handler = mLineChart.getViewPortHandler();
+            float yRange = mLineChart.getAxisLeft().mAxisRange;
+            handler.setMaximumScaleY(Math.max(yRange / 6, 1));
+            handler.setMinimumScaleY(0);
+        }
     }
 }
