@@ -111,7 +111,7 @@ public class BeanHelper {
     }
 
     public static void updateItemDisplay(Item item) {
-        String display = null;
+        String display = "";
         int[] price = TaobaoDataParser.parsePrice(item.getPrice());
         if (item.getNotifiedPrice() > 0) {
             display = "#1比通知价格" + getPrice(item.getNotifiedPrice(), price[0], "高", "低");
@@ -126,7 +126,7 @@ public class BeanHelper {
                 display = display + oldDisplay;
             }
         }
-        item.setDisplay(display);
+        item.setDisplay(display.length() == 0 ? null : display);
     }
 
     private static void updateItemDisplay(Item item, String newPrice) {
