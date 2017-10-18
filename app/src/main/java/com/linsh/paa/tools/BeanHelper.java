@@ -31,7 +31,7 @@ public class BeanHelper {
             itemId = text.replaceAll(".+[?&]id=(\\d+).*", "$1");
             itemId = itemId.matches("\\d+") ? itemId : null;
         } else if (text.trim().matches(".+https?://v\\.cvz5\\.com/.+￥.+￥.+")) { // 淘口令
-            return text.replaceAll(".+(https?://v\\.cvz5\\.com/[.a-zA-Z1-9]+).+￥.+￥.+", "$1");
+            return text.replaceAll(".+(https?://v\\.cvz5\\.com/[.a-zA-Z0-9]+).+￥.+￥.+", "$1");
         }
         return itemId;
     }
