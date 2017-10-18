@@ -71,7 +71,11 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
     public void getItem(String text, boolean isConfirm) {
         String itemIdSeem = BeanHelper.getItemId(text);
         if (itemIdSeem == null) {
-            getView().showToast("无法解析该宝贝, 请传入正确格式");
+            if (isConfirm) {
+                getView().showToast("无法解析该宝贝, 请传入正确格式");
+            } else {
+                getView().showInputItemIdDialog();
+            }
             return;
         }
         getView().showLoadingDialog();
