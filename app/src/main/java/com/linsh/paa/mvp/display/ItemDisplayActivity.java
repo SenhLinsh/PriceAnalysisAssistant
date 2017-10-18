@@ -100,12 +100,12 @@ public class ItemDisplayActivity extends BaseToolbarActivity<ItemDisplayContract
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.menu_display_get_url) {
-            String url = mAgentWeb.getWebCreator().get().getOriginalUrl();
+            String url = mAgentWeb.getWebCreator().get().getUrl();
             LshClipboardUtils.putText(url);
             LshLogUtils.i("复制链接: " + url);
             return true;
         } else if (id == R.id.menu_display_add_item) {
-            String url = mAgentWeb.getWebCreator().get().getOriginalUrl();
+            String url = mAgentWeb.getWebCreator().get().getUrl();
             mPresenter.addCurItem(url);
             Log.i("LshLog", "onOptionsItemSelected: url = " + url);
         }
