@@ -113,13 +113,14 @@ public class BeanHelper {
     public static void updateItemDisplay(Item item) {
         String display = "";
         int[] price = TaobaoDataParser.parsePrice(item.getPrice());
-        if (item.getNotifiedPrice() > 0) {
+        if (price[0] < item.getNotifiedPrice()) {
             display = "#1比通知价格" + getPrice(item.getNotifiedPrice(), price[0], "高", "低");
         } else if (price[0] < item.getNormalPrice()) {
             display = "#2比正常价格" + getPrice(item.getNormalPrice(), price[0], "高", "低");
         }
         String oldDisplay = item.getDisplay();
-        if (oldDisplay != null && (oldDisplay.contains("#3") || oldDisplay.contains("#4"))) {
+        if (LshStringUtils.notEmpty(oldDisplay)
+                && ((item.getNormalPrice() == 0 && oldDisplay.contains("#3")) || oldDisplay.contains("#4"))) {
             if (oldDisplay.startsWith("#1") || oldDisplay.startsWith("#2")) {
                 display = display + oldDisplay.substring(oldDisplay.indexOf("#", 3), oldDisplay.length());
             } else {
@@ -132,7 +133,7 @@ public class BeanHelper {
     private static void updateItemDisplay(Item item, String newPrice) {
         String display = "";
         int[] newPrices = TaobaoDataParser.parsePrice(newPrice);
-        if (item.getNotifiedPrice() > 0) {
+        if (newPrices[0] < item.getNotifiedPrice()) {
             display = "#1比通知价格" + getPrice(item.getNotifiedPrice(), newPrices[0], "高", "低");
         } else if (newPrices[0] < item.getNormalPrice()) {
             display = "#2比正常价格" + getPrice(item.getNormalPrice(), newPrices[0], "高", "低");
@@ -143,13 +144,13 @@ public class BeanHelper {
             int[] itemPrice = TaobaoDataParser.parsePrice(item.getPrice());
             display += "#4比上一次" + getPrice(itemPrice[0], newPrices[0], "上升", "下降");
         }
-        item.setDisplay(display);
+        item.setDisplay(display.length() == 0 ? null : display);
     }
 
     private static String getPrice(int targetPrice, int newPrice, String ascendedStr, String descendedStr) {
         int price = newPrice - targetPrice;
         String diffStr = price > 0 ? ascendedStr : descendedStr;
-        return String.format(Locale.CHINA, "%s%.2f元", diffStr, Math.abs(price * 1F / 100));
+        return String.format("%s%s元", diffStr, BeanHelper.getPriceStr(price));
     }
 
     public static String getPriceStr(int price) {
