@@ -115,37 +115,39 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
 
     @Override
     public void updateAll() {
-        final int[] index = {0};
         int size = mItems.size();
         if (size == 0) {
             getView().showToast("请先添加宝贝吧");
             return;
         }
-        Disposable disposable = Flowable.fromIterable(mItems)
-                .doOnSubscribe(onSub -> {
-                    getView().showLoadingDialog(String.format(Locale.CHINA, "正在更新: 0/%d", size));
-                })
-                .flatMap(item -> Flowable.just(item)
-                        .map(Item::getId)
+        final int[] curIndex = {0};
+        getView().showLoadingDialog(String.format(Locale.CHINA, "正在更新: 0/%d", size));
+        Disposable disposable = Flowable.range(0, size)
+                // 获取商品详情数据
+                .flatMap(index -> Flowable.fromCallable(() -> mItems.get(index).getId())
                         .observeOn(Schedulers.io())
                         .flatMap(itemId -> ApiCreator.getTaobaoApi()
-                                .getDetail(Url.getTaobaoDetailUrl(itemId)))
-                        .map(TaobaoDataParser::parseGetDetailData)
-                        .observeOn(AndroidSchedulers.mainThread())
+                                .getDetail(Url.getTaobaoDetailUrl(itemId))
+                                .map(TaobaoDataParser::parseGetDetailData)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .map(result -> {
+                                    getView().setLoadingDialogText(String.format(Locale.CHINA, "正在更新: %d/%d", ++curIndex[0], size));
+                                    LshLogUtils.i(String.format(Locale.CHINA, "正在更新: %d/%d", curIndex[0], size));
+                                    return result;
+                                }))
+                        // 获取需要保存的 Item 和 ItemHistory
                         .flatMap(detail -> {
-                            Object[] toSave = BeanHelper.getItemAndHistoryToSave(item, getRealm().copyFromRealm(item), detail);
+                            Object[] toSave = BeanHelper.getItemAndHistoryToSave(mItems.get(index), getRealm().copyFromRealm(mItems.get(index)), detail);
                             if (toSave[1] != null) {
                                 return PaaDbHelper.updateItem(getRealm(), (Item) toSave[0], (ItemHistory) toSave[1]);
                             }
                             return Flowable.just(new Result("数据解析失败"));
                         })
                 )
+                .observeOn(AndroidSchedulers.mainThread())
                 .doOnTerminate(() -> getView().dismissLoadingDialog())
                 .doOnError(DefaultThrowableConsumer::showThrowableMsg)
-                .map(result -> {
-                    getView().setLoadingDialogText(String.format(Locale.CHINA, "正在更新: %d/%d", ++index[0], size));
-                    return result;
-                })
+                // 合并处理结果
                 .filter(result -> !"数据解析失败".equals(result.getMessage()))
                 .collect(() -> new Result(mItems.size() > 0 ? "短时间内宝贝不会有更新的哦" : "数据解析失败"),
                         (success, result) -> success.setSuccess(result.isSuccess() || success.isSuccess()))
