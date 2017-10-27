@@ -17,6 +17,11 @@
         android:title="访问淘宝首页"
         app:showAsAction="never"/>
     <item
+        android:id="@+id/menu_main_goto_jingdong"
+        android:orderInCategory="100"
+        android:title="访问京东首页"
+        app:showAsAction="never"/>
+    <item
         android:id="@+id/menu_main_edit"
         android:orderInCategory="100"
         android:title="编辑"
