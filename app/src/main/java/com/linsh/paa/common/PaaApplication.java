@@ -22,7 +22,7 @@ public class PaaApplication extends BaseApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-        RealmTool.init(this, "paa.realm", 2, new PaaMigration());
+        RealmTool.init(this, "paa.realm", PaaMigration.VERSION, new PaaMigration());
         RxJavaPlugins.setErrorHandler(thr -> {
             thr.printStackTrace();
             LshApplicationUtils.postRunnable(() -> LshToastUtils.show(thr.getMessage()));

@@ -2,6 +2,8 @@ package com.linsh.paa.tools;
 
 import android.util.Log;
 
+import com.linsh.paa.model.bean.db.Platform;
+
 import io.realm.DynamicRealm;
 import io.realm.DynamicRealmObject;
 import io.realm.RealmMigration;
@@ -16,6 +18,8 @@ import io.realm.RealmSchema;
  * </pre>
  */
 public class PaaMigration implements RealmMigration {
+
+    public static final int VERSION = 3;
 
     @Override
     public void migrate(DynamicRealm realm, long oldVersion, long newVersion) {
@@ -45,6 +49,22 @@ public class PaaMigration implements RealmMigration {
                             if (initialPrice == 0) {
                                 item.set("initialPrice", TaobaoDataParser.parsePrice(item.get("price"))[0]);
                             }
+                        });
+                break;
+            case 2:
+                schema.get("Item")
+                        .removePrimaryKey()
+                        .transform(item -> {
+                            String itemId = item.get("id");
+                            String id = BeanHelper.getId(Platform.Taobao, itemId);
+                            item.set("id", id);
+                        })
+                        .addPrimaryKey("id");
+                schema.get("ItemHistory")
+                        .transform(history -> {
+                            String itemId = history.get("id");
+                            String id = BeanHelper.getId(Platform.Taobao, itemId);
+                            history.set("id", id);
                         });
                 break;
         }
