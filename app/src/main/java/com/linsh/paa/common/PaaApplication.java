@@ -3,6 +3,7 @@ package com.linsh.paa.common;
 import com.linsh.lshapp.common.common.BaseApplication;
 import com.linsh.lshapp.common.common.Config;
 import com.linsh.lshapp.common.tools.RealmTool;
+import com.linsh.lshutils.utils.Basic.LshApplicationUtils;
 import com.linsh.lshutils.utils.Basic.LshToastUtils;
 import com.linsh.paa.tools.PaaMigration;
 
@@ -24,7 +25,7 @@ public class PaaApplication extends BaseApplication {
         RealmTool.init(this, "paa.realm", 2, new PaaMigration());
         RxJavaPlugins.setErrorHandler(thr -> {
             thr.printStackTrace();
-            LshToastUtils.show(thr.getMessage());
+            LshApplicationUtils.postRunnable(() -> LshToastUtils.show(thr.getMessage()));
         });
     }
 
