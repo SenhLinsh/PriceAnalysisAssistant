@@ -9,12 +9,10 @@ import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.model.bean.db.ItemHistory;
 import com.linsh.paa.model.result.Result;
 import com.linsh.paa.task.db.PaaDbHelper;
-import com.linsh.paa.task.network.ApiCreator;
-import com.linsh.paa.task.network.Url;
+import com.linsh.paa.task.network.NetworkHelper;
 import com.linsh.paa.tools.BeanHelper;
 import com.linsh.paa.tools.PaaFileFactory;
 import com.linsh.paa.tools.PaaSpTools;
-import com.linsh.paa.tools.TaobaoDataParser;
 
 import java.io.File;
 import java.util.concurrent.Callable;
@@ -58,16 +56,16 @@ public class SettingsPresenter extends RealmPresenterImpl<SettingsContract.View>
             final int[] index = {0};
             getView().showLoadingDialog("正在添加: ...");
             Disposable disposable = Flowable.fromArray(split)
-                    .map(line -> LshStringUtils.nullStrToEmpty(BeanHelper.getItemId(line)))
-                    .filter(item -> item.length() > 0)
-                    .flatMap(item -> PaaDbHelper.hasItem(item)
+                    .subscribeOn(AndroidSchedulers.mainThread())
+                    .map(line -> LshStringUtils.nullStrToEmpty(BeanHelper.getIdOrUrlFromText(line)))
+                    .filter(id -> id.length() > 0)
+                    .flatMap(id -> PaaDbHelper.hasItem(id)
                             .filter(has -> !has)
-                            .map(has -> item))
+                            .map(has -> id))
                     .toList()
-                    .flatMap(items -> Flowable.fromIterable(items)
+                    .flatMap(ids -> Flowable.fromIterable(ids)
                             .observeOn(Schedulers.io())
-                            .flatMap(item -> ApiCreator.getTaobaoApi().getDetail(Url.getTaobaoDetailUrl(item)))
-                            .map(TaobaoDataParser::parseGetDetailData)
+                            .flatMap(NetworkHelper::getItemProvider)
                             .map(BeanHelper::getItemAndHistoryToSave)
                             .filter(toSave -> toSave[0] != null && toSave[1] != null)
                             .observeOn(AndroidSchedulers.mainThread())
@@ -75,12 +73,13 @@ public class SettingsPresenter extends RealmPresenterImpl<SettingsContract.View>
                             .filter(Result::isSuccess)
                             .map(result -> {
                                 index[0]++;
-                                getView().setLoadingDialogText("正在添加: " + index[0] + "/" + items.size());
+                                getView().setLoadingDialogText("正在添加: " + index[0] + "/" + ids.size());
                                 return result;
                             })
                             .count())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doAfterTerminate(() -> getView().dismissLoadingDialog())
                     .subscribe(count -> {
-                        getView().dismissLoadingDialog();
                         getView().showToast("成功添加了 " + count + " 件宝贝~");
                         PaaSpTools.refreshLastImportItemsTime();
                     }, new DefaultThrowableConsumer());

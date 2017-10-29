@@ -26,8 +26,8 @@ import io.realm.Sort;
  */
 public class PaaDbHelper {
 
-    public static Item getItem(Realm realm, String itemId) {
-        return realm.where(Item.class).equalTo("id", itemId).findFirstAsync();
+    public static Item getItem(Realm realm, String id) {
+        return realm.where(Item.class).equalTo("id", id).findFirstAsync();
     }
 
     public static RealmResults<Item> getItems(Realm realm) {
@@ -45,8 +45,8 @@ public class PaaDbHelper {
         return realm.where(Tag.class).findAllSortedAsync("sort");
     }
 
-    public static RealmResults<ItemHistory> getItemHistories(Realm realm, String itemId) {
-        return realm.where(ItemHistory.class).equalTo("id", itemId).findAllSortedAsync("timestamp");
+    public static RealmResults<ItemHistory> getItemHistories(Realm realm, String id) {
+        return realm.where(ItemHistory.class).equalTo("id", id).findAllSortedAsync("timestamp");
     }
 
     public static Flowable<Result> createItem(Realm realm, Item item, ItemHistory history) {
@@ -108,11 +108,11 @@ public class PaaDbHelper {
         });
     }
 
-    public static Flowable<Result> updateItem(Realm realm, String itemId, Consumer<Item> consumer) {
+    public static Flowable<Result> updateItem(Realm realm, String id, Consumer<Item> consumer) {
         return LshRxUtils.getAsyncTransactionFlowable(realm, new AsyncTransaction<Result>() {
             @Override
             protected void execute(Realm realm, FlowableEmitter<? super Result> emitter) {
-                Item item = realm.where(Item.class).equalTo("id", itemId).findFirst();
+                Item item = realm.where(Item.class).equalTo("id", id).findFirst();
                 if (item != null) {
                     try {
                         consumer.accept(item);
@@ -127,12 +127,12 @@ public class PaaDbHelper {
         });
     }
 
-    public static Flowable<Result> deleteItem(Realm realm, String itemId) {
+    public static Flowable<Result> deleteItem(Realm realm, String id) {
         return LshRxUtils.getAsyncTransactionFlowable(realm, new AsyncTransaction<Result>() {
             @Override
             protected void execute(Realm realm, FlowableEmitter<? super Result> emitter) {
-                RealmResults<Item> items = realm.where(Item.class).equalTo("id", itemId).findAll();
-                RealmResults<ItemHistory> histories = realm.where(ItemHistory.class).equalTo("id", itemId).findAll();
+                RealmResults<Item> items = realm.where(Item.class).equalTo("id", id).findAll();
+                RealmResults<ItemHistory> histories = realm.where(ItemHistory.class).equalTo("id", id).findAll();
                 items.deleteAllFromRealm();
                 histories.deleteAllFromRealm();
                 emitter.onNext(new Result());
@@ -140,11 +140,12 @@ public class PaaDbHelper {
         });
     }
 
-    public static Flowable<Boolean> hasItem(String itemId) {
+    public static Flowable<Boolean> hasItem(String id) {
         return LshRxUtils.getAsyncRealmFlowable(new AsyncRealmConsumer<Boolean>() {
             @Override
             public void call(Realm realm, FlowableEmitter<? super Boolean> emitter) {
-                emitter.onNext(realm.where(Item.class).equalTo("id", itemId).findFirst() != null);
+                Item item = realm.where(Item.class).equalTo("id", id).findFirst();
+                emitter.onNext(item != null);
                 emitter.onComplete();
             }
         });

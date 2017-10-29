@@ -1,9 +1,10 @@
 package com.linsh.paa.tools;
 
 import com.linsh.lshutils.utils.Basic.LshStringUtils;
+import com.linsh.paa.model.bean.ItemProvider;
 import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.model.bean.db.ItemHistory;
-import com.linsh.paa.model.bean.json.TaobaoDetail;
+import com.linsh.paa.model.bean.db.Platform;
 
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -18,30 +19,58 @@ import java.util.regex.Pattern;
  */
 public class BeanHelper {
 
+    public static Platform getPlatform(String id) {
+        return Platform.getPlatform(id.substring(0, 2));
+    }
+
+    public static String getId(Platform platform, String itemId) {
+        return platform.getCode() + itemId;
+    }
+
+    public static String getItemId(String id) {
+        return id.substring(2);
+    }
+
+    public static String getItemIdOrUrlFromText(String text) {
+        String idFromUrl = getIdOrUrlFromText(text);
+        if (idFromUrl != null && idFromUrl.matches("[A-Z]{2}\\d+")) {
+            return getItemId(idFromUrl);
+        }
+        return idFromUrl;
+    }
+
     /**
-     * @param text 从文本中获取 ItemId, 包括 Id \ URL \ 淘口令
-     * @return 返回数字格式为 ItemId; 返回 http 格式为 URL
+     * @param text 从文本中获取 id, 包括 URL \ 淘口令
+     * @return 返回 Code + 数字 格式为 id; 返回 http 格式为 URL
      */
-    public static String getItemId(String text) {
+    public static String getIdOrUrlFromText(String text) {
+        if (LshStringUtils.isEmpty(text)) return null;
+
         String itemId = null;
-        if (LshStringUtils.isEmpty(text)) {
-        } else if (text.matches("\\d{8,}")) { // ItemId
-            itemId = text;
-        } else if (text.matches("https?://.+/(item|detail)\\.htm\\?(.+&)?id=\\d+.*")) { // 宝贝地址
+        if (text.matches("https?://.+/(item|detail)\\.htm\\?(.+&)?id=\\d+.*")) { // 淘宝宝贝地址
             itemId = text.replaceAll(".+[?&]id=(\\d+).*", "$1");
-            itemId = itemId.matches("\\d+") ? itemId : null;
+            itemId = itemId.matches("\\d+") ? Platform.Taobao.getCode() + itemId : null;
+        } else if (text.matches("https?://item\\..*\\.jd\\.com.*/\\d+\\.html.*")) {
+            itemId = text.replaceAll(".+/(\\d+)\\.html.*", "$1");
+            itemId = itemId.matches("\\d+") ? Platform.Jingdong.getCode() + itemId : null;
         } else if (text.trim().matches(".+https?://v\\.cvz5\\.com/.+￥.+￥.+")) { // 淘口令
             return text.replaceAll(".+(https?://v\\.cvz5\\.com/[.a-zA-Z0-9]+).+￥.+￥.+", "$1");
         }
         return itemId;
     }
 
-    public static String getItemIdFromTKL(String html) {
+    /**
+     * 从淘口令的网页数据源中获取 ItemId
+     *
+     * @param html 访问淘口令中的网址得到的网页数据
+     */
+    public static String getIdFromTKL(String html) {
         Matcher matcher = Pattern.compile("var.?url.?=.{1,3}https?://[^/]+/i(\\d+).+").matcher(html);
         if (matcher.find()) {
-            return matcher.group(1);
+            String itemId = matcher.group(1);
+            return getId(Platform.Taobao, itemId);
         }
-        return null;
+        return "";
     }
 
 
@@ -51,10 +80,10 @@ public class BeanHelper {
      * @return Object[0] 为需要创建的 Item, 为 null 时表示数据解析失败;
      * <br/> Object[1] 为需要创建的 ItemHistory, 为 null 时表示数据解析失败.
      */
-    public static Object[] getItemAndHistoryToSave(TaobaoDetail detail) {
+    public static Object[] getItemAndHistoryToSave(ItemProvider detail) {
         if (detail.isSuccess()) {
-            ItemHistory history = new ItemHistory(detail.getItemId());
-            Item itemNew = new Item(detail.getItemId());
+            ItemHistory history = new ItemHistory(detail.getId());
+            Item itemNew = new Item(detail.getId());
             itemNew.setPrice(detail.getItemPrice());
             itemNew.setInitialPrice(TaobaoDataParser.parsePrice(detail.getItemPrice())[0]);
             history.setPrice(detail.getItemPrice());
@@ -73,11 +102,11 @@ public class BeanHelper {
      * @param item 作为对比的 Item
      * @return Object[0] 为需要更新的 ItemCopy, 为 null 时表示不需要更新; Object[1] 为需要更新的 ItemHistory, 为 null 时表示数据解析失败
      */
-    public static Object[] getItemAndHistoryToSave(Item item, Item itemCopy, TaobaoDetail detail) {
+    public static Object[] getItemAndHistoryToSave(Item item, Item itemCopy, ItemProvider detail) {
         if (detail.isSuccess()) {
             ItemHistory history = null;
             boolean needUpdate = false;
-            if (item.getId().equals(detail.getItemId())) {
+            if (item.getId().equals(detail.getId())) {
                 history = new ItemHistory(item.getId());
                 String detailPrice = detail.getItemPrice();
                 history.setPrice(detailPrice);

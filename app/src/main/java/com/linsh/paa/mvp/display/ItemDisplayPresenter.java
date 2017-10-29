@@ -1,22 +1,16 @@
 package com.linsh.paa.mvp.display;
 
-import android.util.Log;
-
 import com.linsh.lshapp.common.base.RealmPresenterImpl;
 import com.linsh.paa.model.action.DefaultThrowableConsumer;
 import com.linsh.paa.model.action.HttpThrowableConsumer;
 import com.linsh.paa.model.action.ResultConsumer;
 import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.model.bean.db.ItemHistory;
-import com.linsh.paa.model.bean.json.TaobaoDetail;
 import com.linsh.paa.task.db.PaaDbHelper;
-import com.linsh.paa.task.network.ApiCreator;
-import com.linsh.paa.task.network.Url;
+import com.linsh.paa.task.network.NetworkHelper;
 import com.linsh.paa.tools.BeanHelper;
-import com.linsh.paa.tools.TaobaoDataParser;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * <pre>
@@ -34,30 +28,18 @@ class ItemDisplayPresenter extends RealmPresenterImpl<ItemDisplayContract.View>
 
     @Override
     public void addCurItem(String url) {
-        String itemId = null;
-        if (url.matches(".+a\\.m\\.taobao\\.com/i\\d+\\.htm.+")) {
-            // 我的收藏 -> .
-            itemId = url.replaceAll(".+/i(\\d+).*", "$1");
-        } else if (url.matches(".+/(item|detail).htm\\?.*id=.+")) {
-            // 宝贝详情
-            itemId = url.replaceAll(".+[?&]id=(\\d+).*", "$1");
-        }
-        if (itemId != null) {
-            addItem(itemId);
+        String id = BeanHelper.getIdOrUrlFromText(url);
+        if (id != null) {
+            addItem(id);
         } else {
             getView().showToast("该界面不是宝贝界面");
         }
     }
 
-    private void addItem(String itemId) {
-        ApiCreator.getTaobaoApi()
-                .getDetail(Url.getTaobaoDetailUrl(itemId))
-                .subscribeOn(Schedulers.io())
+    private void addItem(String id) {
+        NetworkHelper.getItemProvider(id)
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(new HttpThrowableConsumer())
-                .subscribe(data -> {
-                    Log.i("LshLog", "addItem: data = " + data);
-                    TaobaoDetail detail = TaobaoDataParser.parseGetDetailData(data);
+                .subscribe(detail -> {
                     Object[] toSave = BeanHelper.getItemAndHistoryToSave(detail);
                     if (toSave[0] != null && toSave[1] != null) {
                         addItem((Item) toSave[0], (ItemHistory) toSave[1]);

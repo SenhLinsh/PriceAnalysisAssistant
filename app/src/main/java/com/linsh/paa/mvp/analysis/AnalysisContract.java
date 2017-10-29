@@ -15,7 +15,7 @@ interface AnalysisContract {
 
     interface View extends BaseContract.BaseView {
 
-        String getItemId();
+        String getId();
 
         void setData(ArrayList<Entry> lowPrices, ArrayList<Entry> highPrices);
 

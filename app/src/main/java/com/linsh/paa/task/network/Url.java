@@ -11,10 +11,10 @@ import com.linsh.lshutils.utils.Basic.LshStringUtils;
  */
 public class Url {
 
-    public static final String TAOBAO_DETAIL_HTML = "http://h5.m.taobao.com/awp/core/detail.htm?id={itemId}";
-
-    public static final String TAOBAO_GET_DETAIL = "http://h5api.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?" +
+    private static final String TAOBAO_DETAIL_HTML = "http://h5.m.taobao.com/awp/core/detail.htm?id={itemId}";
+    private static final String TAOBAO_GET_DETAIL = "http://h5api.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?" +
             "data=%7B%22exParams%22%3A%22%7B%5C%22id%5C%22%3A%5C%22{itemId}%5C%22%7D%22%2C%22itemNumId%22%3A%22{itemId}%22%7D";
+    private static final String JINGDONG_DETAIL_HTML = "https://item.m.jd.com/product/{itemId}.html";
 
     public static String getTaobaoDetailUrl(String itemId) {
         return LshStringUtils.format(TAOBAO_GET_DETAIL, itemId, itemId);
@@ -22,5 +22,9 @@ public class Url {
 
     public static String getTaobaoDetailHtmlUrl(String itemId) {
         return LshStringUtils.format(TAOBAO_DETAIL_HTML, itemId);
+    }
+
+    public static String getJingdongDetailUrl(String itemId) {
+        return LshStringUtils.format(JINGDONG_DETAIL_HTML, itemId);
     }
 }

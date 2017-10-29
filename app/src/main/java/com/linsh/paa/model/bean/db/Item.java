@@ -1,5 +1,7 @@
 package com.linsh.paa.model.bean.db;
 
+import com.linsh.paa.tools.BeanHelper;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -39,11 +41,26 @@ public class Item extends RealmObject implements Sortable {
      */
     private int notifiedPrice;
 
+    @Deprecated
     public Item() {
     }
 
+
     public Item(String id) {
         this(id, null, null, null, null);
+    }
+
+    public Item(Platform platform, String itemId) {
+        this(platform, itemId, null, null, null, null);
+    }
+
+    public Item(Platform platform, String itemId, String title, String image, String price, String shopName) {
+        this.title = title;
+        this.image = image;
+        this.price = price;
+        this.shopName = shopName;
+        setId(platform, itemId);
+        refreshLastModified();
     }
 
     public Item(String id, String title, String image, String price, String shopName) {
@@ -55,12 +72,24 @@ public class Item extends RealmObject implements Sortable {
         refreshLastModified();
     }
 
+    public String getItemId() {
+        return BeanHelper.getItemId(id);
+    }
+
     public String getId() {
         return id;
     }
 
+    public void setId(Platform platform, String itemId) {
+        this.id = BeanHelper.getId(platform, itemId);
+    }
+
     public void setId(String id) {
         this.id = id;
+    }
+
+    public Platform getPlatform() {
+        return BeanHelper.getPlatform(id);
     }
 
     public String getTitle() {

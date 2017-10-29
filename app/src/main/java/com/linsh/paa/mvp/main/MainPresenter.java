@@ -1,7 +1,5 @@
 package com.linsh.paa.mvp.main;
 
-import android.util.Log;
-
 import com.linsh.lshapp.common.base.RealmPresenterImpl;
 import com.linsh.lshutils.utils.Basic.LshLogUtils;
 import com.linsh.lshutils.utils.LshListUtils;
@@ -10,13 +8,10 @@ import com.linsh.paa.model.action.ResultConsumer;
 import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.model.bean.db.ItemHistory;
 import com.linsh.paa.model.bean.db.Tag;
-import com.linsh.paa.model.bean.json.TaobaoDetail;
 import com.linsh.paa.model.result.Result;
 import com.linsh.paa.task.db.PaaDbHelper;
-import com.linsh.paa.task.network.ApiCreator;
-import com.linsh.paa.task.network.Url;
+import com.linsh.paa.task.network.NetworkHelper;
 import com.linsh.paa.tools.BeanHelper;
-import com.linsh.paa.tools.TaobaoDataParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,42 +64,37 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
      */
     @Override
     public void getItem(String text, boolean isConfirm) {
-        String itemIdSeem = BeanHelper.getItemId(text);
-        if (itemIdSeem == null) {
+        String idOrUrl = BeanHelper.getIdOrUrlFromText(text);
+        if (idOrUrl == null) {
             if (isConfirm) {
                 getView().showToast("无法解析该宝贝, 请传入正确格式");
             } else {
-                getView().showInputItemIdDialog();
+                getView().showInputItemUrlDialog();
             }
             return;
         }
         getView().showLoadingDialog();
-        Disposable disposable = Flowable.just(itemIdSeem)
-                .flatMap(itemId -> {
-                    if (itemId.startsWith("http")) {
-                        return ApiCreator.getCommonApi()
-                                .get(itemId)
+        Disposable disposable = Flowable.just(idOrUrl)
+                .flatMap(s -> {
+                    if (idOrUrl.startsWith("http")) {
+                        return NetworkHelper.get(idOrUrl) // Url
                                 .subscribeOn(Schedulers.io())
-                                .map(BeanHelper::getItemIdFromTKL);
+                                .map(BeanHelper::getIdFromTKL);
                     } else {
-                        return Flowable.just(itemId);
+                        return Flowable.just(idOrUrl); // Id
                     }
                 })
-                .flatMap(itemId -> ApiCreator.getTaobaoApi()
-                        .getDetail(Url.getTaobaoDetailUrl(itemId)))
-                .subscribeOn(Schedulers.io())
+                .flatMap(NetworkHelper::getItemProvider)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(data -> {
+                .subscribe(detail -> {
                     getView().dismissLoadingDialog();
-                    Log.i("LshLog", "getItem: data = " + data);
-                    TaobaoDetail detail = TaobaoDataParser.parseGetDetailData(data);
                     Object[] toSave = BeanHelper.getItemAndHistoryToSave(detail);
                     if (toSave[0] != null && toSave[1] != null) {
                         getView().showItem(toSave, isConfirm);
                     } else if (isConfirm) {
                         getView().showToast("数据解析失败");
                     } else {
-                        getView().showInputItemIdDialog();
+                        getView().showInputItemUrlDialog();
                     }
                 }, thr -> {
                     getView().dismissLoadingDialog();
@@ -126,17 +116,11 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                 // 获取商品详情数据
                 .flatMap(index -> Flowable.fromCallable(() -> mItems.get(index).getId())
                         .observeOn(Schedulers.io())
-                        .flatMap(itemId -> ApiCreator.getTaobaoApi()
-                                .getDetail(Url.getTaobaoDetailUrl(itemId))
-                                .map(TaobaoDataParser::parseGetDetailData)
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .map(result -> {
-                                    getView().setLoadingDialogText(String.format(Locale.CHINA, "正在更新: %d/%d", ++curIndex[0], size));
-                                    LshLogUtils.i(String.format(Locale.CHINA, "正在更新: %d/%d", curIndex[0], size));
-                                    return result;
-                                }))
+                        .flatMap(NetworkHelper::getItemProvider)
+                        .observeOn(AndroidSchedulers.mainThread())
                         // 获取需要保存的 Item 和 ItemHistory
                         .flatMap(detail -> {
+                            getView().setLoadingDialogText(String.format(Locale.CHINA, "正在更新: %d/%d", ++curIndex[0], size));
                             Object[] toSave = BeanHelper.getItemAndHistoryToSave(mItems.get(index), getRealm().copyFromRealm(mItems.get(index)), detail);
                             if (toSave[1] != null) {
                                 return PaaDbHelper.updateItem(getRealm(), (Item) toSave[0], (ItemHistory) toSave[1]);
@@ -167,10 +151,10 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
     }
 
     @Override
-    public void addTag(String tag, List<String> itemIds) {
+    public void addTag(String tag, List<String> ids) {
         Disposable disposable = PaaDbHelper.createTag(getRealm(), new Tag(tag))
-                .flatMap(result -> Flowable.fromIterable(itemIds))
-                .flatMap(itemId -> PaaDbHelper.updateItem(getRealm(), itemId, item -> item.setTag(tag)))
+                .flatMap(result -> Flowable.fromIterable(ids))
+                .flatMap(id -> PaaDbHelper.updateItem(getRealm(), id, item -> item.setTag(tag)))
                 .subscribe();
         addDisposable(disposable);
     }
@@ -181,17 +165,17 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
     }
 
     @Override
-    public void deleteItems(List<String> itemIds) {
-        Disposable disposable = Flowable.fromIterable(itemIds)
-                .flatMap(itemId -> PaaDbHelper.deleteItem(getRealm(), itemId))
+    public void deleteItems(List<String> ids) {
+        Disposable disposable = Flowable.fromIterable(ids)
+                .flatMap(id -> PaaDbHelper.deleteItem(getRealm(), id))
                 .subscribe();
         addDisposable(disposable);
     }
 
     @Override
-    public void moveItemsToOtherTag(String tag, ArrayList<String> itemIds) {
-        Disposable disposable = Flowable.fromIterable(itemIds)
-                .flatMap(itemId -> PaaDbHelper.updateItem(getRealm(), itemId, item -> item.setTag(tag)))
+    public void moveItemsToOtherTag(String tag, ArrayList<String> ids) {
+        Disposable disposable = Flowable.fromIterable(ids)
+                .flatMap(id -> PaaDbHelper.updateItem(getRealm(), id, item -> item.setTag(tag)))
                 .subscribe();
         addDisposable(disposable);
     }
@@ -219,8 +203,8 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
     }
 
     @Override
-    public void setNotifiedPrice(String itemId, String price) {
-        PaaDbHelper.updateItem(getRealm(), itemId,
+    public void setNotifiedPrice(String id, String price) {
+        PaaDbHelper.updateItem(getRealm(), id,
                 item -> {
                     item.setNotifiedPrice((int) (Float.parseFloat(price) * 100));
                     BeanHelper.updateItemDisplay(item);
@@ -230,8 +214,8 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
     }
 
     @Override
-    public void setNormalPrice(String itemId, String price) {
-        PaaDbHelper.updateItem(getRealm(), itemId,
+    public void setNormalPrice(String id, String price) {
+        PaaDbHelper.updateItem(getRealm(), id,
                 item -> {
                     item.setNormalPrice((int) (Float.parseFloat(price) * 100));
                     BeanHelper.updateItemDisplay(item);

@@ -16,19 +16,19 @@ public class BeanHelperTest {
 
     @Test
     public void getItemId() throws Exception {
-        String itemId = BeanHelper.getItemId("54673849583");
+        String itemId = BeanHelper.getItemIdOrUrlFromText("54673849583");
         Truth.assertThat(itemId).isEqualTo("54673849583");
-        itemId = BeanHelper.getItemId("https://detail.tmall.com/item.htm?id=554244546975" +
+        itemId = BeanHelper.getItemIdOrUrlFromText("https://detail.tmall.com/item.htm?id=554244546975" +
                 "&spm=a21bo.50862.201875.1.6ea2684qYpsyR&scm=1007.12493.69999.100200300000001");
         Truth.assertThat(itemId).isEqualTo("554244546975");
-        itemId = BeanHelper.getItemId("【【天猫超市】三只松鼠 俏蛮腰麻花112g零食特产天津风味小麻花】http://v.cvz5.com/h.Gfsjzt " +
+        itemId = BeanHelper.getItemIdOrUrlFromText("【【天猫超市】三只松鼠 俏蛮腰麻花112g零食特产天津风味小麻花】http://v.cvz5.com/h.Gfsjzt " +
                 "点击链接，再选择浏览器打开；或复制这条信息￥7mat0UlsPvn￥后打开\uD83D\uDC49手机淘宝\uD83D\uDC48");
         Truth.assertThat(itemId).isEqualTo("http://v.cvz5.com/h.Gfsjzt");
     }
 
     @Test
     public void getItemIdFromTKL() throws Exception {
-        String itemId = BeanHelper.getItemIdFromTKL(HTML_DATA_TKL);
+        String itemId = BeanHelper.getIdFromTKL(HTML_DATA_TKL);
         Truth.assertThat(itemId).isEqualTo("20496648200");
     }
 

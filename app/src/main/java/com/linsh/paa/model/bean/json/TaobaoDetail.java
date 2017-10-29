@@ -1,5 +1,9 @@
 package com.linsh.paa.model.bean.json;
 
+import com.linsh.paa.model.bean.ItemProvider;
+import com.linsh.paa.model.bean.db.Platform;
+import com.linsh.paa.tools.BeanHelper;
+
 import java.util.List;
 
 /**
@@ -9,7 +13,7 @@ import java.util.List;
  *    desc   : 淘宝宝贝详情信息
  * </pre>
  */
-public class TaobaoDetail {
+public class TaobaoDetail implements ItemProvider {
 
 
     /**
@@ -97,9 +101,9 @@ public class TaobaoDetail {
         return data != null && (ret.size() == 0 || ret.get(0).contains("SUCCESS"));
     }
 
-    public String getItemId() {
+    public String getId() {
         try {
-            return data.item.itemId;
+            return BeanHelper.getId(Platform.Taobao, data.item.itemId);
         } catch (Exception e) {
             return null;
         }

@@ -25,14 +25,14 @@ class AnalysisPresenter extends RealmPresenterImpl<AnalysisContract.View>
 
     @Override
     protected void attachView() {
-        mItem = PaaDbHelper.getItem(getRealm(), getView().getItemId());
+        mItem = PaaDbHelper.getItem(getRealm(), getView().getId());
         mItem.addChangeListener(element -> {
             if (mItem.isValid()) {
                 getView().setData(mItem);
             }
         });
 
-        mHistories = PaaDbHelper.getItemHistories(getRealm(), getView().getItemId());
+        mHistories = PaaDbHelper.getItemHistories(getRealm(), getView().getId());
         mHistories.addChangeListener(element -> {
             if (element.isValid()) {
                 ArrayList<Entry> values1 = new ArrayList<>();

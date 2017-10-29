@@ -106,7 +106,7 @@ public class AnalysisActivity extends BaseToolbarActivity<AnalysisContract.Prese
     }
 
     @Override
-    public String getItemId() {
+    public String getId() {
         return LshActivityUtils.getStringExtra(this);
     }
 

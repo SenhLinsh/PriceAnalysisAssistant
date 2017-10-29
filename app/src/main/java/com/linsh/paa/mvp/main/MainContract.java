@@ -21,7 +21,7 @@ interface MainContract {
 
         void showItem(Object[] toSave, boolean isConfirm);
 
-        void showInputItemIdDialog();
+        void showInputItemUrlDialog();
     }
 
     interface Presenter extends BaseContract.BasePresenter<View> {
@@ -32,21 +32,21 @@ interface MainContract {
 
         void deleteItem(String id);
 
-        void addTag(String tag, List<String> itemIds);
+        void addTag(String tag, List<String> ids);
 
         List<String> getTags();
 
-        void deleteItems(List<String> itemIds);
+        void deleteItems(List<String> ids);
 
-        void moveItemsToOtherTag(String tag, ArrayList<String> itemIds);
+        void moveItemsToOtherTag(String tag, ArrayList<String> ids);
 
         void onTagSelected(String tag);
 
         void onStatusSelected(String status);
 
-        void setNotifiedPrice(String itemId, String price);
+        void setNotifiedPrice(String id, String price);
 
-        void setNormalPrice(String itemId, String price);
+        void setNormalPrice(String id, String price);
 
         void saveItem(Object[] toSave);
     }

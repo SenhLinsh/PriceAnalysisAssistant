@@ -128,7 +128,7 @@ class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolde
         notifyDataSetChanged();
     }
 
-    public ArrayList<String> getSelectedItemIds() {
+    public ArrayList<String> getSelectedIds() {
         ArrayList<String> itemIds = new ArrayList<>();
         if (selectedItems != null) {
             for (int i = 0; i < selectedItems.length; i++) {

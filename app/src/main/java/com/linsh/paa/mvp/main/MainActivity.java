@@ -55,7 +55,7 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
         mBottomViewHelper.setViewHelperListener(new BottomViewHelper.ViewHelperListener() {
             @Override
             public void delete() {
-                ArrayList<String> selectedItemIds = mAdapter.getSelectedItemIds();
+                ArrayList<String> selectedItemIds = mAdapter.getSelectedIds();
                 if (selectedItemIds.size() == 0) {
                     showToast("请先选择宝贝~");
                     return;
@@ -68,7 +68,7 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
 
             @Override
             public void move() {
-                ArrayList<String> selectedItemIds = mAdapter.getSelectedItemIds();
+                ArrayList<String> selectedItemIds = mAdapter.getSelectedIds();
                 if (selectedItemIds.size() == 0) {
                     showToast("请先选择宝贝~");
                     return;
@@ -213,7 +213,7 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
                 // 获取剪贴板的文字并检查
                 String text = LshClipboardUtils.getText();
                 if (LshStringUtils.isEquals(text, lastClipboardText)) {
-                    showInputItemIdDialog();
+                    showInputItemUrlDialog();
                 } else {
                     lastClipboardText = text;
                     mPresenter.getItem(text, false);
@@ -245,11 +245,11 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
     }
 
     @Override
-    public void showInputItemIdDialog() {
+    public void showInputItemUrlDialog() {
         new LshColorDialog(this)
                 .buildInput()
                 .setTitle("添加宝贝")
-                .setHint("请输入宝贝id 或者宝贝链接")
+                .setHint("请输入宝贝链接")
                 .setPositiveButton(null, (lshColorDialog, text) -> {
                     lshColorDialog.dismiss();
                     mPresenter.getItem(text, true);
@@ -270,7 +270,7 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
                 .setOnNegativeClickListener(dialog -> {
                     dialog.dismiss();
                     if (!isConfirm) {
-                        showInputItemIdDialog();
+                        showInputItemUrlDialog();
                     }
                 })
                 .show();
