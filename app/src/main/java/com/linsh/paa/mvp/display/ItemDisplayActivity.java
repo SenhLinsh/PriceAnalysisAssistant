@@ -85,8 +85,8 @@ public class ItemDisplayActivity extends BaseToolbarActivity<ItemDisplayContract
 
     @Override
     public void onBackPressed() {
-        if (!mAgentWeb.back()) {
-            super.onBackPressed();//mAgentWeb.getWebCreator().get().getOriginalUrl()
+        if (mAgentWeb == null || !mAgentWeb.back()) {
+            super.onBackPressed();
         }
     }
 
