@@ -49,5 +49,7 @@ interface MainContract {
         void setNormalPrice(String id, String price);
 
         void saveItem(Object[] toSave);
+
+        void onPlatformSelected(String platform);
     }
 }

@@ -8,6 +8,7 @@ import com.linsh.paa.model.action.DefaultThrowableConsumer;
 import com.linsh.paa.model.action.ResultConsumer;
 import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.model.bean.db.ItemHistory;
+import com.linsh.paa.model.bean.db.Platform;
 import com.linsh.paa.model.bean.db.Tag;
 import com.linsh.paa.model.throwable.CustomThrowable;
 import com.linsh.paa.task.db.PaaDbHelper;
@@ -48,6 +49,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
             }
         }
     };
+    private String mCurPlatformCode;
     private String mCurTag;
     private String mCurDisplay;
 
@@ -200,12 +202,26 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
         addDisposable(disposable);
     }
 
+    @Override
+    public void onPlatformSelected(String platform) {
+        if ("淘宝".equals(platform)) {
+            mCurPlatformCode = Platform.Taobao.getCode();
+        } else if ("京东".equals(platform)) {
+            mCurPlatformCode = Platform.Jingdong.getCode();
+        } else {
+            mCurPlatformCode = null;
+        }
+        mItems.removeAllChangeListeners();
+        mItems = PaaDbHelper.getItems(getRealm(), mCurPlatformCode, mCurTag, mCurDisplay);
+        mItems.addChangeListener(mItemChangeListener);
+    }
+
     @DebugLog
     @Override
     public void onTagSelected(String tag) {
         mCurTag = tag;
         mItems.removeAllChangeListeners();
-        mItems = PaaDbHelper.getItems(getRealm(), mCurTag, mCurDisplay);
+        mItems = PaaDbHelper.getItems(getRealm(), mCurPlatformCode, mCurTag, mCurDisplay);
         mItems.addChangeListener(mItemChangeListener);
     }
 
@@ -220,7 +236,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
             mCurDisplay = null;
         }
         mItems.removeAllChangeListeners();
-        mItems = PaaDbHelper.getItems(getRealm(), mCurTag, mCurDisplay);
+        mItems = PaaDbHelper.getItems(getRealm(), mCurPlatformCode, mCurTag, mCurDisplay);
         mItems.addChangeListener(mItemChangeListener);
     }
 

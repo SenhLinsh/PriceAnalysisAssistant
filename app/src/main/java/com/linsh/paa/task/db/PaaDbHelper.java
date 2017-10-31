@@ -36,8 +36,9 @@ public class PaaDbHelper {
         return realm.where(Item.class).findAllSortedAsync("sort", Sort.DESCENDING);
     }
 
-    public static RealmResults<Item> getItems(Realm realm, String tag, String display) {
+    public static RealmResults<Item> getItems(Realm realm, String platformCode, String tag, String display) {
         RealmQuery<Item> where = realm.where(Item.class);
+        if (platformCode != null) where.beginsWith("id", platformCode);
         if (tag != null) where.equalTo("tag", tag.equals("无标签") ? null : tag);
         if (display != null) where.contains("display", display);
         return where.findAllSortedAsync("sort", Sort.DESCENDING);

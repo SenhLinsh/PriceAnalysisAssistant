@@ -33,6 +33,7 @@ class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolde
         implements LshHeaderFooterRcvAdapter.OnItemClickListener, LshHeaderFooterRcvAdapter.OnItemLongClickListener {
 
     private List<String> tags = Arrays.asList("所有", "摄影", "我是一个很长长标签", "无标签");
+    private int curPlatformIndex = -1;
     private int curLabelIndex = -1;
     private int curStatusIndex = -1;
     private boolean isSelectMode;
@@ -207,6 +208,7 @@ class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolde
     class HeaderViewHolder extends LshViewHolder {
         private TextView tvTag;
         private TextView tvStatus;
+        private TextView tvPlatform;
 
         public HeaderViewHolder(ViewGroup parent) {
             super(R.layout.item_main_header, parent);
@@ -214,11 +216,33 @@ class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolde
 
         @Override
         public void initView(View itemView) {
+            tvPlatform = (TextView) itemView.findViewById(R.id.tv_item_main_header_platform);
             tvTag = (TextView) itemView.findViewById(R.id.tv_item_main_header_tag);
             tvStatus = (TextView) itemView.findViewById(R.id.tv_item_main_header_status);
         }
 
         public void setViews() {
+            tvPlatform.setOnClickListener(view -> {
+                view.setSelected(!view.isSelected());
+                if (view.isSelected()) {
+                    LabelPopupWindow popupWindow = new LabelPopupWindow(view.getContext());
+                    String[] platforms = {"淘宝", "京东"};
+                    popupWindow.addLabels(platforms, curPlatformIndex)
+                            .setOnItemClickListener((popupWindow1, index, isSelected) -> {
+                                popupWindow1.dismiss();
+                                if (isSelected) {
+                                    tvPlatform.setText(platforms[index]);
+                                    curPlatformIndex = index;
+                                } else {
+                                    tvTag.setText("所有");
+                                    curPlatformIndex = -1;
+                                }
+                                mOnMainAdapterListener.onPlatformSelected(isSelected ? platforms[index] : null);
+                            })
+                            .showAsDropDown(itemView);
+                    popupWindow.setOnDismissListener(() -> tvPlatform.setSelected(false));
+                }
+            });
             tvTag.setOnClickListener(view -> {
                 view.setSelected(!view.isSelected());
                 if (view.isSelected()) {
@@ -285,6 +309,8 @@ class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolde
         void onItemClick(View itemView, int position);
 
         void onItemLongClick(View view, int position);
+
+        void onPlatformSelected(String platform);
 
         void onTagSelected(String tag);
 

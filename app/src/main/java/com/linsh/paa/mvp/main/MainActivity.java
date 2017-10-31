@@ -195,6 +195,11 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
             }
 
             @Override
+            public void onPlatformSelected(String platform) {
+                mPresenter.onPlatformSelected(platform);
+            }
+
+            @Override
             public void onTagSelected(String tag) {
                 mPresenter.onTagSelected(tag);
             }
