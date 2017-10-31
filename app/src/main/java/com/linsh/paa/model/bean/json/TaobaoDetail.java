@@ -68,13 +68,23 @@ public class TaobaoDetail implements ItemProvider {
                 public static class PriceBeanX {
 
                     public PriceBean price;
+                    public SubPriceBean subPrice;
                     public List<ExtraPricesBean> extraPrices;
                     public List<PriceTagBean> priceTag;
 
                     public static class PriceBean {
 
                         public String priceText;
+                        public String priceTitle;
+                        public boolean showTitle;
                         public String type;
+                    }
+
+                    public static class SubPriceBean {
+
+                        public String priceText;
+                        public String priceTitle;
+                        public boolean showTitle;
                     }
 
                     public static class ExtraPricesBean {
@@ -127,6 +137,9 @@ public class TaobaoDetail implements ItemProvider {
 
     public String getItemPrice() {
         try {
+            if (data.apiStack.get(0).value.price.subPrice != null) {
+                return data.apiStack.get(0).value.price.subPrice.priceText;
+            }
             return data.apiStack.get(0).value.price.price.priceText;
         } catch (Exception e) {
             return null;

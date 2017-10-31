@@ -84,9 +84,10 @@ public class BeanHelper {
         if (detail.isSuccess()) {
             ItemHistory history = new ItemHistory(detail.getId());
             Item itemNew = new Item(detail.getId());
-            itemNew.setPrice(detail.getItemPrice());
-            itemNew.setInitialPrice(TaobaoDataParser.parsePrice(detail.getItemPrice())[0]);
-            history.setPrice(detail.getItemPrice());
+            String itemPrice = detail.getItemPrice();
+            itemNew.setPrice(itemPrice);
+            itemNew.setInitialPrice(TaobaoDataParser.parsePrice(itemPrice)[0]);
+            history.setPrice(itemPrice);
             itemNew.setTitle(detail.getItemTitle());
             history.setTitle(detail.getItemTitle());
             itemNew.setImage(detail.getItemImage());
