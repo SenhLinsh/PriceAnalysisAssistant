@@ -7,7 +7,6 @@ import com.linsh.paa.tools.JingdongDataParser;
 import com.linsh.paa.tools.TaobaoDataParser;
 
 import io.reactivex.Flowable;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * <pre>
@@ -29,12 +28,10 @@ public class NetworkHelper {
                         case Taobao:
                             return ApiCreator.getTaobaoApi()
                                     .getDetail(Url.getTaobaoDetailUrl(BeanHelper.getItemId(id)))
-                                    .subscribeOn(Schedulers.io())
                                     .map(TaobaoDataParser::parseGetDetailData);
                         case Jingdong:
                             return ApiCreator.getCommonApi()
                                     .get(Url.getJingdongDetailUrl(BeanHelper.getItemId(id)))
-                                    .subscribeOn(Schedulers.io())
                                     .map(html -> JingdongDataParser.parseItemDetailHtml(id, html));
                         default:
                             return Flowable.just(new JingdongDetail());

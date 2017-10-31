@@ -76,4 +76,22 @@ public class LshRxUtils {
             }
         }, BackpressureStrategy.ERROR).subscribeOn(Schedulers.io());
     }
+
+    public static Flowable<Realm> getAsyncRealmFlowable() {
+        return Flowable.create(new FlowableOnSubscribe<Realm>() {
+            @Override
+            public void subscribe(FlowableEmitter<Realm> emitter) throws Exception {
+                Realm bgRealm = Realm.getDefaultInstance();
+                try {
+                    emitter.onNext(bgRealm);
+                } catch (final Throwable e) {
+                    e.printStackTrace();
+                    emitter.onError(e);
+                } finally {
+                    bgRealm.close();
+                }
+                emitter.onComplete();
+            }
+        }, BackpressureStrategy.ERROR).subscribeOn(Schedulers.io());
+    }
 }

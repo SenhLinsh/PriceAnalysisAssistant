@@ -11,6 +11,7 @@ import com.linsh.paa.task.network.NetworkHelper;
 import com.linsh.paa.tools.BeanHelper;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * <pre>
@@ -38,6 +39,7 @@ class ItemDisplayPresenter extends RealmPresenterImpl<ItemDisplayContract.View>
 
     private void addItem(String id) {
         NetworkHelper.getItemProvider(id)
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(detail -> {
                     Object[] toSave = BeanHelper.getItemAndHistoryToSave(detail);

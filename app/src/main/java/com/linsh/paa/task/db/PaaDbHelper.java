@@ -9,6 +9,8 @@ import com.linsh.paa.model.bean.db.Tag;
 import com.linsh.paa.model.result.Result;
 import com.linsh.paa.tools.LshRxUtils;
 
+import java.util.List;
+
 import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
 import io.reactivex.functions.Consumer;
@@ -81,13 +83,17 @@ public class PaaDbHelper {
         });
     }
 
-    public static Flowable<Result> updateItem(Realm realm, Item item, ItemHistory history) {
-        return LshRxUtils.getAsyncTransactionFlowable(realm, new AsyncTransaction<Result>() {
-            @Override
-            protected void execute(Realm realm, FlowableEmitter<? super Result> emitter) {
+    public static Result updateItems(List<Object[]> toSaves) {
+        boolean changed = false;
+        if (toSaves != null && toSaves.size() > 0) {
+            Realm realm = Realm.getDefaultInstance();
+            realm.beginTransaction();
+            for (Object[] toSave : toSaves) {
+                Item item = (Item) toSave[0];
                 if (item != null) {
                     realm.copyToRealmOrUpdate(item);
                 }
+                ItemHistory history = (ItemHistory) toSave[1];
                 if (history != null) {
                     RealmResults<ItemHistory> results = realm.where(ItemHistory.class)
                             .equalTo("id", history.getId()).findAllSorted("timestamp");
@@ -96,16 +102,17 @@ public class PaaDbHelper {
                         if (LshStringUtils.isEquals(latestHistory.getPrice(), history.getPrice())
                                 && history.getTitle() == null) {
                             if (history.getTimestamp() - latestHistory.getTimestamp() < 1000L * 60 * 60 * 12) {
-                                emitter.onNext(new Result("短时间内宝贝没有变化的哦"));
-                                return;
+                                continue;
                             }
                         }
                     }
+                    changed = true;
                     realm.copyToRealm(history);
                 }
-                emitter.onNext(new Result());
             }
-        });
+            realm.commitTransaction();
+        }
+        return changed ? new Result() : new Result("短时间内宝贝没有变化的哦");
     }
 
     public static Flowable<Result> updateItem(Realm realm, String id, Consumer<Item> consumer) {
