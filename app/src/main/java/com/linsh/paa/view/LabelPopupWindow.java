@@ -3,12 +3,14 @@ package com.linsh.paa.view;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.google.android.flexbox.FlexboxLayout;
+import com.linsh.lshutils.utils.LshScreenUtils;
 import com.linsh.paa.R;
 
 import java.util.Arrays;
@@ -76,6 +78,17 @@ public class LabelPopupWindow extends PopupWindow {
             mFlLabel.addView(textView);
         }
         return this;
+    }
+
+    @Override
+    public void showAsDropDown(View anchor, int xoff, int yoff, int gravity) {
+        // 修复 Android 7.0 以上 showAsDropDown 和 MATCH_PARENT (导致全屏而不是 DropDown) 冲突的问题
+        if (Build.VERSION.SDK_INT >= 24) {
+            int y = LshScreenUtils.getLocationYOnScreen(anchor);
+            int height = anchor.getHeight();
+            setHeight(LshScreenUtils.getScreenHeight() - height - y);
+        }
+        super.showAsDropDown(anchor, xoff, yoff, gravity);
     }
 
     public LabelPopupWindow removeAllViews() {
