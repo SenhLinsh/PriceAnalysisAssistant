@@ -112,20 +112,22 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
     @DebugLog
     @Override
     public void updateAll() {
-        int size = mItems.size();
-        if (size == 0) {
-            getView().showToast("请先添加宝贝吧");
-            return;
-        }
+        final int[] size = new int[1];
         final int[] curIndex = {0};
-        getView().showLoadingDialog(String.format(Locale.CHINA, "正在更新: 0/%d", size));
-
+        getView().showLoadingDialog("正在更新");
         Disposable disposable = LshRxUtils.getAsyncRealmFlowable()
                 .flatMap(realm -> Flowable.just(realm.where(Item.class).findAll())
+                        .flatMap(items -> {
+                            size[0] = items.size();
+                            if (size[0] > 0) {
+                                return Flowable.just(items);
+                            }
+                            return Flowable.error(new CustomThrowable("请先添加宝贝吧"));
+                        })
                         .flatMap(Flowable::fromIterable)
                         .map(item -> {
                             LshApplicationUtils.postRunnable(() ->
-                                    getView().setLoadingDialogText(String.format(Locale.CHINA, "正在更新: %d/%d", ++curIndex[0], size)));
+                                    getView().setLoadingDialogText(String.format(Locale.CHINA, "正在更新: %d/%d", ++curIndex[0], size[0])));
                             return item;
                         })
                         // 获取商品详情数据
@@ -154,41 +156,6 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                     getView().dismissLoadingDialog();
                     DefaultThrowableConsumer.showThrowableMsg(thr);
                 });
-
-//                        // 获取需要保存的 Item 和 ItemHistory
-//                        .filter(toSave -> toSave != null)
-//                        .subscribe();
-//                        .collect(new Callable<List<Object[]>>() {
-//            @Override
-//            public List<Object[]> call() throws Exception {
-//                return new ArrayList<Object[]>();
-//            }
-//        }, new BiConsumer<List<Object[]>, Object[]>() {
-//            @Override
-//            public void accept(List<Object[]> objects, Object[] objects2) throws Exception {
-//                objects.add
-//            }
-//        })
-//                .flatMap(detail -> {
-//                    if (toSave[1] != null) {
-//                        return PaaDbHelper.updateItem(getRealm(), (Item) toSave[0], (ItemHistory) toSave[1]);
-//                    }
-//                    return Flowable.just(new Result("数据解析失败"));
-//                })
-
-//                )
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .doOnTerminate(() -> getView().dismissLoadingDialog())
-//                .doOnError(DefaultThrowableConsumer::showThrowableMsg)
-//                // 合并处理结果
-//                .filter(result -> !"数据解析失败".equals(result.getMessage()))
-//                .collect(() -> new Result(mItems.size() > 0 ? "短时间内宝贝不会有更新的哦" : "数据解析失败"),
-//                        (success, result) -> success.setSuccess(result.isSuccess() || success.isSuccess()))
-//                .subscribe(result -> {
-//                    if (!ResultConsumer.handleFailedWithToast(result)) {
-//                        getView().showToast("更新完成");
-//                    }
-//                }, new DefaultThrowableConsumer());
         addDisposable(disposable);
     }
 
