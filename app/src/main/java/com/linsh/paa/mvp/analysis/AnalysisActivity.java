@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import hugo.weaving.DebugLog;
+
 public class AnalysisActivity extends BaseToolbarActivity<AnalysisContract.Presenter>
         implements AnalysisContract.View {
 
@@ -50,6 +52,7 @@ public class AnalysisActivity extends BaseToolbarActivity<AnalysisContract.Prese
         return R.layout.activity_analysis;
     }
 
+    @DebugLog
     @Override
     protected void initView() {
         mLineChart = (LineChart) findViewById(R.id.lc_analysis_chart);
@@ -110,6 +113,7 @@ public class AnalysisActivity extends BaseToolbarActivity<AnalysisContract.Prese
         return LshActivityUtils.getStringExtra(this);
     }
 
+    @DebugLog
     @Override
     public void setData(Item item) {
         boolean hasLimitLines = false;
@@ -137,6 +141,7 @@ public class AnalysisActivity extends BaseToolbarActivity<AnalysisContract.Prese
         setYRange();
     }
 
+    @DebugLog
     @Override
     public void setData(ArrayList<Entry> lowPrices, ArrayList<Entry> highPrices) {
         LineDataSet lowSet = null;

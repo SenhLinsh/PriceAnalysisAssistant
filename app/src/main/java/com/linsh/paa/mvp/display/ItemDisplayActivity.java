@@ -21,6 +21,8 @@ import com.linsh.lshutils.utils.LshClipboardUtils;
 import com.linsh.paa.R;
 import com.linsh.paa.task.network.Url;
 
+import hugo.weaving.DebugLog;
+
 public class ItemDisplayActivity extends BaseToolbarActivity<ItemDisplayContract.Presenter>
         implements ItemDisplayContract.View {
 
@@ -41,6 +43,7 @@ public class ItemDisplayActivity extends BaseToolbarActivity<ItemDisplayContract
         return R.layout.activity_item_display;
     }
 
+    @DebugLog
     @Override
     protected void initView() {
         initWebView();
@@ -96,6 +99,7 @@ public class ItemDisplayActivity extends BaseToolbarActivity<ItemDisplayContract
         return true;
     }
 
+    @DebugLog
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();

@@ -8,6 +8,7 @@ import com.linsh.paa.task.db.PaaDbHelper;
 
 import java.util.ArrayList;
 
+import hugo.weaving.DebugLog;
 import io.realm.RealmResults;
 
 /**
@@ -23,6 +24,7 @@ class AnalysisPresenter extends RealmPresenterImpl<AnalysisContract.View>
     private RealmResults<ItemHistory> mHistories;
     private Item mItem;
 
+    @DebugLog
     @Override
     protected void attachView() {
         mItem = PaaDbHelper.getItem(getRealm(), getView().getId());

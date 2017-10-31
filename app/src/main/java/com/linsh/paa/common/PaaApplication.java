@@ -7,6 +7,7 @@ import com.linsh.lshutils.utils.Basic.LshApplicationUtils;
 import com.linsh.lshutils.utils.Basic.LshToastUtils;
 import com.linsh.paa.tools.PaaMigration;
 
+import hugo.weaving.DebugLog;
 import io.reactivex.plugins.RxJavaPlugins;
 
 /**
@@ -18,7 +19,7 @@ import io.reactivex.plugins.RxJavaPlugins;
  */
 public class PaaApplication extends BaseApplication {
 
-
+    @DebugLog
     @Override
     public void onCreate() {
         super.onCreate();

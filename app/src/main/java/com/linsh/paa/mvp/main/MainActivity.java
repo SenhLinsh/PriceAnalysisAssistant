@@ -24,6 +24,8 @@ import com.linsh.paa.view.DisplayItemDialog;
 import java.util.ArrayList;
 import java.util.List;
 
+import hugo.weaving.DebugLog;
+
 public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter>
         implements MainContract.View {
 
@@ -48,11 +50,14 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
         return R.layout.activity_main;
     }
 
+    @DebugLog
     @Override
     protected void initView() {
         // 底部栏
         mBottomViewHelper = new BottomViewHelper(this);
         mBottomViewHelper.setViewHelperListener(new BottomViewHelper.ViewHelperListener() {
+
+            @DebugLog
             @Override
             public void delete() {
                 ArrayList<String> selectedItemIds = mAdapter.getSelectedIds();
@@ -66,6 +71,7 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
                 }, null, null);
             }
 
+            @DebugLog
             @Override
             public void move() {
                 ArrayList<String> selectedItemIds = mAdapter.getSelectedIds();
@@ -131,6 +137,7 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
                         .startActivity(getActivity());
             }
 
+            @DebugLog
             @Override
             public void onItemLongClick(View view, int position) {
                 new LshPopupWindow(MainActivity.this)
@@ -205,6 +212,7 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
         return true;
     }
 
+    @DebugLog
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -258,6 +266,7 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
                 .show();
     }
 
+    @DebugLog
     @Override
     public void showItem(Object[] toSave, boolean isConfirm) {
         new DisplayItemDialog(getActivity())
@@ -276,6 +285,7 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
                 .show();
     }
 
+    @DebugLog
     @Override
     public void setData(List<Item> items) {
         mBottomViewHelper.resetSelectAll();

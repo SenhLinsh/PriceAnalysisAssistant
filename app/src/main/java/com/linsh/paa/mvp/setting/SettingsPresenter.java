@@ -17,6 +17,7 @@ import com.linsh.paa.tools.PaaSpTools;
 import java.io.File;
 import java.util.concurrent.Callable;
 
+import hugo.weaving.DebugLog;
 import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -39,6 +40,7 @@ public class SettingsPresenter extends RealmPresenterImpl<SettingsContract.View>
         getView().showToast("该功能尚未开发");
     }
 
+    @DebugLog
     @Override
     public void importItems() {
         File file = new File(PaaFileFactory.getAppDir(), "import/items.txt");
@@ -89,6 +91,7 @@ public class SettingsPresenter extends RealmPresenterImpl<SettingsContract.View>
         }
     }
 
+    @DebugLog
     @Override
     public void exportRealm() {
         Flowable.fromCallable(new Callable<Result>() {

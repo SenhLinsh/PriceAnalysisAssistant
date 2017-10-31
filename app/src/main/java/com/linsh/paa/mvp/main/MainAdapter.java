@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import hugo.weaving.DebugLog;
+
 /**
  * <pre>
  *    author : Senh Linsh
@@ -173,6 +175,7 @@ class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolde
 
         }
 
+        @DebugLog
         public void bindData(Item item, int position) {
             tvTitle.setText(item.getTitle());
             tvPrice.setText('¥' + item.getPrice());

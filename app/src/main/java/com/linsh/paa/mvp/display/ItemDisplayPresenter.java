@@ -10,6 +10,7 @@ import com.linsh.paa.task.db.PaaDbHelper;
 import com.linsh.paa.task.network.NetworkHelper;
 import com.linsh.paa.tools.BeanHelper;
 
+import hugo.weaving.DebugLog;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
@@ -27,6 +28,7 @@ class ItemDisplayPresenter extends RealmPresenterImpl<ItemDisplayContract.View>
     protected void attachView() {
     }
 
+    @DebugLog
     @Override
     public void addCurItem(String url) {
         String id = BeanHelper.getIdOrUrlFromText(url);

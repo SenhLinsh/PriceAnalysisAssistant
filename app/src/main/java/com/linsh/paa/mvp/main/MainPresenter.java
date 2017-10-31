@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 
+import hugo.weaving.DebugLog;
 import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -50,6 +51,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
     private String mCurTag;
     private String mCurDisplay;
 
+    @DebugLog
     @Override
     protected void attachView() {
         mItems = PaaDbHelper.getItems(getRealm());
@@ -65,6 +67,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
     /**
      * @param isConfirm 为 true 时表示 ItemId 为手动输入的; 为 false 时表示 ItemId 为剪贴板的
      */
+    @DebugLog
     @Override
     public void getItem(String text, boolean isConfirm) {
         String idOrUrl = BeanHelper.getIdOrUrlFromText(text);
@@ -106,6 +109,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
         addDisposable(disposable);
     }
 
+    @DebugLog
     @Override
     public void updateAll() {
         int size = mItems.size();
@@ -196,6 +200,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
         addDisposable(disposable);
     }
 
+    @DebugLog
     @Override
     public void addTag(String tag, List<String> ids) {
         Disposable disposable = PaaDbHelper.createTag(getRealm(), new Tag(tag))
@@ -210,6 +215,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
         return LshListUtils.getStringList(mTags, Tag::getName);
     }
 
+    @DebugLog
     @Override
     public void deleteItems(List<String> ids) {
         Disposable disposable = Flowable.fromIterable(ids)
@@ -218,6 +224,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
         addDisposable(disposable);
     }
 
+    @DebugLog
     @Override
     public void moveItemsToOtherTag(String tag, ArrayList<String> ids) {
         Disposable disposable = Flowable.fromIterable(ids)
@@ -226,6 +233,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
         addDisposable(disposable);
     }
 
+    @DebugLog
     @Override
     public void onTagSelected(String tag) {
         mCurTag = tag;
@@ -234,6 +242,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
         mItems.addChangeListener(mItemChangeListener);
     }
 
+    @DebugLog
     @Override
     public void onStatusSelected(String status) {
         if ("价格较低".equals(status)) {
@@ -269,6 +278,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                 .subscribe();
     }
 
+    @DebugLog
     @Override
     public void saveItem(Object[] toSave) {
         Disposable disposable = PaaDbHelper.createItem(getRealm(), (Item) toSave[0], (ItemHistory) toSave[1])

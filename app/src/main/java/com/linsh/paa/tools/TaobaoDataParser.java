@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.linsh.lshutils.utils.Basic.LshLogUtils;
 import com.linsh.paa.model.bean.json.TaobaoDetail;
 
+import hugo.weaving.DebugLog;
+
 /**
  * <pre>
  *    author : Senh Linsh
@@ -13,6 +15,7 @@ import com.linsh.paa.model.bean.json.TaobaoDetail;
  */
 public class TaobaoDataParser {
 
+    @DebugLog
     public static TaobaoDetail parseGetDetailData(String data) {
         data = checkGetDetailData(data);
         return new Gson().fromJson(data, TaobaoDetail.class);
