@@ -196,7 +196,7 @@ public class BeanHelper {
         } else {
             format = "%.2f";
         }
-        return String.format(Locale.CHINA, format, price * 1F / 100);
+        return String.format(Locale.CHINA, format, Math.abs(price * 1F / 100));
     }
 
     /**
@@ -210,7 +210,7 @@ public class BeanHelper {
         } else {
             format = "%.2f";
         }
-        return String.format(Locale.CHINA, format, price);
+        return String.format(Locale.CHINA, format, Math.abs(price));
     }
 
     private static Item check(Item item) {
