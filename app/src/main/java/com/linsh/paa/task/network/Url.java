@@ -24,7 +24,7 @@ public class Url {
         return LshStringUtils.format(TAOBAO_DETAIL_HTML, itemId);
     }
 
-    public static String getJingdongDetailUrl(String itemId) {
+    public static String getJingdongDetailHtmlUrl(String itemId) {
         return LshStringUtils.format(JINGDONG_DETAIL_HTML, itemId);
     }
 }

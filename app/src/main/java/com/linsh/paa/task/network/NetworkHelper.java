@@ -31,7 +31,7 @@ public class NetworkHelper {
                                     .map(TaobaoDataParser::parseGetDetailData);
                         case Jingdong:
                             return ApiCreator.getCommonApi()
-                                    .get(Url.getJingdongDetailUrl(BeanHelper.getItemId(id)))
+                                    .get(Url.getJingdongDetailHtmlUrl(BeanHelper.getItemId(id)))
                                     .map(html -> JingdongDataParser.parseItemDetailHtml(id, html));
                         default:
                             return Flowable.just(new JingdongDetail());

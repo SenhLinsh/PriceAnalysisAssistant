@@ -19,7 +19,9 @@ import com.linsh.lshutils.utils.Basic.LshLogUtils;
 import com.linsh.lshutils.utils.LshActivityUtils;
 import com.linsh.lshutils.utils.LshClipboardUtils;
 import com.linsh.paa.R;
+import com.linsh.paa.model.bean.db.Platform;
 import com.linsh.paa.task.network.Url;
+import com.linsh.paa.tools.BeanHelper;
 
 import hugo.weaving.DebugLog;
 
@@ -52,8 +54,19 @@ public class ItemDisplayActivity extends BaseToolbarActivity<ItemDisplayContract
     public void initWebView() {
         String url = LshActivityUtils.getStringExtra(this);
         if (url == null) return;
-        if (url.matches("\\d+")) {
-            url = Url.getTaobaoDetailHtmlUrl(url);
+        if (url.matches("[A-Z]{2}\\d+")) {
+            Platform platform = BeanHelper.getPlatform(url);
+            String itemId = BeanHelper.getItemId(url);
+            switch (platform) {
+                case Taobao:
+                    url = Url.getTaobaoDetailHtmlUrl(itemId);
+                    break;
+                case Jingdong:
+                    url = Url.getJingdongDetailHtmlUrl(itemId);
+                    break;
+                default:
+                    return;
+            }
         } else if (!url.startsWith("http")) {
             return;
         }

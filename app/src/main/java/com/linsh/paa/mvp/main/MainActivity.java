@@ -142,7 +142,7 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
             public void onItemLongClick(View view, int position) {
                 new LshPopupWindow(MainActivity.this)
                         .BuildList()
-                        .setItems(new String[]{"打开淘宝链接", "设置提醒价格", "设置正常价格", "删除该宝贝"}, (window, index) -> {
+                        .setItems(new String[]{"打开宝贝链接", "设置提醒价格", "设置正常价格", "删除该宝贝"}, (window, index) -> {
                             window.dismiss();
                             Item item = mAdapter.getData().get(position);
                             switch (index) {
