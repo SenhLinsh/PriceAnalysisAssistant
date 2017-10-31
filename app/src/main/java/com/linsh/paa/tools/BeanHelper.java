@@ -5,6 +5,7 @@ import com.linsh.paa.model.bean.ItemProvider;
 import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.model.bean.db.ItemHistory;
 import com.linsh.paa.model.bean.db.Platform;
+import com.linsh.paa.model.throwable.CustomRuntimeException;
 
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -101,12 +102,13 @@ public class BeanHelper {
      * 获取需要存储的 Item 和 ItemHistory
      *
      * @param item 作为对比的 Item
-     * @return Object[0] 为需要更新的 ItemCopy, 为 null 时表示不需要更新; Object[1] 为需要更新的 ItemHistory, 为 null 时表示数据解析失败
+     * @return Object[0] 为需要更新的 ItemCopy, 为 null 时表示 Item 不需要更新;
+     * Object[1] 为需要更新的 ItemHistory, 为 null 时表示不需要更新 ItemHistory
      */
     public static Object[] getItemAndHistoryToSave(Item item, Item itemCopy, ItemProvider detail) {
         if (detail.isSuccess()) {
             ItemHistory history = null;
-            boolean needUpdate = false;
+            boolean update = false;
             if (item.getId().equals(detail.getId())) {
                 history = new ItemHistory(item.getId());
                 String detailPrice = detail.getItemPrice();
@@ -116,26 +118,32 @@ public class BeanHelper {
                         || (item.getDisplay() != null && item.getDisplay().contains("#4")))) {
                     updateItemDisplay(itemCopy, detailPrice);
                     itemCopy.setPrice(detailPrice);
-                    needUpdate = true;
+                    update = true;
                 }
                 if (LshStringUtils.notEmpty(detail.getItemTitle())
                         && !LshStringUtils.isEquals(item.getTitle(), detail.getItemTitle())) {
                     itemCopy.setTitle(detail.getItemTitle());
                     history.setTitle(detail.getItemTitle());
-                    needUpdate = true;
+                    update = true;
                 }
                 if (LshStringUtils.notEmpty(detail.getItemImage())
                         && !LshStringUtils.isEquals(item.getImage(), detail.getItemImage())) {
                     itemCopy.setImage(detail.getItemImage());
-                    needUpdate = true;
+                    update = true;
                 }
                 if (LshStringUtils.notEmpty(detail.getShopName())
                         && !LshStringUtils.isEquals(item.getShopName(), detail.getShopName())) {
                     itemCopy.setShopName(detail.getShopName());
-                    needUpdate = true;
+                    update = true;
+                }
+                if (update) {
+                    itemCopy.refreshLastModified();
+                } else {
+                    itemCopy = null;
+                    history = item.shouldUpdateHistory() ? history : null;
                 }
             }
-            return new Object[]{needUpdate ? itemCopy : null, check(history)};
+            return new Object[]{check(itemCopy), check(history)};
         }
         return new Object[2];
     }
@@ -214,16 +222,16 @@ public class BeanHelper {
     }
 
     private static Item check(Item item) {
-        if (item == null || LshStringUtils.isEmpty(item.getId())
-                || LshStringUtils.isEmpty(item.getTitle()) || LshStringUtils.isEmpty(item.getPrice()))
-            return null;
+        if (item != null && (LshStringUtils.isEmpty(item.getId())
+                || LshStringUtils.isEmpty(item.getTitle()) || LshStringUtils.isEmpty(item.getPrice())))
+            throw new CustomRuntimeException("数据解析失败");
         return item;
     }
 
     private static ItemHistory check(ItemHistory history) {
-        if (history == null || LshStringUtils.isEmpty(history.getId())
-                || LshStringUtils.isEmpty(history.getPrice()))
-            return null;
+        if (history != null && (LshStringUtils.isEmpty(history.getId())
+                || LshStringUtils.isEmpty(history.getPrice())))
+            throw new CustomRuntimeException("数据解析失败");
         return history;
     }
 

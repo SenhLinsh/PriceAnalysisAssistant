@@ -128,8 +128,26 @@ public class Item extends RealmObject implements Sortable {
         return lastModified;
     }
 
+    public void setLastModified(long lastModified) {
+        this.lastModified = lastModified;
+    }
+
     public void refreshLastModified() {
         this.lastModified = System.currentTimeMillis();
+    }
+
+    /**
+     * @return 不超过十分钟, 不应该刷新 Item (不用尝试去请求网络了)
+     */
+    public boolean shouldUpdateItem() {
+        return System.currentTimeMillis() - lastModified > 1000L * 60 * 10;
+    }
+
+    /**
+     * @return 超过 12 小时应该刷新 ItemHistory (即使没有变化)
+     */
+    public boolean shouldUpdateHistory() {
+        return System.currentTimeMillis() - lastModified > 1000L * 60 * 60 * 12;
     }
 
     public boolean isCartDisable() {

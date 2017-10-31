@@ -1,6 +1,5 @@
 package com.linsh.paa.task.db;
 
-import com.linsh.lshutils.utils.Basic.LshStringUtils;
 import com.linsh.paa.model.action.AsyncRealmConsumer;
 import com.linsh.paa.model.action.AsyncTransaction;
 import com.linsh.paa.model.bean.db.Item;
@@ -93,22 +92,12 @@ public class PaaDbHelper {
                 Item item = (Item) toSave[0];
                 if (item != null) {
                     realm.copyToRealmOrUpdate(item);
+                    changed = true;
                 }
                 ItemHistory history = (ItemHistory) toSave[1];
                 if (history != null) {
-                    RealmResults<ItemHistory> results = realm.where(ItemHistory.class)
-                            .equalTo("id", history.getId()).findAllSorted("timestamp");
-                    if (results.size() > 0) {
-                        ItemHistory latestHistory = results.get(results.size() - 1);
-                        if (LshStringUtils.isEquals(latestHistory.getPrice(), history.getPrice())
-                                && history.getTitle() == null) {
-                            if (history.getTimestamp() - latestHistory.getTimestamp() < 1000L * 60 * 60 * 12) {
-                                continue;
-                            }
-                        }
-                    }
-                    changed = true;
                     realm.copyToRealm(history);
+                    changed = true;
                 }
             }
             realm.commitTransaction();

@@ -132,18 +132,16 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                                     getView().setLoadingDialogText(String.format(Locale.CHINA, "正在更新: %d/%d", ++curIndex[0], size[0])));
                             return item;
                         })
+                        .filter(Item::shouldUpdateItem)
                         // 获取商品详情数据
                         .flatMap(item -> Flowable.just(item.getId())
                                 // 获取需要保存的 Item 和 ItemHistory
                                 .flatMap(NetworkHelper::getItemProvider)
                                 .flatMap(provider -> {
                                     Object[] toSave = BeanHelper.getItemAndHistoryToSave(item, realm.copyFromRealm(item), provider);
-                                    if (toSave[1] != null) {
-                                        return Flowable.just(toSave);
-                                    }
-                                    return Flowable.error(new CustomThrowable("数据解析失败"));
+                                    return Flowable.just(toSave);
                                 })
-                                .filter(toSave -> toSave[0] != null)
+                                .filter(toSave -> toSave[0] != null && toSave[1] != null)
                         )
                 )
                 .collect((Callable<List<Object[]>>) ArrayList::new, List::add)
