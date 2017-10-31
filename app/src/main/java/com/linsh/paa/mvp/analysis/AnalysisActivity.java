@@ -113,6 +113,9 @@ public class AnalysisActivity extends BaseToolbarActivity<AnalysisContract.Prese
         return LshActivityUtils.getStringExtra(this);
     }
 
+    /**
+     * 设置正常价格和通知价格的参考线
+     */
     @DebugLog
     @Override
     public void setData(Item item) {
@@ -141,6 +144,12 @@ public class AnalysisActivity extends BaseToolbarActivity<AnalysisContract.Prese
         setYRange();
     }
 
+    /**
+     * 设置价格数据, 描述价格曲线
+     *
+     * @param lowPrices  价格, 或价格范围中的最低价
+     * @param highPrices 价格范围中的最高价, 单一价格则为 null
+     */
     @DebugLog
     @Override
     public void setData(ArrayList<Entry> lowPrices, ArrayList<Entry> highPrices) {
@@ -256,6 +265,9 @@ public class AnalysisActivity extends BaseToolbarActivity<AnalysisContract.Prese
 
     private boolean[] yRangeFlag = new boolean[2];
 
+    /**
+     * 设置 Y 轴范围, 默认的范围不会包含参考线, 导致参考线无法显示, 需要手动进行计算以合理显示
+     */
     private void setYRange() {
         if (!yRangeFlag[0] || !yRangeFlag[1]) return;
         YAxis yAxis = mLineChart.getAxisLeft();

@@ -8,12 +8,12 @@ import com.github.mikephil.charting.data.CandleEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.utils.MPPointF;
-import com.github.mikephil.charting.utils.Utils;
 import com.linsh.paa.R;
+import com.linsh.paa.tools.BeanHelper;
 
 /**
  * Custom implementation of the MarkerView.
- * 
+ *
  * @author Philipp Jahoda
  */
 public class MyMarkerView extends MarkerView {
@@ -34,17 +34,25 @@ public class MyMarkerView extends MarkerView {
 
             CandleEntry ce = (CandleEntry) e;
 
-            tvContent.setText("" + Utils.formatNumber(ce.getHigh(), 0, true));
+            tvContent.setText(BeanHelper.getPriceStr(ce.getHigh()));
         } else {
 
-            tvContent.setText("" + Utils.formatNumber(e.getY(), 0, true));
+            tvContent.setText(BeanHelper.getPriceStr(e.getY()));
         }
-
+        tvContent.setTag(e.getData());
         super.refreshContent(e, highlight);
     }
 
     @Override
     public MPPointF getOffset() {
         return new MPPointF(-(getWidth() / 2), -getHeight());
+    }
+
+    public String getEntryData() {
+        Object tag = tvContent.getTag();
+        if (tag instanceof String) {
+            return (String) tag;
+        }
+        return null;
     }
 }

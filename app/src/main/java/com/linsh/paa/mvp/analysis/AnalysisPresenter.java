@@ -45,11 +45,11 @@ class AnalysisPresenter extends RealmPresenterImpl<AnalysisContract.View>
                     if (price.contains("-")) {
                         hasHighPrices = true;
                         String[] split = price.split("-");
-                        values1.add(new Entry(history.getTimestamp(), Float.parseFloat(split[0])));
-                        values2.add(new Entry(history.getTimestamp(), Float.parseFloat(split[1])));
+                        values1.add(new Entry(history.getTimestamp(), Float.parseFloat(split[0]), history.getId()));
+                        values2.add(new Entry(history.getTimestamp(), Float.parseFloat(split[1]), history.getId()));
                     } else {
-                        values1.add(new Entry(history.getTimestamp(), Float.parseFloat(price)));
-                        values2.add(new Entry(history.getTimestamp(), Float.parseFloat(price)));
+                        values1.add(new Entry(history.getTimestamp(), Float.parseFloat(price), history.getId()));
+                        values2.add(new Entry(history.getTimestamp(), Float.parseFloat(price), history.getId()));
                     }
                 }
                 getView().setData(values1, hasHighPrices ? values2 : null);

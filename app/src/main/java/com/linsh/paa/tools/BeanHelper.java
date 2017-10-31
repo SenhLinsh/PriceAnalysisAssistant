@@ -183,6 +183,10 @@ public class BeanHelper {
         return String.format("%s%s元", diffStr, BeanHelper.getPriceStr(price));
     }
 
+    /**
+     * @param price int 价格为真实价格 * 100
+     * @return
+     */
     public static String getPriceStr(int price) {
         String format;
         if (price % 100 == 0) {
@@ -192,7 +196,21 @@ public class BeanHelper {
         } else {
             format = "%.2f";
         }
-        return String.format(Locale.CHINA, format, Math.abs(price * 1F / 100));
+        return String.format(Locale.CHINA, format, price * 1F / 100);
+    }
+
+    /**
+     * @param price float 价格为真实价格
+     * @return
+     */
+    public static String getPriceStr(float price) {
+        String format;
+        if (price - (int) price == 0) {
+            format = "%.0f";
+        } else {
+            format = "%.2f";
+        }
+        return String.format(Locale.CHINA, format, price);
     }
 
     private static Item check(Item item) {
