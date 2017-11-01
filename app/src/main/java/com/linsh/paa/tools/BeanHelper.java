@@ -136,11 +136,13 @@ public class BeanHelper {
                     itemCopy.setShopName(detail.getShopName());
                     update = true;
                 }
-                if (update) {
+                if (update || item.shouldUpdateHistory()) {
+                    // 有更新或者应该更新 ItemHistory
                     itemCopy.refreshLastModified();
                 } else {
+                    // 没有更新 且 短时间内不建议频繁更新(12小时内)
                     itemCopy = null;
-                    history = item.shouldUpdateHistory() ? history : null;
+                    history = null;
                 }
             }
             return new Object[]{check(itemCopy), check(history)};

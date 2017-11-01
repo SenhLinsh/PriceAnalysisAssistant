@@ -2,7 +2,6 @@ package com.linsh.paa.mvp.main;
 
 import com.linsh.lshapp.common.base.RealmPresenterImpl;
 import com.linsh.lshutils.utils.Basic.LshApplicationUtils;
-import com.linsh.lshutils.utils.Basic.LshLogUtils;
 import com.linsh.lshutils.utils.LshListUtils;
 import com.linsh.paa.model.action.DefaultThrowableConsumer;
 import com.linsh.paa.model.action.ResultConsumer;
@@ -44,9 +43,6 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
     private RealmChangeListener<RealmResults<Item>> mItemChangeListener = element -> {
         if (mItems.isValid()) {
             getView().setData(mItems);
-            for (Item item : mItems) {
-                LshLogUtils.i(item.getTitle(), item.getPrice(), item.getInitialPrice());
-            }
         }
     };
     private String mCurPlatformCode;
@@ -141,7 +137,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                                     Object[] toSave = BeanHelper.getItemAndHistoryToSave(item, realm.copyFromRealm(item), provider);
                                     return Flowable.just(toSave);
                                 })
-                                .filter(toSave -> toSave[0] != null && toSave[1] != null)
+                                .filter(toSave -> toSave[0] != null || toSave[1] != null)
                         )
                 )
                 .collect((Callable<List<Object[]>>) ArrayList::new, List::add)
