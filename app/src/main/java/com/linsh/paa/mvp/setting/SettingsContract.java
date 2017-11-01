@@ -20,5 +20,7 @@ public interface SettingsContract {
         void importItems();
 
         void exportRealm();
+
+        void importRealm();
     }
 }

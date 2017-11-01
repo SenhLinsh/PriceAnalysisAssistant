@@ -4,6 +4,7 @@ package com.linsh.paa.mvp.setting;
 import com.linsh.lshapp.common.base.RealmPresenterImpl;
 import com.linsh.lshutils.utils.Basic.LshFileUtils;
 import com.linsh.lshutils.utils.Basic.LshStringUtils;
+import com.linsh.lshutils.utils.LshAppUtils;
 import com.linsh.paa.model.action.DefaultThrowableConsumer;
 import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.model.bean.db.ItemHistory;
@@ -22,6 +23,7 @@ import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import io.realm.Realm;
 
 /**
  * Created by Senh Linsh on 17/5/2.
@@ -45,6 +47,7 @@ public class SettingsPresenter extends RealmPresenterImpl<SettingsContract.View>
     public void importItems() {
         File file = new File(PaaFileFactory.getAppDir(), "import/items.txt");
         if (!file.exists()) {
+            LshFileUtils.makeParentDirs(file);
             getView().showToast("检查不到可读文件");
             return;
         }
@@ -88,6 +91,34 @@ public class SettingsPresenter extends RealmPresenterImpl<SettingsContract.View>
             addDisposable(disposable);
         } else {
             getView().showToast("读取失败");
+        }
+    }
+
+    @DebugLog
+    @Override
+    public void importRealm() {
+        File file = new File(PaaFileFactory.getAppDir(), "import/paa.realm");
+        if (!file.exists()) {
+            LshFileUtils.makeParentDirs(file);
+            getView().showToast("检查不到文件");
+            return;
+        }
+        Realm realm = getRealm();
+        File realmFile = new File(getRealm().getPath());
+        while (!realm.isClosed()) {
+            realm.close();
+        }
+        if (realmFile.delete()) {
+            if (LshFileUtils.copy(file, realmFile)) {
+                getView().showTextDialog("导入成功, 需要重启应用才能生效", "重启", lshColorDialog -> {
+                    lshColorDialog.dismiss();
+                    LshAppUtils.killCurrentProcess();
+                });
+            } else {
+                getView().showToast("Realm 文件导入失败");
+            }
+        } else {
+            getView().showToast("Realm 文件删除失败");
         }
     }
 

@@ -6,8 +6,13 @@
 
         <Preference
             android:key="import_items"
-            android:summary="将宝贝链接分行存入 sdcard/lshapp/Paa/import/items.txt 文件中, 然后点击导入即可"
+            android:summary="请提前将宝贝链接分行存入 sdcard/lshapp/Paa/import/items.txt 文件中"
             android:title="批量导入宝贝"/>
+
+        <Preference
+            android:key="import_realm"
+            android:summary="请提前将 Realm 数据库存入 sdcard/lshapp/Paa/import/paa.realm 目录下即可"
+            android:title="导入 Realm 数据库"/>
 
     </PreferenceCategory>
 
