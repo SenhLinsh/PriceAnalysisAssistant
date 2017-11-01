@@ -108,41 +108,48 @@ public class BeanHelper {
     public static Object[] getItemAndHistoryToSave(Item item, Item itemCopy, ItemProvider detail) {
         if (detail.isSuccess()) {
             ItemHistory history = null;
-            boolean update = false;
+            boolean itemChanged = false;
+            boolean historyChanged = false;
             if (item.getId().equals(detail.getId())) {
                 history = new ItemHistory(item.getId());
                 String detailPrice = detail.getItemPrice();
                 history.setPrice(detailPrice);
-                if (LshStringUtils.notEmpty(detailPrice)
-                        && (!LshStringUtils.isEquals(item.getPrice(), detailPrice)
-                        || (item.getDisplay() != null && item.getDisplay().contains("#4")))) {
-                    updateItemDisplay(itemCopy, detailPrice);
+                if (LshStringUtils.notEmpty(detailPrice) // 价格不能为空
+                        && (!LshStringUtils.isEquals(item.getPrice(), detailPrice) // 价格发生改变
+                        || (item.getDisplay() != null && item.getDisplay().contains("#4")))) { // 或者此前包含价格变化
+                    updateItemDisplay(itemCopy, detailPrice); // 更新价格提示
                     itemCopy.setPrice(detailPrice);
-                    update = true;
+                    itemChanged = true;
+                    if (LshStringUtils.isEquals(item.getPrice(), detailPrice)) {
+                        historyChanged = true;
+                    }
                 }
                 if (LshStringUtils.notEmpty(detail.getItemTitle())
                         && !LshStringUtils.isEquals(item.getTitle(), detail.getItemTitle())) {
                     itemCopy.setTitle(detail.getItemTitle());
                     history.setTitle(detail.getItemTitle());
-                    update = true;
+                    itemChanged = true;
+                    historyChanged = true;
                 }
                 if (LshStringUtils.notEmpty(detail.getItemImage())
                         && !LshStringUtils.isEquals(item.getImage(), detail.getItemImage())) {
                     itemCopy.setImage(detail.getItemImage());
-                    update = true;
+                    itemChanged = true;
                 }
                 if (LshStringUtils.notEmpty(detail.getShopName())
                         && !LshStringUtils.isEquals(item.getShopName(), detail.getShopName())) {
                     itemCopy.setShopName(detail.getShopName());
-                    update = true;
+                    itemChanged = true;
                 }
-                if (update || item.shouldUpdateHistory()) {
-                    // 有更新或者应该更新 ItemHistory
+                // 没有更新 且 短时间内不建议频繁更新(12小时内)
+                if (!historyChanged && !item.shouldUpdateHistory()) {
+                    history = null;
+                }
+                // Item 改变时或者 ItemHistory 需要存储时
+                if (itemChanged || history != null) {
                     itemCopy.refreshLastModified();
                 } else {
-                    // 没有更新 且 短时间内不建议频繁更新(12小时内)
                     itemCopy = null;
-                    history = null;
                 }
             }
             return new Object[]{check(itemCopy), check(history)};
