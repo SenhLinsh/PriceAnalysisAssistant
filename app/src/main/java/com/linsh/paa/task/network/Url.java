@@ -1,6 +1,8 @@
 package com.linsh.paa.task.network;
 
 import com.linsh.lshutils.utils.Basic.LshStringUtils;
+import com.linsh.paa.model.bean.db.Platform;
+import com.linsh.paa.tools.BeanHelper;
 
 /**
  * <pre>
@@ -26,5 +28,18 @@ public class Url {
 
     public static String getJingdongDetailHtmlUrl(String itemId) {
         return LshStringUtils.format(JINGDONG_DETAIL_HTML, itemId);
+    }
+
+    public static String getDetailHtmlUrl(String id) {
+        Platform platform = BeanHelper.getPlatform(id);
+        String itemId = BeanHelper.getItemId(id);
+        switch (platform) {
+            case Taobao:
+                return getTaobaoDetailHtmlUrl(itemId);
+            case Jingdong:
+                return getJingdongDetailHtmlUrl(itemId);
+            default:
+                return "";
+        }
     }
 }

@@ -18,6 +18,7 @@ import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.mvp.analysis.AnalysisActivity;
 import com.linsh.paa.mvp.display.ItemDisplayActivity;
 import com.linsh.paa.mvp.setting.SettingsActivity;
+import com.linsh.paa.task.network.Url;
 import com.linsh.paa.tools.BeanHelper;
 import com.linsh.paa.view.DisplayItemDialog;
 
@@ -142,7 +143,7 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
             public void onItemLongClick(View view, int position) {
                 new LshPopupWindow(MainActivity.this)
                         .BuildList()
-                        .setItems(new String[]{"打开宝贝链接", "设置提醒价格", "设置正常价格", "删除该宝贝"}, (window, index) -> {
+                        .setItems(new String[]{"打开宝贝详情链接", "打开价格历史链接", "设置提醒价格", "设置正常价格", "删除该宝贝"}, (window, index) -> {
                             window.dismiss();
                             Item item = mAdapter.getData().get(position);
                             switch (index) {
@@ -152,6 +153,13 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
                                             .startActivity(getActivity());
                                     break;
                                 case 1:
+                                    String url = "http://tool.manmanbuy.com/historyLowest.aspx?url="
+                                            + Url.getDetailHtmlUrl(item.getId());
+                                    LshActivityUtils.newIntent(ItemDisplayActivity.class)
+                                            .putExtra(url)
+                                            .startActivity(getActivity());
+                                    break;
+                                case 2:
                                     int notifiedPrice = item.getNotifiedPrice();
                                     new LshColorDialog(getActivity())
                                             .buildInput()
@@ -168,7 +176,7 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
                                             .setNegativeButton(null, null)
                                             .show();
                                     break;
-                                case 2:
+                                case 3:
                                     int normalPrice = item.getNormalPrice();
                                     new LshColorDialog(getActivity())
                                             .buildInput()
@@ -185,7 +193,7 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
                                             .setNegativeButton(null, null)
                                             .show();
                                     break;
-                                case 3:
+                                case 4:
                                     mPresenter.deleteItem(item.getId());
                                     break;
                             }
