@@ -11,6 +11,8 @@ public interface ItemProvider {
 
     boolean isSuccess();
 
+    String getMessage();
+
     String getId();
 
     String getItemTitle();

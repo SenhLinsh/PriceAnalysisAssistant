@@ -111,6 +111,20 @@ public class TaobaoDetail implements ItemProvider {
         return data != null && (ret.size() == 0 || ret.get(0).contains("SUCCESS"));
     }
 
+    @Override
+    public String getMessage() {
+        // ret : ["FAIL_SYS_USER_VALIDATE::哎哟喂,被挤爆啦,请稍后重试!"]
+        // ret : ["SUCCESS::调用成功"]
+        if (ret != null && ret.size() > 0) {
+            String msg = ret.get(0);
+            if (msg != null && msg.matches(".+::.+")) {
+                return msg.split("::")[1];
+            }
+            return msg;
+        }
+        return null;
+    }
+
     public String getId() {
         try {
             return BeanHelper.getId(Platform.Taobao, data.item.itemId);

@@ -34,7 +34,7 @@ public class NetworkHelper {
                                     .get(Url.getJingdongDetailHtmlUrl(BeanHelper.getItemId(id)))
                                     .map(html -> JingdongDataParser.parseItemDetailHtml(id, html));
                         default:
-                            return Flowable.just(new JingdongDetail());
+                            return Flowable.just(new JingdongDetail(false, "无法获取【" + platform.getName() + "】平台的宝贝信息"));
                     }
                 });
     }

@@ -51,6 +51,6 @@ public class JingdongDataParser {
         if (LshStringUtils.isAllNotEmpty(title, firstPic, itemPrice, shopName)) {
             return new JingdongDetail(id, title, firstPic, itemPrice, shopName);
         }
-        return new JingdongDetail();
+        return new JingdongDetail(false, "数据解析失败");
     }
 }

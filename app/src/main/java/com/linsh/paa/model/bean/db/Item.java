@@ -1,6 +1,10 @@
 package com.linsh.paa.model.bean.db;
 
+import com.linsh.lshutils.utils.Basic.LshLogUtils;
+import com.linsh.lshutils.utils.LshTimeUtils;
 import com.linsh.paa.tools.BeanHelper;
+
+import java.util.Date;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -137,10 +141,15 @@ public class Item extends RealmObject implements Sortable {
     }
 
     /**
-     * @return 不超过十分钟, 不应该刷新 Item (不用尝试去请求网络了)
+     * @return 不超过半小时, 不应该刷新 Item (不用尝试去请求网络了)
      */
     public boolean shouldUpdateItem() {
-        return System.currentTimeMillis() - lastModified > 1000L * 60 * 10;
+        if (lastModified == 0) {
+            LshLogUtils.w("Item -> lastModified 为 0");
+        } else {
+            LshLogUtils.i("距离上次更新", LshTimeUtils.date2StringCN(new Date(lastModified), false));
+        }
+        return System.currentTimeMillis() - lastModified > 1000L * 60 * 30;
     }
 
     /**

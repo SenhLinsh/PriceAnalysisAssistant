@@ -1,5 +1,6 @@
 package com.linsh.paa.tools;
 
+import com.linsh.lshutils.utils.Basic.LshLogUtils;
 import com.linsh.lshutils.utils.Basic.LshStringUtils;
 import com.linsh.paa.model.bean.ItemProvider;
 import com.linsh.paa.model.bean.db.Item;
@@ -153,8 +154,10 @@ public class BeanHelper {
                 }
             }
             return new Object[]{check(itemCopy), check(history)};
+        } else {
+            LshLogUtils.w("宝贝信息获取失败 -> " + detail.getMessage());
+            return null;
         }
-        return new Object[2];
     }
 
     public static void updateItemDisplay(Item item) {

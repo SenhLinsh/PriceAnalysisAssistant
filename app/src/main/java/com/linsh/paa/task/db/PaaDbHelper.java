@@ -85,6 +85,7 @@ public class PaaDbHelper {
 
     public static Result updateItems(List<Object[]> toSaves) {
         boolean changed = false;
+        int count = 0;
         if (toSaves != null && toSaves.size() > 0) {
             Realm realm = Realm.getDefaultInstance();
             realm.beginTransaction();
@@ -92,17 +93,19 @@ public class PaaDbHelper {
                 Item item = (Item) toSave[0];
                 if (item != null) {
                     realm.copyToRealmOrUpdate(item);
-                    changed = true;
                 }
                 ItemHistory history = (ItemHistory) toSave[1];
                 if (history != null) {
                     realm.copyToRealm(history);
+                }
+                if (item != null || history != null) {
                     changed = true;
+                    count++;
                 }
             }
             realm.commitTransaction();
         }
-        return changed ? new Result() : new Result("短时间内宝贝没有变化的哦");
+        return changed ? new Result(true, "更新了" + count + "件宝贝") : new Result("短时间内宝贝没有变化的哦");
     }
 
     public static Flowable<Result> updateItem(Realm realm, String id, Consumer<Item> consumer) {

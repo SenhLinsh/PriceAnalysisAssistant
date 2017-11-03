@@ -12,6 +12,7 @@ import com.linsh.lshutils.utils.Basic.LshStringUtils;
 public class JingdongDetail implements ItemProvider {
 
     private boolean success;
+    private String message;
     private String id;
     private String itemTitle;
     private String itemImage;
@@ -19,6 +20,11 @@ public class JingdongDetail implements ItemProvider {
     private String shopName;
 
     public JingdongDetail() {
+    }
+
+    public JingdongDetail(boolean success, String message) {
+        this.success = success;
+        this.message = message;
     }
 
     public JingdongDetail(String id, String itemTitle, String itemImage, String itemPrice, String shopName) {
@@ -35,6 +41,15 @@ public class JingdongDetail implements ItemProvider {
     @Override
     public boolean isSuccess() {
         return success;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     @Override

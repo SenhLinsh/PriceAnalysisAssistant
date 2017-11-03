@@ -112,6 +112,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
     public void updateAll() {
         final int[] size = new int[1];
         final int[] curIndex = {0};
+        final int[] failedNum = {0};
         getView().showLoadingDialog("正在更新");
         Disposable disposable = LshRxUtils.getAsyncRealmFlowable()
                 .flatMap(realm -> Flowable.just(realm.where(Item.class).findAll())
@@ -135,6 +136,10 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                                 .flatMap(NetworkHelper::getItemProvider)
                                 .flatMap(provider -> {
                                     Object[] toSave = BeanHelper.getItemAndHistoryToSave(item, realm.copyFromRealm(item), provider);
+                                    if (toSave == null) {
+                                        failedNum[0]++;
+                                        return Flowable.just(new Object[2]);
+                                    }
                                     return Flowable.just(toSave);
                                 })
                                 .filter(toSave -> toSave[0] != null || toSave[1] != null)
@@ -145,8 +150,14 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(result -> {
                     getView().dismissLoadingDialog();
-                    if (!ResultConsumer.handleFailedWithToast(result)) {
-                        getView().showToast("更新完成");
+                    if (failedNum[0] > 0) {
+                        if (result.isSuccess()) {
+                            getView().showToast(result.getMessage() + " (失败" + failedNum[0] + "件)");
+                        } else {
+                            getView().showToast(failedNum[0] + "件宝贝更新失败了");
+                        }
+                    } else {
+                        getView().showToast(result.getMessage());
                     }
                 }, thr -> {
                     getView().dismissLoadingDialog();
