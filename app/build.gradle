@@ -1,11 +1,10 @@
 apply plugin: 'com.android.application'
-apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'com.jakewharton.hugo'
 apply plugin: 'realm-android'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "com.linsh.paa"
         minSdkVersion 15
@@ -21,13 +20,18 @@ android {
         }
     }
     // 控制打包apk的文件名
-    applicationVariants.all {
-        variant ->
-            variant.outputs.each { output ->
-                output.outputFile = new File(
-                        output.outputFile.parent,
-                        output.outputFile.name.replace(output.outputFile.name, "Paa_" + "v${variant.versionName}") + ".apk")
-            }
+//    applicationVariants.all {
+//        variant ->
+//            variant.outputs.all { output ->
+//                output.outputFile = new File(
+//                        output.outputFile.parent,
+//                        output.outputFile.name.replace(output.outputFile.name, "Paa_" + "v${variant.versionName}") + ".apk")
+//            }
+//    }
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "Paa_v${variant.versionName}.apk"
+        }
     }
     compileOptions {
         targetCompatibility 1.8
