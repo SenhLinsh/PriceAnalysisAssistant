@@ -3,6 +3,7 @@ package com.linsh.paa.mvp.main;
 import com.linsh.lshapp.common.base.RealmPresenterImpl;
 import com.linsh.lshutils.utils.Basic.LshApplicationUtils;
 import com.linsh.lshutils.utils.LshListUtils;
+import com.linsh.lshutils.utils.LshRandomUtils;
 import com.linsh.paa.model.action.DefaultThrowableConsumer;
 import com.linsh.paa.model.action.ResultConsumer;
 import com.linsh.paa.model.bean.db.Item;
@@ -129,7 +130,11 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                                     getView().setLoadingDialogText(String.format(Locale.CHINA, "正在更新: %d/%d", ++curIndex[0], size[0])));
                             return item;
                         })
-                        .filter(Item::shouldUpdateItem)
+                        // 线程等待 1-2s 防止淘宝风控返回失败
+                        .map(item -> {
+                            Thread.sleep(LshRandomUtils.getInt(1000, 2000));
+                            return item;
+                        })
                         // 获取商品详情数据
                         .flatMap(item -> Flowable.just(item.getId())
                                 // 获取需要保存的 Item 和 ItemHistory
