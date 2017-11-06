@@ -1,6 +1,7 @@
 package com.linsh.paa.mvp.main;
 
 import com.linsh.lshapp.common.base.RealmPresenterImpl;
+import com.linsh.lshutils.module.SimpleDate;
 import com.linsh.lshutils.utils.Basic.LshApplicationUtils;
 import com.linsh.lshutils.utils.LshListUtils;
 import com.linsh.lshutils.utils.LshRandomUtils;
@@ -17,6 +18,7 @@ import com.linsh.paa.tools.BeanHelper;
 import com.linsh.paa.tools.LshRxUtils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
@@ -49,6 +51,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
     private String mCurPlatformCode;
     private String mCurTag;
     private String mCurDisplay;
+    private long mLastModify;
 
     @DebugLog
     @Override
@@ -223,7 +226,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
             mCurPlatformCode = null;
         }
         mItems.removeAllChangeListeners();
-        mItems = PaaDbHelper.getItems(getRealm(), mCurPlatformCode, mCurTag, mCurDisplay);
+        queryItems();
         mItems.addChangeListener(mItemChangeListener);
     }
 
@@ -232,7 +235,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
     public void onTagSelected(String tag) {
         mCurTag = tag;
         mItems.removeAllChangeListeners();
-        mItems = PaaDbHelper.getItems(getRealm(), mCurPlatformCode, mCurTag, mCurDisplay);
+        queryItems();
         mItems.addChangeListener(mItemChangeListener);
     }
 
@@ -243,12 +246,22 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
             mCurDisplay = "价格低";
         } else if ("降价中".equals(status)) {
             mCurDisplay = "下降";
+        } else if ("未更新".equals(status)) {
+            mCurDisplay = null;
+            long min1 = System.currentTimeMillis() - 12L * 60 * 60 * 1000;
+            long min2 = new Date(new SimpleDate(new Date()).getDate().getTime()).getTime();
+            mLastModify = Math.min(min1, min2);
         } else {
             mCurDisplay = null;
+            mLastModify = 0;
         }
         mItems.removeAllChangeListeners();
-        mItems = PaaDbHelper.getItems(getRealm(), mCurPlatformCode, mCurTag, mCurDisplay);
+        queryItems();
         mItems.addChangeListener(mItemChangeListener);
+    }
+
+    private void queryItems() {
+        mItems = PaaDbHelper.getItems(getRealm(), mCurPlatformCode, mCurTag, mCurDisplay, mLastModify);
     }
 
     @Override

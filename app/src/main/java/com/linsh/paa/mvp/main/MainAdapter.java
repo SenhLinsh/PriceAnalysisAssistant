@@ -15,7 +15,6 @@ import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.view.LabelPopupWindow;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,7 +31,7 @@ import hugo.weaving.DebugLog;
 class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolder>
         implements LshHeaderFooterRcvAdapter.OnItemClickListener, LshHeaderFooterRcvAdapter.OnItemLongClickListener {
 
-    private List<String> tags = Arrays.asList("所有", "摄影", "我是一个很长长标签", "无标签");
+    private List<String> tags;
     private int curPlatformIndex = -1;
     private int curLabelIndex = -1;
     private int curStatusIndex = -1;
@@ -267,7 +266,7 @@ class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolde
                 view.setSelected(!view.isSelected());
                 if (view.isSelected()) {
                     LabelPopupWindow popupWindow = new LabelPopupWindow(view.getContext());
-                    String[] statuses = new String[]{"价格较低", "降价中"};
+                    String[] statuses = new String[]{"价格较低", "降价中", "未更新"};
                     popupWindow.addLabels(statuses, curStatusIndex)
                             .setOnItemClickListener((popupWindow1, index, isSelected) -> {
                                 popupWindow1.dismiss();
