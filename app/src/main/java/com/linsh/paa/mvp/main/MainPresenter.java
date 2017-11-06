@@ -130,6 +130,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                                     getView().setLoadingDialogText(String.format(Locale.CHINA, "正在更新: %d/%d", ++curIndex[0], size[0])));
                             return item;
                         })
+                        .filter(Item::shouldUpdateItem)
                         // 线程等待 1-2s 防止淘宝风控返回失败
                         .map(item -> {
                             Thread.sleep(LshRandomUtils.getInt(1000, 2000));

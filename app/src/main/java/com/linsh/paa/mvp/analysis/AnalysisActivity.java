@@ -1,6 +1,8 @@
 package com.linsh.paa.mvp.analysis;
 
 import android.graphics.Color;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -106,6 +108,22 @@ public class AnalysisActivity extends BaseToolbarActivity<AnalysisContract.Prese
                 return String.valueOf((int) value);
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.analysis, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_analysis_update_item:
+                mPresenter.updateItem();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

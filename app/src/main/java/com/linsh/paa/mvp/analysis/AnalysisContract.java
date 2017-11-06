@@ -24,5 +24,6 @@ interface AnalysisContract {
 
     interface Presenter extends BaseContract.BasePresenter<View> {
 
+        void updateItem();
     }
 }
