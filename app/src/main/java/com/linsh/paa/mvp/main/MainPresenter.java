@@ -136,7 +136,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                         .filter(Item::shouldUpdateItem)
                         // 线程等待 1-2s 防止淘宝风控返回失败
                         .map(item -> {
-                            Thread.sleep(LshRandomUtils.getInt(1000, 2000));
+                            Thread.sleep(LshRandomUtils.getInt(500, 1500));
                             return item;
                         })
                         // 获取商品详情数据
