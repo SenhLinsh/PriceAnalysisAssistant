@@ -33,6 +33,19 @@ public class JingdongDataParser {
             end = html.indexOf("</span>", start);
             String smallPrice = html.substring(start, end);
             itemPrice = bigPrice + smallPrice;
+        } else {
+            // 秒杀价 (如何正常价格没有找到, 尝试查找秒杀价)
+            start = html.substring(0, end).indexOf("\"seckill-big-price\"", 0);
+            if (start > 0) {
+                start = html.indexOf(startKey = ">", start) + startKey.length();
+                end = html.indexOf(startKey = "</span>", start);
+                itemPrice = html.substring(start, end);
+                int smallPriceStart = end + startKey.length();
+                String smallPrice = html.substring(smallPriceStart, smallPriceStart + 3);
+                if (smallPrice.matches("\\.\\d{2}")) {
+                    itemPrice += smallPrice;
+                }
+            }
         }
         // 图片
         start = html.indexOf("\"spec-first-pic\"", end);
