@@ -244,8 +244,10 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
     public void onStatusSelected(String status) {
         if ("价格较低".equals(status)) {
             mCurDisplay = "价格低";
+            mLastModify = 0;
         } else if ("降价中".equals(status)) {
             mCurDisplay = "下降";
+            mLastModify = 0;
         } else if ("未更新".equals(status)) {
             mCurDisplay = null;
             long min1 = System.currentTimeMillis() - 12L * 60 * 60 * 1000;
