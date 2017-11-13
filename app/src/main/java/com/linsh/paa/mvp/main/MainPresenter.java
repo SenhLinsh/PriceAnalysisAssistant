@@ -52,6 +52,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
     private String mCurTag;
     private String mCurDisplay;
     private long mLastModify;
+    private Disposable mUpdateAllDis;
 
     @DebugLog
     @Override
@@ -117,8 +118,12 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
         final int[] size = new int[1];
         final int[] curIndex = {0};
         final int[] failedNum = {0};
-        getView().showLoadingDialog("正在更新");
-        Disposable disposable = LshRxUtils.getAsyncRealmFlowable()
+        getView().showLoadingDialog("正在更新", dialog -> {
+            if (mUpdateAllDis != null && !mUpdateAllDis.isDisposed()) {
+                mUpdateAllDis.dispose();
+            }
+        });
+        mUpdateAllDis = LshRxUtils.getAsyncRealmFlowable()
                 .flatMap(realm -> Flowable.just(realm.where(Item.class).findAll())
                         .flatMap(items -> {
                             size[0] = items.size();
@@ -136,7 +141,12 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                         .filter(Item::shouldUpdateItem)
                         // 线程等待 1-2s 防止淘宝风控返回失败
                         .map(item -> {
-                            Thread.sleep(LshRandomUtils.getInt(500, 1500));
+                            // 防止 InterruptedException, 然而并没有卵用
+                            try {
+                                Thread.sleep(LshRandomUtils.getInt(500, 1000));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                             return item;
                         })
                         // 获取商品详情数据
@@ -158,6 +168,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                 .map(PaaDbHelper::updateItems)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(result -> {
+                    mUpdateAllDis = null;
                     getView().dismissLoadingDialog();
                     if (failedNum[0] > 0) {
                         if (result.isSuccess()) {
@@ -169,10 +180,11 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                         getView().showToast(result.getMessage());
                     }
                 }, thr -> {
+                    mUpdateAllDis = null;
                     getView().dismissLoadingDialog();
                     DefaultThrowableConsumer.showThrowableMsg(thr);
                 });
-        addDisposable(disposable);
+        addDisposable(mUpdateAllDis);
     }
 
     @DebugLog
