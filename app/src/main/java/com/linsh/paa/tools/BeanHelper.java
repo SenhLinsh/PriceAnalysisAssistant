@@ -103,8 +103,9 @@ public class BeanHelper {
      * 获取需要存储的 Item 和 ItemHistory
      *
      * @param item 作为对比的 Item
-     * @return Object[0] 为需要更新的 ItemCopy, 为 null 时表示 Item 不需要更新;
-     * Object[1] 为需要更新的 ItemHistory, 为 null 时表示不需要更新 ItemHistory
+     * @return 更新失败返回 null;
+     * Object[0] 为需要更新的 ItemCopy, 为 null 时表示 Item 不需要更新;
+     * Object[1] 为需要更新的 ItemHistory, 为 null 时表示不需要更新 ItemHistory;
      */
     public static Object[] getItemAndHistoryToSave(Item item, Item itemCopy, ItemProvider detail) {
         if (detail.isSuccess()) {

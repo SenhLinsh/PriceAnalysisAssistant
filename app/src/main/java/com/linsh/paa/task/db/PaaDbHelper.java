@@ -84,6 +84,18 @@ public class PaaDbHelper {
         });
     }
 
+    public static void updateItem(Item item, ItemHistory history) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        if (item != null) {
+            realm.copyToRealmOrUpdate(item);
+        }
+        if (history != null) {
+            realm.copyToRealm(history);
+        }
+        realm.commitTransaction();
+    }
+
     public static Result updateItems(List<Object[]> toSaves) {
         boolean changed = false;
         int count = 0;

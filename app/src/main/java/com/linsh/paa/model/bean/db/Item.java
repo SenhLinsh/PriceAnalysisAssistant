@@ -147,7 +147,7 @@ public class Item extends RealmObject implements Sortable {
         if (lastModified == 0) {
             LshLogUtils.w("Item -> lastModified 为 0");
         } else {
-            LshLogUtils.i("距离上次更新", LshTimeUtils.date2StringCN(new Date(lastModified), false));
+            LshLogUtils.i(getId(), "距离上次更新", LshTimeUtils.date2StringCN(new Date(lastModified), false));
         }
         return System.currentTimeMillis() - lastModified > 1000L * 60 * 30;
     }
@@ -156,7 +156,8 @@ public class Item extends RealmObject implements Sortable {
      * @return 超过 12 小时应该刷新 ItemHistory (即使没有变化)
      */
     public boolean shouldUpdateHistory() {
-        return System.currentTimeMillis() - lastModified > 1000L * 60 * 60 * 12;
+//        return System.currentTimeMillis() - lastModified > 1000L * 60 * 60 * 12;
+        return true;
     }
 
     public boolean isCartDisable() {

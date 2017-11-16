@@ -3,6 +3,7 @@ package com.linsh.paa.mvp.main;
 import com.linsh.lshapp.common.base.RealmPresenterImpl;
 import com.linsh.lshutils.module.SimpleDate;
 import com.linsh.lshutils.utils.Basic.LshApplicationUtils;
+import com.linsh.lshutils.utils.Basic.LshLogUtils;
 import com.linsh.lshutils.utils.LshListUtils;
 import com.linsh.lshutils.utils.LshRandomUtils;
 import com.linsh.paa.model.action.DefaultThrowableConsumer;
@@ -11,6 +12,7 @@ import com.linsh.paa.model.bean.db.Item;
 import com.linsh.paa.model.bean.db.ItemHistory;
 import com.linsh.paa.model.bean.db.Platform;
 import com.linsh.paa.model.bean.db.Tag;
+import com.linsh.paa.model.result.Result;
 import com.linsh.paa.model.throwable.CustomThrowable;
 import com.linsh.paa.task.db.PaaDbHelper;
 import com.linsh.paa.task.network.NetworkHelper;
@@ -21,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import hugo.weaving.DebugLog;
 import io.reactivex.Flowable;
@@ -118,6 +120,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
         final int[] size = new int[1];
         final int[] curIndex = {0};
         final int[] failedNum = {0};
+        final int[] doneNum = {0};
         getView().showLoadingDialog("正在更新", dialog -> {
             if (mUpdateAllDis != null && !mUpdateAllDis.isDisposed()) {
                 mUpdateAllDis.dispose();
@@ -127,62 +130,68 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                 .flatMap(realm -> Flowable.just(realm.where(Item.class).findAll())
                         .flatMap(items -> {
                             size[0] = items.size();
+                            LshLogUtils.i("查询所有宝贝: size = " + size[0]);
                             if (size[0] > 0) {
-                                return Flowable.just(items);
+                                return Flowable.just(realm.copyFromRealm(items));
                             }
                             return Flowable.error(new CustomThrowable("请先添加宝贝吧"));
-                        })
-                        .flatMap(Flowable::fromIterable)
-                        .map(item -> {
-                            LshApplicationUtils.postRunnable(() ->
-                                    getView().setLoadingDialogText(String.format(Locale.CHINA, "正在更新: %d/%d", ++curIndex[0], size[0])));
-                            return item;
-                        })
-                        .filter(Item::shouldUpdateItem)
-                        // 线程等待 1-2s 防止淘宝风控返回失败
-                        .map(item -> {
-                            // 防止 InterruptedException, 然而并没有卵用
-                            try {
-                                Thread.sleep(LshRandomUtils.getInt(500, 1000));
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                        }))
+                .flatMap(items -> Flowable.just(curIndex)
+                        .map(indexArr -> items.get(indexArr[0]))
+                        .flatMap(item -> {
+                            curIndex[0]++;
+                            if (item.shouldUpdateItem()) {
+                                LshApplicationUtils.postRunnable(() ->
+                                        getView().setLoadingDialogText(String.format(Locale.CHINA, "正在更新: %d/%d", curIndex[0], size[0])));
+                                // 线程等待 1-2s 防止淘宝风控返回失败
+                                return Flowable.timer(LshRandomUtils.getInt(300, 800), TimeUnit.MILLISECONDS)
+                                        // 获取商品详情数据
+                                        .flatMap(timer -> Flowable.just(item.getId())
+                                                // 获取需要保存的 Item 和 ItemHistory
+                                                .flatMap(NetworkHelper::getItemProvider)
+                                                .flatMap(provider -> {
+                                                    Object[] toSave = BeanHelper.getItemAndHistoryToSave(item, item, provider);
+                                                    if (toSave == null) {
+                                                        failedNum[0]++;
+                                                        return Flowable.just(new Object[2]);
+                                                    }
+                                                    return Flowable.just(toSave);
+                                                })
+                                        )
+                                        .map(toSave -> {
+                                            if (toSave[0] != null || toSave[1] != null) {
+                                                PaaDbHelper.updateItem((Item) toSave[0], (ItemHistory) toSave[1]);
+                                                doneNum[0]++;
+                                            }
+                                            return new Result();
+                                        });
+                            } else {
+                                return Flowable.just(new Result());
                             }
-                            return item;
                         })
-                        // 获取商品详情数据
-                        .flatMap(item -> Flowable.just(item.getId())
-                                // 获取需要保存的 Item 和 ItemHistory
-                                .flatMap(NetworkHelper::getItemProvider)
-                                .flatMap(provider -> {
-                                    Object[] toSave = BeanHelper.getItemAndHistoryToSave(item, realm.copyFromRealm(item), provider);
-                                    if (toSave == null) {
-                                        failedNum[0]++;
-                                        return Flowable.just(new Object[2]);
-                                    }
-                                    return Flowable.just(toSave);
-                                })
-                                .filter(toSave -> toSave[0] != null || toSave[1] != null)
-                        )
+                        .repeatUntil(() -> curIndex[0] >= size[0])
                 )
-                .collect((Callable<List<Object[]>>) ArrayList::new, List::add)
-                .map(PaaDbHelper::updateItems)
+
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(result -> {
-                    mUpdateAllDis = null;
-                    getView().dismissLoadingDialog();
-                    if (failedNum[0] > 0) {
-                        if (result.isSuccess()) {
-                            getView().showToast(result.getMessage() + " (失败" + failedNum[0] + "件)");
-                        } else {
-                            getView().showToast(failedNum[0] + "件宝贝更新失败了");
-                        }
-                    } else {
-                        getView().showToast(result.getMessage());
-                    }
                 }, thr -> {
                     mUpdateAllDis = null;
                     getView().dismissLoadingDialog();
                     DefaultThrowableConsumer.showThrowableMsg(thr);
+                }, () -> {
+                    mUpdateAllDis = null;
+                    getView().dismissLoadingDialog();
+                    String msg;
+                    if (doneNum[0] > 0 && failedNum[0] > 0) {
+                        msg = "更新了" + doneNum[0] + "件宝贝" + " (失败" + failedNum[0] + "件)";
+                    } else if (doneNum[0] > 0 && failedNum[0] == 0) {
+                        msg = "更新了" + doneNum[0] + "件宝贝";
+                    } else if (doneNum[0] == 0 && failedNum[0] > 0) {
+                        msg = failedNum[0] + "件宝贝更新失败了";
+                    } else {
+                        msg = "短时间内宝贝没有变化的哦";
+                    }
+                    getView().showToast(msg);
                 });
         addDisposable(mUpdateAllDis);
     }
