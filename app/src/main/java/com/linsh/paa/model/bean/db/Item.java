@@ -156,8 +156,7 @@ public class Item extends RealmObject implements Sortable {
      * @return 超过 12 小时应该刷新 ItemHistory (即使没有变化)
      */
     public boolean shouldUpdateHistory() {
-//        return System.currentTimeMillis() - lastModified > 1000L * 60 * 60 * 12;
-        return true;
+        return System.currentTimeMillis() - lastModified > 1000L * 60 * 60 * 12;
     }
 
     public boolean isCartDisable() {
