@@ -9,8 +9,8 @@ android {
         applicationId "com.linsh.paa"
         minSdkVersion 15
         targetSdkVersion 25
-        versionCode 7
-        versionName "1.0.4.1"
+        versionCode 8
+        versionName "1.0.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
