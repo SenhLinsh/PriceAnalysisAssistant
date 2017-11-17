@@ -4,6 +4,7 @@ import com.linsh.lshapp.common.base.RealmPresenterImpl;
 import com.linsh.lshutils.module.SimpleDate;
 import com.linsh.lshutils.utils.Basic.LshApplicationUtils;
 import com.linsh.lshutils.utils.Basic.LshLogUtils;
+import com.linsh.lshutils.utils.Basic.LshToastUtils;
 import com.linsh.lshutils.utils.LshListUtils;
 import com.linsh.lshutils.utils.LshRandomUtils;
 import com.linsh.paa.model.action.DefaultThrowableConsumer;
@@ -128,7 +129,8 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
             }
         });
         mUpdateAllDis = LshRxUtils.getAsyncRealmFlowable()
-                .flatMap(realm -> Flowable.just(realm.where(Item.class).findAll())
+                .flatMap(realm -> Flowable
+                        .just(realm.where(Item.class).equalTo("removed", false).findAll())
                         .flatMap(items -> {
                             size[0] = items.size();
                             LshLogUtils.i("查询所有宝贝: size = " + size[0]);
@@ -154,6 +156,9 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                                                     Object[] toSave = BeanHelper.getItemAndHistoryToSave(item, item, provider);
                                                     if (toSave == null) {
                                                         failedNum[0]++;
+                                                        int curFailedNum = failedNum[0];
+                                                        LshApplicationUtils.postRunnable(() ->
+                                                                getView().showToast(curFailedNum + "件宝贝更新失败"));
                                                         return Flowable.just(new Object[2]);
                                                     }
                                                     return Flowable.just(toSave);
@@ -192,7 +197,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                     } else {
                         msg = "短时间内宝贝没有变化的哦";
                     }
-                    getView().showToast(msg);
+                    LshToastUtils.showLong(msg);
                 });
         addDisposable(mUpdateAllDis);
     }
