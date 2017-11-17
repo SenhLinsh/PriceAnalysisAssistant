@@ -28,7 +28,7 @@ public class BottomViewHelper {
         vsBottom = (ViewStub) activity.findViewById(R.id.vs_main_bottom);
     }
 
-    public void showBottom(Activity activity) {
+    public void showBottom(Activity activity, boolean isRemove) {
         if (mBottomView == null) {
             mBottomView = vsBottom.inflate();
             cbSelectAll = (CheckBox) activity.findViewById(R.id.cb_main_bottom_select_all);
@@ -45,6 +45,7 @@ public class BottomViewHelper {
                 mViewHelperListener.done();
             });
         }
+        tvDelete.setText(isRemove ? "取消关注" : "删除");
         mBottomView.setVisibility(View.VISIBLE);
     }
 

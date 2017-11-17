@@ -32,15 +32,21 @@ public class PaaDbHelper {
     }
 
     public static RealmResults<Item> getItems(Realm realm) {
-        return realm.where(Item.class).findAllSortedAsync("sort", Sort.DESCENDING);
+        return realm.where(Item.class)
+                .equalTo("removed", false)
+                .findAllSortedAsync("sort", Sort.DESCENDING);
     }
 
-    public static RealmResults<Item> getItems(Realm realm, String platformCode, String tag, String display, long lastModify) {
+    public static RealmResults<Item> getItems(Realm realm, String platformCode, String tag, String display, long lastModify, boolean isShowRemoved) {
         RealmQuery<Item> where = realm.where(Item.class);
+        where.equalTo("removed", isShowRemoved);
         if (platformCode != null) where.beginsWith("id", platformCode);
         if (tag != null) where.equalTo("tag", tag.equals("无标签") ? null : tag);
-        if (display != null) where.contains("display", display);
-        if (lastModify > 0) where.lessThan("lastModified", lastModify);
+        if (display != null) {
+            where.contains("display", display);
+        } else if (lastModify > 0) {
+            where.lessThan("lastModified", lastModify);
+        }
         return where.findAllSortedAsync("sort", Sort.DESCENDING);
     }
 
@@ -56,11 +62,12 @@ public class PaaDbHelper {
         return LshRxUtils.getAsyncTransactionFlowable(realm, new AsyncTransaction<Result>() {
             @Override
             protected void execute(Realm realm, FlowableEmitter<? super Result> emitter) {
-                Item result = realm.where(Item.class).equalTo("id", item.getId()).findFirst();
+                Item result = realm.where(Item.class).equalTo("id", item.getId())
+                        .equalTo("removed", false).findFirst();
                 if (result == null) {
                     Number number = realm.where(Item.class).max("sort");
                     item.setSort(number == null ? 0 : (number.intValue() + 1));
-                    realm.copyToRealm(item);
+                    realm.copyToRealmOrUpdate(item);
                     if (history != null) {
                         realm.copyToRealm(history);
                     }
@@ -135,6 +142,41 @@ public class PaaDbHelper {
                     }
                 } else {
                     emitter.onNext(new Result("没有找到该宝贝"));
+                }
+            }
+        });
+    }
+
+    public static Flowable<Result> removeItem(Realm realm, String id) {
+        return LshRxUtils.getAsyncTransactionFlowable(realm, new AsyncTransaction<Result>() {
+            @Override
+            protected void execute(Realm realm, FlowableEmitter<? super Result> emitter) {
+                RealmResults<Item> items = realm.where(Item.class).equalTo("id", id).findAll();
+                for (Item item : items) {
+                    item.setRemoved(true);
+                    item.setDisplay(null);
+                }
+                RealmResults<ItemHistory> histories = realm.where(ItemHistory.class)
+                        .equalTo("id", id).findAllSorted("timestamp");
+                if (histories.size() > 1) {
+                    ItemHistory itemHistory = realm.copyFromRealm(histories.get(histories.size() - 1));
+                    histories.deleteAllFromRealm();
+                    realm.copyToRealm(itemHistory);
+                }
+                emitter.onNext(new Result());
+            }
+        });
+    }
+
+    public static Flowable<Result> cancelRemoveItem(Realm realm, String id) {
+        return LshRxUtils.getAsyncTransactionFlowable(realm, new AsyncTransaction<Result>() {
+            @Override
+            protected void execute(Realm realm, FlowableEmitter<? super Result> emitter) {
+                RealmResults<Item> items = realm.where(Item.class).equalTo("id", id).findAll();
+                for (Item item : items) {
+                    item.setRemoved(false);
+                    Number number = realm.where(Item.class).max("sort");
+                    item.setSort(number == null ? 0 : (number.intValue() + 1));
                 }
             }
         });

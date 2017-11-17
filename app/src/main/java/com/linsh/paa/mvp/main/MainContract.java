@@ -36,7 +36,7 @@ interface MainContract {
 
         List<String> getTags();
 
-        void deleteItems(List<String> ids);
+        void removeOrDeleteItems(List<String> ids);
 
         void moveItemsToOtherTag(String tag, ArrayList<String> ids);
 
@@ -51,5 +51,11 @@ interface MainContract {
         void saveItem(Object[] toSave);
 
         void onPlatformSelected(String platform);
+
+        void removeItem(String id);
+
+        boolean isShowingRemoved();
+
+        void cancelRemoveItem(String id);
     }
 }

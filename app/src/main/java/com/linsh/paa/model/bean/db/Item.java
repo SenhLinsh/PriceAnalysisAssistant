@@ -28,6 +28,8 @@ public class Item extends RealmObject implements Sortable {
     private String display;
     private int sort;
     private long lastModified;
+    private boolean removed;
+
     /**
      * 是否已失效
      */
@@ -213,5 +215,13 @@ public class Item extends RealmObject implements Sortable {
 
     public void setInitialPrice(int initialPrice) {
         this.initialPrice = initialPrice;
+    }
+
+    public boolean isRemoved() {
+        return removed;
+    }
+
+    public void setRemoved(boolean removed) {
+        this.removed = removed;
     }
 }

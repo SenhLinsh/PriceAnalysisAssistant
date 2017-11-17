@@ -33,7 +33,7 @@
         android:gravity="center"
         android:minWidth="80dp"
         android:padding="10dp"
-        android:text="删除"
+        android:text="取消关注"
         android:textSize="16sp"/>
 
     <TextView

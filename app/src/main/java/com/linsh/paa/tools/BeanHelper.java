@@ -52,11 +52,13 @@ public class BeanHelper {
         if (text.matches("https?://.+/(item|detail)\\.htm\\?(.+&)?id=\\d+.*")) { // 淘宝宝贝地址
             itemId = text.replaceAll(".+[?&]id=(\\d+).*", "$1");
             itemId = itemId.matches("\\d+") ? Platform.Taobao.getCode() + itemId : null;
-        } else if (text.matches("https?://item\\..*\\.jd\\.com.*/\\d+\\.html.*")) {
+        } else if (text.matches("https?://item\\..*\\.jd\\.com.*/\\d+\\.html.*")) { // 京东地址
             itemId = text.replaceAll(".+/(\\d+)\\.html.*", "$1");
             itemId = itemId.matches("\\d+") ? Platform.Jingdong.getCode() + itemId : null;
         } else if (text.trim().matches(".+https?://v\\.cvz5\\.com/.+￥.+￥.+")) { // 淘口令
             return text.replaceAll(".+(https?://v\\.cvz5\\.com/[.a-zA-Z0-9]+).+￥.+￥.+", "$1");
+        } else if (text.trim().matches("[A-Z]{2}\\d+")) {
+            return text;
         }
         return itemId;
     }

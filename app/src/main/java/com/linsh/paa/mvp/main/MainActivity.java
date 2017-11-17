@@ -68,7 +68,7 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
                 }
                 showTextDialog("确认删除选择的宝贝?", null, dialog -> {
                     dialog.dismiss();
-                    mPresenter.deleteItems(selectedItemIds);
+                    mPresenter.removeOrDeleteItems(selectedItemIds);
                 }, null, null);
             }
 
@@ -141,25 +141,27 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
             @DebugLog
             @Override
             public void onItemLongClick(View view, int position) {
+                String[] items = {"打开宝贝详情链接", "打开价格历史链接", "设置提醒价格", "设置正常价格",
+                        mPresenter.isShowingRemoved() ? "重新关注" : "不再关注", "删除该宝贝"};
                 new LshPopupWindow(MainActivity.this)
                         .BuildList()
-                        .setItems(new String[]{"打开宝贝详情链接", "打开价格历史链接", "设置提醒价格", "设置正常价格", "删除该宝贝"}, (window, index) -> {
+                        .setItems(items, (window, index) -> {
                             window.dismiss();
                             Item item = mAdapter.getData().get(position);
-                            switch (index) {
-                                case 0:
+                            switch (items[index]) {
+                                case "打开宝贝详情链接":
                                     LshActivityUtils.newIntent(ItemDisplayActivity.class)
                                             .putExtra(item.getId())
                                             .startActivity(getActivity());
                                     break;
-                                case 1:
+                                case "打开价格历史链接":
                                     String url = "http://tool.manmanbuy.com/historyLowest.aspx?url="
                                             + Url.getDetailHtmlUrl(item.getId());
                                     LshActivityUtils.newIntent(ItemDisplayActivity.class)
                                             .putExtra(url)
                                             .startActivity(getActivity());
                                     break;
-                                case 2:
+                                case "设置提醒价格":
                                     int notifiedPrice = item.getNotifiedPrice();
                                     new LshColorDialog(getActivity())
                                             .buildInput()
@@ -176,7 +178,7 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
                                             .setNegativeButton(null, null)
                                             .show();
                                     break;
-                                case 3:
+                                case "设置正常价格":
                                     int normalPrice = item.getNormalPrice();
                                     new LshColorDialog(getActivity())
                                             .buildInput()
@@ -193,7 +195,13 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
                                             .setNegativeButton(null, null)
                                             .show();
                                     break;
-                                case 4:
+                                case "重新关注":
+                                    mPresenter.cancelRemoveItem(item.getId());
+                                    break;
+                                case "不再关注":
+                                    mPresenter.removeItem(item.getId());
+                                    break;
+                                case "删除该宝贝":
                                     mPresenter.deleteItem(item.getId());
                                     break;
                             }
@@ -254,7 +262,7 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
                         .startActivity(this);
                 return true;
             case R.id.menu_main_edit:
-                mBottomViewHelper.showBottom(this);
+                mBottomViewHelper.showBottom(this, !mPresenter.isShowingRemoved());
                 mAdapter.setSelectMode(true);
                 return true;
             case R.id.menu_main_setting:

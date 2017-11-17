@@ -55,6 +55,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
     private String mCurDisplay;
     private long mLastModify;
     private Disposable mUpdateAllDis;
+    private boolean isShowingRemoved;
 
     @DebugLog
     @Override
@@ -196,6 +197,25 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
         addDisposable(mUpdateAllDis);
     }
 
+    @Override
+    public void removeItem(String id) {
+        Disposable disposable = PaaDbHelper.removeItem(getRealm(), id)
+                .subscribe();
+        addDisposable(disposable);
+    }
+
+    @Override
+    public void cancelRemoveItem(String id) {
+        Disposable disposable = PaaDbHelper.cancelRemoveItem(getRealm(), id)
+                .subscribe();
+        addDisposable(disposable);
+    }
+
+    @Override
+    public boolean isShowingRemoved() {
+        return isShowingRemoved;
+    }
+
     @DebugLog
     @Override
     public void deleteItem(String id) {
@@ -221,9 +241,15 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
 
     @DebugLog
     @Override
-    public void deleteItems(List<String> ids) {
+    public void removeOrDeleteItems(List<String> ids) {
         Disposable disposable = Flowable.fromIterable(ids)
-                .flatMap(id -> PaaDbHelper.deleteItem(getRealm(), id))
+                .flatMap(id -> {
+                    if (isShowingRemoved) {
+                        return PaaDbHelper.deleteItem(getRealm(), id);
+                    } else {
+                        return PaaDbHelper.removeItem(getRealm(), id);
+                    }
+                })
                 .subscribe();
         addDisposable(disposable);
     }
@@ -247,7 +273,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
             mCurPlatformCode = null;
         }
         mItems.removeAllChangeListeners();
-        queryItems();
+        mItems = queryItems();
         mItems.addChangeListener(mItemChangeListener);
     }
 
@@ -256,7 +282,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
     public void onTagSelected(String tag) {
         mCurTag = tag;
         mItems.removeAllChangeListeners();
-        queryItems();
+        mItems = queryItems();
         mItems.addChangeListener(mItemChangeListener);
     }
 
@@ -266,25 +292,33 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
         if ("价格较低".equals(status)) {
             mCurDisplay = "价格低";
             mLastModify = 0;
+            isShowingRemoved = false;
         } else if ("降价中".equals(status)) {
             mCurDisplay = "下降";
             mLastModify = 0;
+            isShowingRemoved = false;
         } else if ("未更新".equals(status)) {
             mCurDisplay = null;
             long min1 = System.currentTimeMillis() - 12L * 60 * 60 * 1000;
             long min2 = new Date(new SimpleDate(new Date()).getDate().getTime()).getTime();
             mLastModify = Math.min(min1, min2);
+            isShowingRemoved = false;
+        } else if ("未关注".equals(status)) {
+            mCurDisplay = null;
+            mLastModify = 0;
+            isShowingRemoved = true;
         } else {
             mCurDisplay = null;
             mLastModify = 0;
+            isShowingRemoved = false;
         }
         mItems.removeAllChangeListeners();
-        queryItems();
+        mItems = queryItems();
         mItems.addChangeListener(mItemChangeListener);
     }
 
-    private void queryItems() {
-        mItems = PaaDbHelper.getItems(getRealm(), mCurPlatformCode, mCurTag, mCurDisplay, mLastModify);
+    private RealmResults<Item> queryItems() {
+        return PaaDbHelper.getItems(getRealm(), mCurPlatformCode, mCurTag, mCurDisplay, mLastModify, isShowingRemoved);
     }
 
     @Override

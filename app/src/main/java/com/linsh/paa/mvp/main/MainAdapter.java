@@ -266,7 +266,7 @@ class MainAdapter extends LshHeaderFooterRcvAdapter<Item, RecyclerView.ViewHolde
                 view.setSelected(!view.isSelected());
                 if (view.isSelected()) {
                     LabelPopupWindow popupWindow = new LabelPopupWindow(view.getContext());
-                    String[] statuses = new String[]{"价格较低", "降价中", "未更新"};
+                    String[] statuses = new String[]{"价格较低", "降价中", "未更新", "未关注"};
                     popupWindow.addLabels(statuses, curStatusIndex)
                             .setOnItemClickListener((popupWindow1, index, isSelected) -> {
                                 popupWindow1.dismiss();

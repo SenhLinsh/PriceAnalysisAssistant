@@ -268,6 +268,7 @@ public class AnalysisActivity extends BaseToolbarActivity<AnalysisContract.Prese
                 }
             }
         }
+
         mLineChart.getData().setDrawValues(false);
         ViewPortHandler handler = mLineChart.getViewPortHandler();
         float xRange = mLineChart.getXRange();

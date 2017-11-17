@@ -19,7 +19,7 @@ import io.realm.RealmSchema;
  */
 public class PaaMigration implements RealmMigration {
 
-    public static final int VERSION = 3;
+    public static final int VERSION = 4;
 
     @Override
     public void migrate(DynamicRealm realm, long oldVersion, long newVersion) {
@@ -66,6 +66,10 @@ public class PaaMigration implements RealmMigration {
                             String id = BeanHelper.getId(Platform.Taobao, itemId);
                             history.set("id", id);
                         });
+                break;
+            case 3:
+                schema.get("Item")
+                        .addField("removed", boolean.class);
                 break;
         }
     }
