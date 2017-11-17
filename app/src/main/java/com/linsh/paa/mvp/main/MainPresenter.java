@@ -145,7 +145,7 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                                 LshApplicationUtils.postRunnable(() ->
                                         getView().setLoadingDialogText(String.format(Locale.CHINA, "正在更新: %d/%d", curIndex[0], size[0])));
                                 // 线程等待 1-2s 防止淘宝风控返回失败
-                                return Flowable.timer(LshRandomUtils.getInt(300, 800), TimeUnit.MILLISECONDS)
+                                return Flowable.timer(LshRandomUtils.getInt(500, 1000), TimeUnit.MILLISECONDS)
                                         // 获取商品详情数据
                                         .flatMap(timer -> Flowable.just(item.getId())
                                                 // 获取需要保存的 Item 和 ItemHistory
