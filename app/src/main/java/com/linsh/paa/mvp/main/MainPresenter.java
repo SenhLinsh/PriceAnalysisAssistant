@@ -129,16 +129,27 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
             }
         });
         mUpdateAllDis = LshRxUtils.getAsyncRealmFlowable()
-                .flatMap(realm -> Flowable
-                        .just(realm.where(Item.class).equalTo("removed", false).findAll())
-                        .flatMap(items -> {
-                            size[0] = items.size();
-                            LshLogUtils.i("查询所有宝贝: size = " + size[0]);
-                            if (size[0] > 0) {
-                                return Flowable.just(realm.copyFromRealm(items));
-                            }
-                            return Flowable.error(new CustomThrowable("请先添加宝贝吧"));
-                        }))
+                .flatMap(realm -> {
+                    RealmResults<Item> results = realm.where(Item.class).equalTo("removed", false).findAll();
+                    if (results.size() > 0) {
+                        long min1 = System.currentTimeMillis() - 12L * 60 * 60 * 1000;
+                        long min2 = new Date(new SimpleDate(new Date()).getDate().getTime()).getTime();
+                        long lastModify = Math.min(min1, min2);
+                        RealmResults<Item> resultsNew = results.where().lessThan("lastModified", lastModify).findAll();
+                        if (resultsNew.size() > 0) {
+                            results = resultsNew;
+                        }
+                    }
+                    return Flowable.just(results)
+                            .flatMap(items -> {
+                                size[0] = items.size();
+                                LshLogUtils.i("查询所有宝贝: size = " + size[0]);
+                                if (size[0] > 0) {
+                                    return Flowable.just(realm.copyFromRealm(items));
+                                }
+                                return Flowable.error(new CustomThrowable("请先添加宝贝吧"));
+                            });
+                })
                 .flatMap(items -> Flowable.just(curIndex)
                         .map(indexArr -> items.get(indexArr[0]))
                         .flatMap(item -> {
