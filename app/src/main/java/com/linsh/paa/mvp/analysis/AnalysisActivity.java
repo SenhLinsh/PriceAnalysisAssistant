@@ -3,6 +3,7 @@ package com.linsh.paa.mvp.analysis;
 import android.graphics.Color;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -10,13 +11,16 @@ import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.CandleEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.formatter.IFillFormatter;
+import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.linsh.lshapp.common.base.BaseToolbarActivity;
 import com.linsh.lshutils.module.SimpleDate;
@@ -38,6 +42,7 @@ public class AnalysisActivity extends BaseToolbarActivity<AnalysisContract.Prese
         implements AnalysisContract.View {
 
     private LineChart mLineChart;
+    private TextView tvSelectedPoint;
 
     @Override
     protected String getToolbarTitle() {
@@ -58,6 +63,12 @@ public class AnalysisActivity extends BaseToolbarActivity<AnalysisContract.Prese
     @Override
     protected void initView() {
         mLineChart = (LineChart) findViewById(R.id.lc_analysis_chart);
+        TextView tvTitle = (TextView) findViewById(R.id.tv_analysis_title);
+        TextView tvShop = (TextView) findViewById(R.id.tv_analysis_shop);
+        tvSelectedPoint = (TextView) findViewById(R.id.tv_analysis_selected_point);
+
+        tvTitle.setText(LshActivityUtils.getStringExtra(this, 1));
+        tvShop.setText(LshActivityUtils.getStringExtra(this, 2));
 
         mLineChart.getDescription().setEnabled(false);
         mLineChart.setGridBackgroundColor(Color.argb(150, 51, 181, 229));
@@ -71,6 +82,23 @@ public class AnalysisActivity extends BaseToolbarActivity<AnalysisContract.Prese
         MyMarkerView mv = new MyMarkerView(this);
         mv.setChartView(mLineChart);
         mLineChart.setMarker(mv);
+
+        mLineChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+            @Override
+            public void onValueSelected(Entry e, Highlight h) {
+                String text;
+                String date = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date((long) e.getX()));
+                float f = e instanceof CandleEntry ? ((CandleEntry) e).getHigh() : e.getY();
+                String price = BeanHelper.getPriceStr(f) + "元";
+                text = "时间: " + date + "        价格: " + price;
+                tvSelectedPoint.setText(text);
+            }
+
+            @Override
+            public void onNothingSelected() {
+                tvSelectedPoint.setText("----");
+            }
+        });
 
         //获取此图表的x轴
         XAxis xAxis = mLineChart.getXAxis();

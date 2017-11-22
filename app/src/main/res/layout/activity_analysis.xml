@@ -6,11 +6,49 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:padding="10dp"
     tools:context="com.linsh.paa.mvp.analysis.AnalysisActivity">
+
+    <TextView
+        android:id="@+id/tv_analysis_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="@color/text_title"
+        android:textSize="18sp"
+        tools:text="天猫超市 某好吃的东西"/>
+
+    <TextView
+        android:id="@+id/tv_analysis_shop"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:gravity="right"
+        android:paddingRight="10dp"
+        android:textColor="@color/text_detail"
+        android:textSize="12sp"
+        tools:text="天猫超市"/>
 
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/lc_analysis_chart"
         android:layout_width="match_parent"
-        android:layout_height="200dp"/>
+        android:layout_height="200dp"
+        android:layout_marginTop="5dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp"
+        android:text="当前选择:"/>
+
+    <TextView
+        android:id="@+id/tv_analysis_selected_point"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="3dp"
+        android:text="----"
+        tools:text="时间: 2017-12-20    价格: 1999元"/>
 
 </LinearLayout>

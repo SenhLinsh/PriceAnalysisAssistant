@@ -133,8 +133,11 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
         mAdapter.setOnMainAdapterListener(new MainAdapter.OnMainAdapterListener() {
             @Override
             public void onItemClick(View itemView, int position) {
+                Item item = mAdapter.getData().get(position);
                 LshActivityUtils.newIntent(AnalysisActivity.class)
-                        .putExtra(mAdapter.getData().get(position).getId())
+                        .putExtra(item.getId())
+                        .putExtra(item.getTitle(), 1)
+                        .putExtra(item.getShopName(), 2)
                         .startActivity(getActivity());
             }
 
