@@ -277,6 +277,15 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
     }
 
     @Override
+    public void onBackPressed() {
+        if (mBottomViewHelper.isShowing()) {
+            mBottomViewHelper.dismissBottom();
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    @Override
     public void showInputItemUrlDialog() {
         new LshColorDialog(this)
                 .buildInput()

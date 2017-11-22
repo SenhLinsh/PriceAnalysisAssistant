@@ -49,6 +49,23 @@ public class BottomViewHelper {
         mBottomView.setVisibility(View.VISIBLE);
     }
 
+    public void dismissBottom() {
+        if (mBottomView != null) {
+            mBottomView.setVisibility(View.GONE);
+            cbSelectAll.setChecked(false);
+            mViewHelperListener.done();
+        }
+    }
+
+    public boolean isShowing() {
+        if (mBottomView != null) {
+            if (mBottomView.getVisibility() == View.VISIBLE) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private ViewHelperListener mViewHelperListener;
 
     public void setViewHelperListener(ViewHelperListener listener) {
