@@ -19,6 +19,7 @@ import com.linsh.paa.task.db.PaaDbHelper;
 import com.linsh.paa.task.network.NetworkHelper;
 import com.linsh.paa.tools.BeanHelper;
 import com.linsh.paa.tools.LshRxUtils;
+import com.linsh.paa.tools.PaaSpTools;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -155,10 +156,26 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                         .flatMap(item -> {
                             curIndex[0]++;
                             if (item.shouldUpdateItem()) {
+                                // 更新进度
                                 LshApplicationUtils.postRunnable(() ->
                                         getView().setLoadingDialogText(String.format(Locale.CHINA, "正在更新: %d/%d", curIndex[0], size[0])));
-                                // 线程等待 1-2s 防止淘宝风控返回失败
-                                return Flowable.timer(LshRandomUtils.getInt(500, 1000), TimeUnit.MILLISECONDS)
+                                String intervalTime = PaaSpTools.getUpdateIntervalTime();
+                                // 获取间隔时间
+                                int delay = 100;
+                                if (item.getPlatform() == Platform.Taobao) {
+                                    // 等待一定时间 防止淘宝风控返回失败
+                                    int min, max;
+                                    if (intervalTime != null) {
+                                        String[] split = intervalTime.replace("s", "").split("-");
+                                        min = (int) (Float.parseFloat(split[0]) * 1000);
+                                        max = (int) (Float.parseFloat(split[1]) * 1000);
+                                    } else {
+                                        min = 500;
+                                        max = 1000;
+                                    }
+                                    delay = LshRandomUtils.getInt(min, max);
+                                }
+                                return Flowable.timer(delay, TimeUnit.MILLISECONDS)
                                         // 获取商品详情数据
                                         .flatMap(timer -> Flowable.just(item.getId())
                                                 // 获取需要保存的 Item 和 ItemHistory

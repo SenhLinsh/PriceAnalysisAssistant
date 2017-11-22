@@ -11,6 +11,7 @@ public interface SettingsContract {
 
     interface View extends BaseContract.BaseView {
 
+        void selectIntervalTime(int index, String[] times);
     }
 
     interface Presenter extends BaseContract.BasePresenter<View> {
@@ -22,5 +23,9 @@ public interface SettingsContract {
         void exportRealm();
 
         void importRealm();
+
+        void setIntervalTime();
+
+        void saveIntervalTime(String time);
     }
 }

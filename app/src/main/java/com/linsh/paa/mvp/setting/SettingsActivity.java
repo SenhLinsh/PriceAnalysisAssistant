@@ -1,5 +1,7 @@
 package com.linsh.paa.mvp.setting;
 
+import android.support.v7.app.AlertDialog;
+
 import com.linsh.lshapp.common.base.BaseToolbarActivity;
 import com.linsh.lshutils.utils.LshFragmentUtils;
 import com.linsh.paa.R;
@@ -45,5 +47,25 @@ public class SettingsActivity extends BaseToolbarActivity<SettingsContract.Prese
 
     public void importRealm() {
         mPresenter.importRealm();
+    }
+
+    public void setIntervalTime() {
+        mPresenter.setIntervalTime();
+    }
+
+    @Override
+    public void selectIntervalTime(int index, String[] times) {
+        final int[] newIndex = {index};
+        new AlertDialog.Builder(this)
+                .setTitle("选择间隔时间")
+                .setSingleChoiceItems(times, index, (dialog, which) -> newIndex[0] = which)
+                .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
+                .setPositiveButton("确定", (dialog, which) -> {
+                    dialog.dismiss();
+                    if (newIndex[0] >= 0 && newIndex[0] != index) {
+                        mPresenter.saveIntervalTime(times[newIndex[0]]);
+                    }
+                })
+                .show();
     }
 }

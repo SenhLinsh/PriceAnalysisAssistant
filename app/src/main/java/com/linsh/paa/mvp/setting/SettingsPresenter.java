@@ -37,6 +37,27 @@ public class SettingsPresenter extends RealmPresenterImpl<SettingsContract.View>
     }
 
     @Override
+    public void setIntervalTime() {
+        String[] times = {"0.2-0.5s", "0.5-1s", "0.5-1.5s", "1-2s"};
+        String curIntervalTime = PaaSpTools.getUpdateIntervalTime();
+        int index = 1;
+        if (curIntervalTime != null) {
+            for (int i = 0; i < times.length; i++) {
+                if (times[i].equals(curIntervalTime)) {
+                    index = i;
+                    break;
+                }
+            }
+        }
+        getView().selectIntervalTime(index, times);
+    }
+
+    @Override
+    public void saveIntervalTime(String time) {
+        PaaSpTools.putUpdateIntervalTime(time);
+    }
+
+    @Override
     public void checkUpdate() {
         // TODO: 17/10/10
         getView().showToast("该功能尚未开发");

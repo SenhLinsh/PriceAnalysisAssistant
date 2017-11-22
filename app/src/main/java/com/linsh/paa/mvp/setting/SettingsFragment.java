@@ -20,6 +20,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
 
         addPreferencesFromResource(R.xml.preferences);
 
+        findPreference("normal_interval_time").setOnPreferenceClickListener(this);
         findPreference("import_items").setOnPreferenceClickListener(this);
         findPreference("import_realm").setOnPreferenceClickListener(this);
         findPreference("export_realm").setOnPreferenceClickListener(this);
@@ -31,6 +32,9 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
     @Override
     public boolean onPreferenceClick(Preference preference) {
         switch (preference.getKey()) {
+            case "normal_interval_time":
+                ((SettingsActivity)getActivity()).setIntervalTime();
+                break;
             case "import_items":
                 ((SettingsActivity)getActivity()).importItems();
                 break;

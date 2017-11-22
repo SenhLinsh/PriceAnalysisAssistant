@@ -2,6 +2,16 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
+        android:title="常规">
+
+        <Preference
+            android:key="normal_interval_time"
+            android:summary="更新频率过快可能会导致更新失败"
+            android:title="设置更新所有宝贝的间隔时间"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:title="导入">
 
         <Preference
