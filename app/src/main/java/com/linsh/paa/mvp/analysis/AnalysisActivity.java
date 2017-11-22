@@ -41,7 +41,7 @@ public class AnalysisActivity extends BaseToolbarActivity<AnalysisContract.Prese
 
     @Override
     protected String getToolbarTitle() {
-        return "价格分析";
+        return "价格走势";
     }
 
     @Override

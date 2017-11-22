@@ -43,7 +43,7 @@ public class MainActivity extends BaseToolbarHomeActivity<MainContract.Presenter
 
     @Override
     protected String getToolbarTitle() {
-        return "价格分析助手";
+        return "收藏夹";
     }
 
     @Override
