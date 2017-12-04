@@ -217,11 +217,11 @@ public class AnalysisActivity extends BaseToolbarActivity<AnalysisContract.Prese
             if (lowSet == null) {
                 lowSet = new LineDataSet(lowPrices, "价格");
                 lowSet.setAxisDependency(YAxis.AxisDependency.LEFT);
-                lowSet.setColor(Color.rgb(255, 241, 46));
-                lowSet.setCircleColor(Color.rgb(244, 117, 117));
+                lowSet.setColor(Color.rgb(255, 241, 46)); // 线条颜色
+                lowSet.setCircleColor(Color.rgb(244, 117, 117)); // 描点圆圈颜色
                 lowSet.setCircleRadius(3f);
                 lowSet.setLineWidth(2f);
-                lowSet.setHighLightColor(Color.rgb(244, 117, 117));
+                lowSet.setHighLightColor(Color.rgb(244, 117, 117)); // 高光颜色
                 LineData data = new LineData();
                 data.addDataSet(lowSet);
                 data.setDrawValues(false);
@@ -240,10 +240,10 @@ public class AnalysisActivity extends BaseToolbarActivity<AnalysisContract.Prese
                 lowSet.setCircleColor(Color.rgb(244, 117, 117));
                 lowSet.setCircleRadius(3f);
                 lowSet.setLineWidth(2f);
-                lowSet.setFillAlpha(255);
-                lowSet.setDrawFilled(true);
-                lowSet.setFillColor(Color.WHITE);
                 lowSet.setHighLightColor(Color.rgb(244, 117, 117));
+                lowSet.setDrawFilled(true);
+                lowSet.setFillAlpha(100);
+                lowSet.setFillColor(Color.WHITE);
                 lowSet.setFillFormatter(new IFillFormatter() {
                     @Override
                     public float getFillLinePosition(ILineDataSet dataSet, LineDataProvider dataProvider) {
@@ -256,10 +256,10 @@ public class AnalysisActivity extends BaseToolbarActivity<AnalysisContract.Prese
                 highSet.setCircleColor(Color.rgb(244, 117, 117));
                 highSet.setCircleRadius(3f);
                 highSet.setLineWidth(2f);
-                highSet.setFillAlpha(255);
-                highSet.setDrawFilled(true);
-                highSet.setFillColor(Color.WHITE);
                 highSet.setHighLightColor(Color.rgb(244, 117, 117));
+                highSet.setDrawFilled(true);
+                highSet.setFillAlpha(100);
+                highSet.setFillColor(Color.WHITE);
                 highSet.setFillFormatter(new IFillFormatter() {
                     @Override
                     public float getFillLinePosition(ILineDataSet dataSet, LineDataProvider dataProvider) {
@@ -282,10 +282,10 @@ public class AnalysisActivity extends BaseToolbarActivity<AnalysisContract.Prese
                     highSet.setCircleColor(Color.rgb(244, 117, 117));
                     highSet.setCircleRadius(3f);
                     highSet.setLineWidth(2f);
-                    highSet.setFillAlpha(255);
+                    highSet.setHighLightColor(Color.rgb(244, 117, 117));
+                    highSet.setFillAlpha(100);
                     highSet.setDrawFilled(true);
                     highSet.setFillColor(Color.WHITE);
-                    highSet.setHighLightColor(Color.rgb(244, 117, 117));
                     highSet.setFillFormatter(new IFillFormatter() {
                         @Override
                         public float getFillLinePosition(ILineDataSet dataSet, LineDataProvider dataProvider) {
