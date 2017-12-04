@@ -55,8 +55,8 @@ public class BeanHelper {
         } else if (text.matches("https?://item\\..*\\.jd\\.com.*/\\d+\\.html.*")) { // 京东地址
             itemId = text.replaceAll(".+/(\\d+)\\.html.*", "$1");
             itemId = itemId.matches("\\d+") ? Platform.Jingdong.getCode() + itemId : null;
-        } else if (text.trim().matches(".+https?://v\\.cvz5\\.com/.+￥.+￥.+")) { // 淘口令
-            return text.replaceAll(".+(https?://v\\.cvz5\\.com/[.a-zA-Z0-9]+).+￥.+￥.+", "$1");
+        } else if (text.trim().matches(".+https?://.+\\.com/.+￥.+￥.+")) { // 淘口令
+            return text.replaceAll(".+(https?://.+\\.com/[.a-zA-Z0-9]+).+￥.+￥.+", "$1");
         } else if (text.trim().matches("[A-Z]{2}\\d+")) {
             return text;
         }
