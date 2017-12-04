@@ -4,6 +4,7 @@ import com.linsh.lshapp.common.base.RealmPresenterImpl;
 import com.linsh.lshutils.module.SimpleDate;
 import com.linsh.lshutils.utils.Basic.LshApplicationUtils;
 import com.linsh.lshutils.utils.Basic.LshLogUtils;
+import com.linsh.lshutils.utils.Basic.LshStringUtils;
 import com.linsh.lshutils.utils.Basic.LshToastUtils;
 import com.linsh.lshutils.utils.LshListUtils;
 import com.linsh.lshutils.utils.LshRandomUtils;
@@ -165,10 +166,16 @@ class MainPresenter extends RealmPresenterImpl<MainContract.View>
                                 if (item.getPlatform() == Platform.Taobao) {
                                     // 等待一定时间 防止淘宝风控返回失败
                                     int min, max;
-                                    if (intervalTime != null) {
-                                        String[] split = intervalTime.replace("s", "").split("-");
-                                        min = (int) (Float.parseFloat(split[0]) * 1000);
-                                        max = (int) (Float.parseFloat(split[1]) * 1000);
+                                    if (LshStringUtils.isEmpty(intervalTime)) {
+                                        try {
+                                            String[] split = intervalTime.replace("s", "").split("-");
+                                            min = (int) (Float.parseFloat(split[0]) * 1000);
+                                            max = (int) (Float.parseFloat(split[1]) * 1000);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                            min = 500;
+                                            max = 1000;
+                                        }
                                     } else {
                                         min = 500;
                                         max = 1000;
