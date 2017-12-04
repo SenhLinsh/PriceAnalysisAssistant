@@ -166,9 +166,9 @@ public class BeanHelper {
     public static void updateItemDisplay(Item item) {
         String display = "";
         int[] price = TaobaoDataParser.parsePrice(item.getPrice());
-        if (price[0] < item.getNotifiedPrice()) {
+        if (price[0] <= item.getNotifiedPrice()) {
             display = "#1比通知价格" + getPrice(item.getNotifiedPrice(), price[0], "高", "低");
-        } else if (price[0] < item.getNormalPrice()) {
+        } else if (price[0] <= item.getNormalPrice()) {
             display = "#2比正常价格" + getPrice(item.getNormalPrice(), price[0], "高", "低");
         }
         String oldDisplay = item.getDisplay();
@@ -186,9 +186,9 @@ public class BeanHelper {
     private static void updateItemDisplay(Item item, String newPrice) {
         String display = "";
         int[] newPrices = TaobaoDataParser.parsePrice(newPrice);
-        if (newPrices[0] < item.getNotifiedPrice()) {
+        if (newPrices[0] <= item.getNotifiedPrice()) {
             display = "#1比通知价格" + getPrice(item.getNotifiedPrice(), newPrices[0], "高", "低");
-        } else if (newPrices[0] < item.getNormalPrice()) {
+        } else if (newPrices[0] <= item.getNormalPrice()) {
             display = "#2比正常价格" + getPrice(item.getNormalPrice(), newPrices[0], "高", "低");
         }
         if (display.length() == 0 && item.getNormalPrice() == 0 && newPrices[0] < item.getInitialPrice()) {
